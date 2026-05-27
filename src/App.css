@@ -387,3 +387,50 @@ select:focus {
     grid-template-columns: 1fr;
   }
 }
+
+.local-progress-card {
+  display: grid;
+  gap: 14px;
+}
+
+.progress-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.progress-stat-grid div {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(10, 10, 11, 0.42);
+  padding: 12px;
+}
+
+.progress-stat-grid span {
+  display: block;
+  color: var(--text);
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.progress-stat-grid small {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.danger-button {
+  border: 1px solid rgba(248, 113, 113, 0.45);
+  border-radius: 999px;
+  background: rgba(248, 113, 113, 0.1);
+  color: #fca5a5;
+  padding: 10px 14px;
+  font-weight: 900;
+}
+
+.danger-button:hover {
+  border-color: #f87171;
+  background: rgba(248, 113, 113, 0.16);
+}
