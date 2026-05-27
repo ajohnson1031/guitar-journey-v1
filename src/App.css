@@ -799,3 +799,51 @@ select:focus {
     flex-direction: column;
   }
 }
+
+.session-timer-display {
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: rgba(10, 10, 11, 0.42);
+  padding: 14px;
+  text-align: center;
+}
+
+.session-timer-display span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.session-timer-display strong {
+  color: var(--text);
+  font-size: 42px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.04em;
+}
+
+.session-timer-display small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.session-timer-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.complete-session-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .session-timer-actions {
+    grid-template-columns: 1fr;
+  }
+}
