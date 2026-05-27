@@ -1,6 +1,7 @@
 import * as React from "react";
+import ChordDiagram from "./components/ChordDiagram";
 import Metronome from "./components/Metronome";
-import { CHORD_DETAILS, DEFAULT_PROGRESS, PATHS, SONGS, STORAGE_KEY } from "./constants";
+import { CHORD_DETAILS, CHORD_DIAGRAMS, DEFAULT_PROGRESS, PATHS, SONGS, STORAGE_KEY } from "./constants";
 
 import "./App.css";
 
@@ -270,10 +271,15 @@ export default function App() {
               <div className="chord-grid">
                 {selectedSong.chords.map((chord) => (
                   <div key={chord} className="chord-card">
-                    <div>
-                      <strong>{chord}</strong>
-                      <span>{CHORD_DETAILS[chord]?.level || "Practice"}</span>
+                    <div className="chord-card-header">
+                      <div>
+                        <strong>{chord}</strong>
+                        <span>{CHORD_DETAILS[chord]?.level || "Practice"}</span>
+                      </div>
                     </div>
+
+                    <ChordDiagram chordName={chord} diagram={CHORD_DIAGRAMS[chord]} />
+
                     <p>{CHORD_DETAILS[chord]?.tip || "Play slowly and listen for clean ringing notes."}</p>
                   </div>
                 ))}
