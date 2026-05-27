@@ -1,4 +1,5 @@
 import * as React from "react";
+import Metronome from "./components/Metronome";
 import { CHORD_DETAILS, DEFAULT_PROGRESS, PATHS, SONGS, STORAGE_KEY } from "./constants";
 
 import "./App.css";
@@ -169,6 +170,8 @@ export default function App() {
               ))}
             </div>
           </section>
+
+          <Metronome songTitle={selectedSong.title} songBpm={selectedSong.bpm} />
 
           <section className="panel-card local-progress-card">
             <h2>Local Progress</h2>
