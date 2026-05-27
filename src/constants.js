@@ -7,6 +7,7 @@ const DEFAULT_PROGRESS = {
   completedStepsBySong: {},
   masteredSongs: {},
   transitionScores: {},
+  sessionHistory: [],
 };
 
 const SONGS = [
