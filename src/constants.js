@@ -8,6 +8,7 @@ const DEFAULT_PROGRESS = {
   masteredSongs: {},
   transitionScores: {},
   sessionHistory: [],
+  customSongs: [],
 };
 
 const SONGS = [
@@ -113,6 +114,54 @@ const SONGS = [
     strumming: "Slow pocket groove with selective picking",
     goal: "Explore color chords and neo-soul style movement.",
   },
+  {
+    id: "open-chord-rock-anthem",
+    title: "Open Chord Rock Anthem",
+    genre: "Rock",
+    key: "G",
+    bpm: 96,
+    difficulty: "Beginner",
+    chords: ["G", "D", "Em", "C"],
+    transitions: ["G → D", "D → Em", "Em → C", "C → G"],
+    sections: [
+      { name: "Verse", progression: "G - D - Em - C" },
+      { name: "Chorus", progression: "C - G - D - Em" },
+    ],
+    strumming: "Down, down, down-up, down-up",
+    goal: "Build confident open-chord rock strumming with steady timing and strong accents.",
+  },
+  {
+    id: "power-chord-rock-groove",
+    title: "Power Chord Rock Groove",
+    genre: "Rock",
+    key: "E",
+    bpm: 110,
+    difficulty: "Beginner+",
+    chords: ["E5", "G5", "A5", "D5"],
+    transitions: ["E5 → G5", "G5 → A5", "A5 → D5", "D5 → E5"],
+    sections: [
+      { name: "Main Riff", progression: "E5 - G5 - A5 - D5" },
+      { name: "Chorus Push", progression: "A5 - G5 - E5 - D5" },
+    ],
+    strumming: "Steady eighth-note downstrokes with light palm muting",
+    goal: "Develop power chord movement, downstroke control, and classic rock rhythm feel.",
+  },
+  {
+    id: "minor-rock-drive",
+    title: "Minor Rock Drive",
+    genre: "Rock",
+    key: "A minor",
+    bpm: 104,
+    difficulty: "Beginner+",
+    chords: ["Am", "C", "G", "D"],
+    transitions: ["Am → C", "C → G", "G → D", "D → Am"],
+    sections: [
+      { name: "Verse", progression: "Am - C - G - D" },
+      { name: "Build", progression: "Am - G - D - C" },
+    ],
+    strumming: "Downstrokes on the beat, then add eighth-note drive",
+    goal: "Practice minor-key rock movement with stronger rhythm and dynamic build.",
+  },
 ];
 
 const PATHS = [
@@ -127,6 +176,10 @@ const PATHS = [
   {
     name: "Neo Soul",
     description: "7th chords, color voicings, groove, muting, embellishments, and smooth transitions.",
+  },
+  {
+    name: "Rock",
+    description: "Power chords, driving rhythm, palm muting, riffs, and strong downstroke timing.",
   },
 ];
 
@@ -146,6 +199,26 @@ const CHORD_DETAILS = {
   G7: { level: "Beginner", tip: "Listen for tension pulling back to C." },
   Dm9: { level: "Intermediate", tip: "Prioritize clean top notes over loud volume." },
   G13: { level: "Intermediate", tip: "Think color and movement, not brute force." },
+  E5: {
+    level: "Beginner+",
+    tip: "Keep it tight and controlled. Mute the unused higher strings for a cleaner rock sound.",
+  },
+  G5: {
+    level: "Beginner+",
+    tip: "Move the whole power chord shape as one unit. Keep the wrist relaxed.",
+  },
+  A5: {
+    level: "Beginner+",
+    tip: "Focus on clean attack and palm muting. Avoid letting extra strings ring.",
+  },
+  D5: {
+    level: "Beginner+",
+    tip: "Let the open D string anchor the chord while keeping the top string muted.",
+  },
+  C5: {
+    level: "Beginner+",
+    tip: "Use the same movable power chord shape and keep the pressure even.",
+  },
 };
 
 const CHORD_DIAGRAMS = {
@@ -211,6 +284,116 @@ const CHORD_DIAGRAMS = {
     fingers: [1, 0, 1, 2, 3, 4],
     startFret: 3,
   },
+  E5: {
+    frets: [0, 2, 2, -1, -1, -1],
+    fingers: [0, 1, 3, 0, 0, 0],
+  },
+  G5: {
+    frets: [3, 5, 5, -1, -1, -1],
+    fingers: [1, 3, 4, 0, 0, 0],
+    startFret: 3,
+  },
+  A5: {
+    frets: [-1, 0, 2, 2, -1, -1],
+    fingers: [0, 0, 1, 3, 0, 0],
+  },
+  D5: {
+    frets: [-1, -1, 0, 2, 3, -1],
+    fingers: [0, 0, 0, 1, 3, 0],
+  },
+  C5: {
+    frets: [-1, 3, 5, 5, -1, -1],
+    fingers: [0, 1, 3, 4, 0, 0],
+    startFret: 3,
+  },
 };
 
-export { CHORD_DETAILS, CHORD_DIAGRAMS, DEFAULT_PROGRESS, PATHS, SONGS, STORAGE_KEY };
+const DEFAULT_CUSTOM_SONG_FORM = {
+  sourceUrl: "",
+  artist: "",
+  instrument: "",
+  title: "",
+  genre: "Worship",
+  key: "G",
+  bpm: "72",
+  difficulty: "Beginner",
+  chords: "G, C, Em, D",
+  transitions: "G → C, C → G, G → D, Em → C",
+  sections: "Verse: G - C - G - D\nChorus: G - D - Em - C",
+  strumming: "Down, down-up, up-down-up",
+  goal: "Build clean chord changes and steady timing.",
+};
+
+const SESSION_RATINGS = ["Easy", "Okay", "Hard"];
+
+const NAV_SECTIONS = [
+  { id: "dashboard", label: "Dashboard" },
+  { id: "transitions", label: "Transition Tracker" },
+  { id: "sections", label: "Song Sections" },
+  { id: "history", label: "Practice History" },
+];
+
+const DOWN_STRUM = "↓";
+const UP_STRUM = "↑";
+
+const KEY_OPTIONS = [
+  "C",
+  "C# / Db",
+  "D",
+  "D# / Eb",
+  "E",
+  "F",
+  "F# / Gb",
+  "G",
+  "G# / Ab",
+  "A",
+  "A# / Bb",
+  "B",
+  "Cm",
+  "C#m / Dbm",
+  "Dm",
+  "D#m / Ebm",
+  "Em",
+  "Fm",
+  "F#m / Gbm",
+  "Gm",
+  "G#m / Abm",
+  "Am",
+  "A#m / Bbm",
+  "Bm",
+];
+
+const DIFFICULTY_OPTIONS = ["Beginner", "Intermediate", "Advanced", "Expert"];
+
+const DEFAULT_FORM = {
+  sourceUrl: "",
+  artist: "",
+  instrument: "",
+  title: "",
+  genre: "",
+  key: "",
+  bpm: "72",
+  difficulty: "",
+  chords: "G, C, Em, D",
+  transitions: "",
+  sections: "Verse: X - X - X - X\nChorus: X - X - X - X",
+  strummingPattern: [],
+  goal: "Build clean chord changes and steady timing.",
+};
+
+export {
+  CHORD_DETAILS,
+  CHORD_DIAGRAMS,
+  DEFAULT_CUSTOM_SONG_FORM,
+  DEFAULT_FORM,
+  DEFAULT_PROGRESS,
+  DIFFICULTY_OPTIONS,
+  DOWN_STRUM,
+  KEY_OPTIONS,
+  NAV_SECTIONS,
+  PATHS,
+  SESSION_RATINGS,
+  SONGS,
+  STORAGE_KEY,
+  UP_STRUM,
+};
