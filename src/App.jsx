@@ -1,11 +1,14 @@
 import * as React from "react";
 import ChordDiagram from "./components/ChordDiagram";
 import Metronome from "./components/Metronome";
+import SessionHistory from "./components/SessionHistory";
 import { CHORD_DETAILS, CHORD_DIAGRAMS, DEFAULT_PROGRESS, PATHS, SONGS, STORAGE_KEY } from "./constants";
 
 import "./App.css";
 
 const { useEffect, useMemo, useState } = React;
+
+const SESSION_RATINGS = ["Easy", "Okay", "Hard"];
 
 function loadStoredProgress() {
   try {
@@ -21,6 +24,7 @@ function loadStoredProgress() {
       completedStepsBySong: parsed.completedStepsBySong || {},
       masteredSongs: parsed.masteredSongs || {},
       transitionScores: parsed.transitionScores || {},
+      sessionHistory: Array.isArray(parsed.sessionHistory) ? parsed.sessionHistory : [],
     };
   } catch {
     return DEFAULT_PROGRESS;
@@ -63,6 +67,14 @@ function createPracticePlan(song, minutes) {
   ];
 }
 
+function createSessionId() {
+  if (window.crypto?.randomUUID) {
+    return window.crypto.randomUUID();
+  }
+
+  return `session-${Date.now()}`;
+}
+
 export default function App() {
   const storedProgress = useMemo(() => loadStoredProgress(), []);
 
@@ -72,6 +84,9 @@ export default function App() {
   const [completedStepsBySong, setCompletedStepsBySong] = useState(storedProgress.completedStepsBySong);
   const [masteredSongs, setMasteredSongs] = useState(storedProgress.masteredSongs);
   const [transitionScores, setTransitionScores] = useState(storedProgress.transitionScores);
+  const [sessionHistory, setSessionHistory] = useState(storedProgress.sessionHistory);
+  const [sessionRating, setSessionRating] = useState("Okay");
+  const [sessionMessage, setSessionMessage] = useState("");
 
   const filteredSongs = useMemo(() => SONGS.filter((song) => song.genre === selectedPath), [selectedPath]);
 
@@ -86,6 +101,7 @@ export default function App() {
   const completedCount = plan.filter((step) => completedSteps[step.label]).length;
   const progressPercent = Math.round((completedCount / plan.length) * 100);
   const masteredCount = Object.values(masteredSongs).filter(Boolean).length;
+  const totalPracticeMinutes = sessionHistory.reduce((sum, session) => sum + session.minutes, 0);
 
   useEffect(() => {
     const progress = {
@@ -95,16 +111,18 @@ export default function App() {
       completedStepsBySong,
       masteredSongs,
       transitionScores,
+      sessionHistory,
     };
 
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
-  }, [selectedPath, selectedSongId, sessionMinutes, completedStepsBySong, masteredSongs, transitionScores]);
+  }, [selectedPath, selectedSongId, sessionMinutes, completedStepsBySong, masteredSongs, transitionScores, sessionHistory]);
 
   function handlePathChange(pathName) {
     const firstSong = SONGS.find((song) => song.genre === pathName);
 
     setSelectedPath(pathName);
     setSelectedSongId(firstSong?.id || selectedSongId);
+    setSessionMessage("");
   }
 
   function toggleStep(label) {
@@ -119,6 +137,8 @@ export default function App() {
         },
       };
     });
+
+    setSessionMessage("");
   }
 
   function updateTransitionScore(transition, value) {
@@ -126,6 +146,29 @@ export default function App() {
       ...current,
       [`${selectedSong.id}:${transition}`]: value,
     }));
+  }
+
+  function completeSession() {
+    const session = {
+      id: createSessionId(),
+      songId: selectedSong.id,
+      songTitle: selectedSong.title,
+      genre: selectedSong.genre,
+      minutes: sessionMinutes,
+      rating: sessionRating,
+      completedStepCount: completedCount,
+      totalStepCount: plan.length,
+      completedAt: new Date().toISOString(),
+    };
+
+    setSessionHistory((current) => [session, ...current].slice(0, 50));
+
+    setCompletedStepsBySong((current) => ({
+      ...current,
+      [selectedSong.id]: {},
+    }));
+
+    setSessionMessage(`Session saved: ${selectedSong.title} • ${sessionMinutes} min • ${sessionRating}`);
   }
 
   function resetLocalProgress() {
@@ -137,6 +180,9 @@ export default function App() {
     setCompletedStepsBySong({});
     setMasteredSongs({});
     setTransitionScores({});
+    setSessionHistory([]);
+    setSessionRating("Okay");
+    setSessionMessage("");
   }
 
   return (
@@ -185,6 +231,14 @@ export default function App() {
                 <span>{Object.keys(transitionScores).length}</span>
                 <small>tracked transitions</small>
               </div>
+              <div>
+                <span>{sessionHistory.length}</span>
+                <small>sessions completed</small>
+              </div>
+              <div>
+                <span>{totalPracticeMinutes}</span>
+                <small>minutes practiced</small>
+              </div>
             </div>
 
             <button type="button" className="danger-button" onClick={resetLocalProgress}>
@@ -227,7 +281,14 @@ export default function App() {
               <label className="select-label" htmlFor="song-select">
                 Choose Song
               </label>
-              <select id="song-select" value={selectedSong.id} onChange={(event) => setSelectedSongId(event.target.value)}>
+              <select
+                id="song-select"
+                value={selectedSong.id}
+                onChange={(event) => {
+                  setSelectedSongId(event.target.value);
+                  setSessionMessage("");
+                }}
+              >
                 {filteredSongs.map((song) => (
                   <option key={song.id} value={song.id}>
                     {song.title} — {song.difficulty}
@@ -259,6 +320,27 @@ export default function App() {
                     <p>{step.detail}</p>
                   </button>
                 ))}
+              </div>
+
+              <div className="complete-session-card">
+                <div>
+                  <h3>Complete Session</h3>
+                  <p>Rate how today’s practice felt, then save it to your history.</p>
+                </div>
+
+                <div className="rating-row" aria-label="Session rating">
+                  {SESSION_RATINGS.map((rating) => (
+                    <button key={rating} type="button" onClick={() => setSessionRating(rating)} className={sessionRating === rating ? "selected-button" : "ghost-button"}>
+                      {rating}
+                    </button>
+                  ))}
+                </div>
+
+                <button type="button" className="complete-session-button" onClick={completeSession}>
+                  Save Completed Session
+                </button>
+
+                {sessionMessage ? <p className="session-message">{sessionMessage}</p> : null}
               </div>
             </section>
           </div>
@@ -326,6 +408,8 @@ export default function App() {
               ))}
             </div>
           </section>
+
+          <SessionHistory sessions={sessionHistory} />
         </section>
       </div>
     </main>
