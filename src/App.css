@@ -1,0 +1,389 @@
+:root {
+  --bg: #0a0a0b;
+  --panel: rgba(24, 24, 27, 0.82);
+  --panel-strong: rgba(18, 18, 20, 0.96);
+  --border: #2d2d33;
+  --text: #f4f4f5;
+  --muted: #a1a1aa;
+  --muted-strong: #d4d4d8;
+  --blue: #1b82e6;
+  --blue-soft: rgba(27, 130, 230, 0.14);
+  --green: #34d399;
+  --green-soft: rgba(52, 211, 153, 0.12);
+  --mango: #ffb347;
+}
+
+button,
+select,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.app-shell {
+  min-height: 100vh;
+  color: var(--text);
+}
+
+.app-grid {
+  width: min(1440px, 100%);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+  padding: 24px;
+}
+
+.sidebar,
+.main-content {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+}
+
+.hero-card,
+.panel-card,
+.song-card,
+.session-card {
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  background: var(--panel);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(18px);
+}
+
+.hero-card {
+  padding: 24px;
+}
+
+.hero-card h1 {
+  margin: 8px 0 12px;
+  font-size: 38px;
+  line-height: 0.98;
+  letter-spacing: -0.06em;
+}
+
+.hero-card p,
+.song-header p,
+.section-copy,
+.step-card p,
+.path-card small,
+.chord-card p {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.eyebrow {
+  margin: 0;
+  color: #7dd3fc;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.panel-card,
+.song-card,
+.session-card {
+  padding: 18px;
+}
+
+.panel-card h2,
+.session-card h2 {
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: -0.03em;
+}
+
+.path-list,
+.step-list,
+.transition-list,
+.section-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.path-card,
+.step-card,
+.chord-card,
+.transition-card,
+.song-section-card,
+.info-card {
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: rgba(10, 10, 11, 0.42);
+}
+
+.path-card,
+.step-card {
+  width: 100%;
+  padding: 14px;
+  color: var(--text);
+  text-align: left;
+}
+
+.path-card {
+  display: grid;
+  gap: 6px;
+}
+
+.path-card span,
+.step-card strong {
+  font-weight: 900;
+}
+
+.path-card:hover,
+.step-card:hover,
+.ghost-button:hover {
+  border-color: #52525b;
+}
+
+.path-card.is-active {
+  border-color: var(--blue);
+  background: var(--blue-soft);
+}
+
+.button-row {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.button-row.three {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.ghost-button,
+.selected-button,
+.mastered-button {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(10, 10, 11, 0.5);
+  color: var(--text);
+  padding: 10px 14px;
+  font-weight: 900;
+}
+
+.selected-button {
+  border-color: var(--blue);
+  background: var(--blue);
+  color: #fff;
+}
+
+.mastered-button {
+  border-color: var(--green);
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.top-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
+}
+
+.song-header,
+.session-header,
+.section-heading-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.song-header h2 {
+  margin: 8px 0 10px;
+  font-size: 42px;
+  line-height: 1;
+  letter-spacing: -0.06em;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin: 22px 0;
+}
+
+.info-card {
+  padding: 14px;
+}
+
+.info-card span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.info-card strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 22px;
+}
+
+.select-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--muted-strong);
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+select {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--panel-strong);
+  color: var(--text);
+  padding: 12px 14px;
+  outline: none;
+}
+
+select:focus {
+  border-color: var(--blue);
+}
+
+.progress-badge {
+  display: grid;
+  width: 64px;
+  height: 64px;
+  place-items: center;
+  border: 1px solid var(--blue);
+  border-radius: 999px;
+  background: var(--blue-soft);
+  color: #7dd3fc;
+  font-weight: 900;
+}
+
+.progress-track {
+  height: 8px;
+  margin: 18px 0;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #27272a;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--blue);
+  transition: width 180ms ease;
+}
+
+.step-card span,
+.transition-card div,
+.chord-card div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.step-card small,
+.transition-card span,
+.chord-card span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.step-card.is-complete {
+  border-color: var(--green);
+  background: var(--green-soft);
+}
+
+.bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.chord-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.chord-card,
+.transition-card,
+.song-section-card {
+  padding: 14px;
+}
+
+.chord-card strong {
+  font-size: 26px;
+}
+
+.transition-card input {
+  width: 100%;
+  margin-top: 14px;
+  accent-color: var(--blue);
+}
+
+.strum-pill {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 9px 12px;
+  color: var(--muted-strong);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.song-section-card {
+  display: grid;
+  gap: 8px;
+}
+
+.song-section-card span {
+  color: #7dd3fc;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.song-section-card strong {
+  font-size: 18px;
+}
+
+@media (max-width: 1100px) {
+  .app-grid,
+  .top-grid,
+  .bottom-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .info-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .app-grid {
+    padding: 14px;
+  }
+
+  .hero-card h1,
+  .song-header h2 {
+    font-size: 32px;
+  }
+
+  .song-header,
+  .session-header,
+  .section-heading-row {
+    flex-direction: column;
+  }
+
+  .chord-grid,
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+}
