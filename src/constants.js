@@ -1,0 +1,150 @@
+const STORAGE_KEY = "guitar-journey:v1:progress";
+
+const DEFAULT_PROGRESS = {
+  selectedPath: "Worship",
+  selectedSongId: "good-good-father",
+  sessionMinutes: 20,
+  completedStepsBySong: {},
+  masteredSongs: {},
+  transitionScores: {},
+};
+
+const SONGS = [
+  {
+    id: "good-good-father",
+    title: "Good Good Father",
+    genre: "Worship",
+    key: "G",
+    bpm: 72,
+    difficulty: "Beginner",
+    chords: ["G", "C", "Em", "D"],
+    transitions: ["G → C", "C → G", "G → D", "Em → C"],
+    sections: [
+      { name: "Verse", progression: "G - C - G - D" },
+      { name: "Chorus", progression: "G - D - Em - C" },
+    ],
+    strumming: "Down, down-up, up-down-up",
+    goal: "Build clean open-chord movement and steady worship strumming.",
+  },
+  {
+    id: "10000-reasons",
+    title: "10,000 Reasons",
+    genre: "Worship",
+    key: "G",
+    bpm: 74,
+    difficulty: "Beginner",
+    chords: ["G", "D", "Em", "C"],
+    transitions: ["G → D", "D → Em", "Em → C", "C → G"],
+    sections: [
+      { name: "Verse", progression: "G - D - Em - C" },
+      { name: "Chorus", progression: "C - G - D - Em" },
+    ],
+    strumming: "Down, down, down-up, down-up",
+    goal: "Practice smooth four-chord worship progressions with consistent timing.",
+  },
+  {
+    id: "amazing-grace",
+    title: "Amazing Grace",
+    genre: "Worship",
+    key: "G",
+    bpm: 68,
+    difficulty: "Beginner",
+    chords: ["G", "C", "D", "Em"],
+    transitions: ["G → C", "C → G", "G → D", "D → G"],
+    sections: [{ name: "Verse", progression: "G - C - G - D - G" }],
+    strumming: "Slow 3/4 feel: down, down, down",
+    goal: "Focus on clean chord tone, simple timing, and musical patience.",
+  },
+  {
+    id: "twelve-bar-blues",
+    title: "12-Bar Blues Groove",
+    genre: "Blues",
+    key: "E",
+    bpm: 88,
+    difficulty: "Beginner",
+    chords: ["E7", "A7", "B7"],
+    transitions: ["E7 → A7", "A7 → E7", "E7 → B7", "B7 → A7"],
+    sections: [
+      {
+        name: "12-Bar Form",
+        progression: "E7 - E7 - E7 - E7 / A7 - A7 - E7 - E7 / B7 - A7 - E7 - B7",
+      },
+    ],
+    strumming: "Shuffle feel: long-short, long-short",
+    goal: "Internalize the 12-bar form and dominant 7 chord movement.",
+  },
+  {
+    id: "minor-pentatonic-jam",
+    title: "Minor Pentatonic Jam",
+    genre: "Blues",
+    key: "A minor",
+    bpm: 82,
+    difficulty: "Beginner+",
+    chords: ["Am", "Dm", "E7"],
+    transitions: ["Am → Dm", "Dm → Am", "Am → E7", "E7 → Am"],
+    sections: [{ name: "Loop", progression: "Am - Dm - Am - E7" }],
+    strumming: "Slow blues pulse with light accents",
+    goal: "Prepare the ear and hands for minor blues phrasing.",
+  },
+  {
+    id: "major-seven-loop",
+    title: "Major 7 Neo Soul Loop",
+    genre: "Neo Soul",
+    key: "C",
+    bpm: 70,
+    difficulty: "Intermediate",
+    chords: ["Cmaj7", "Am7", "Dm7", "G7"],
+    transitions: ["Cmaj7 → Am7", "Am7 → Dm7", "Dm7 → G7", "G7 → Cmaj7"],
+    sections: [{ name: "Groove", progression: "Cmaj7 - Am7 - Dm7 - G7" }],
+    strumming: "Muted groove: down, chuck, up, up-chuck",
+    goal: "Introduce 7th chords, muting, and smoother voice-leading.",
+  },
+  {
+    id: "minor-nine-color",
+    title: "Minor 9 Color Practice",
+    genre: "Neo Soul",
+    key: "D minor",
+    bpm: 64,
+    difficulty: "Intermediate",
+    chords: ["Dm9", "G13", "Cmaj7", "A7"],
+    transitions: ["Dm9 → G13", "G13 → Cmaj7", "Cmaj7 → A7", "A7 → Dm9"],
+    sections: [{ name: "ii-V-I Turnaround", progression: "Dm9 - G13 - Cmaj7 - A7" }],
+    strumming: "Slow pocket groove with selective picking",
+    goal: "Explore color chords and neo-soul style movement.",
+  },
+];
+
+const PATHS = [
+  {
+    name: "Worship",
+    description: "Open chords, steady strumming, capo-friendly progressions, and song confidence.",
+  },
+  {
+    name: "Blues",
+    description: "12-bar form, dominant 7 chords, shuffle rhythm, and pentatonic foundation.",
+  },
+  {
+    name: "Neo Soul",
+    description: "7th chords, color voicings, groove, muting, embellishments, and smooth transitions.",
+  },
+];
+
+const CHORD_DETAILS = {
+  G: { level: "Beginner", tip: "Keep the wrist relaxed and let all strings ring clearly." },
+  C: { level: "Beginner", tip: "Curve your fingers high so the open strings do not mute." },
+  Em: { level: "Beginner", tip: "Use this as a reset chord: relaxed hand, clean pressure." },
+  D: { level: "Beginner", tip: "Watch the high E string; it often gets muted by the ring finger." },
+  E7: { level: "Beginner", tip: "Let the open strings give the chord its bluesy air." },
+  A7: { level: "Beginner", tip: "Keep space between your two fingers so open strings ring." },
+  B7: { level: "Beginner+", tip: "Move slowly; this shape rewards repetition." },
+  Am: { level: "Beginner", tip: "Same shape family as E major, shifted strings." },
+  Dm: { level: "Beginner+", tip: "Small shape, but precision matters on the top strings." },
+  Cmaj7: { level: "Intermediate", tip: "Listen for the dreamy quality; avoid over-strumming." },
+  Am7: { level: "Beginner+", tip: "Relaxed voicing that pairs beautifully with C major." },
+  Dm7: { level: "Intermediate", tip: "Keep the barre light and avoid squeezing." },
+  G7: { level: "Beginner", tip: "Listen for tension pulling back to C." },
+  Dm9: { level: "Intermediate", tip: "Prioritize clean top notes over loud volume." },
+  G13: { level: "Intermediate", tip: "Think color and movement, not brute force." },
+};
+
+export { CHORD_DETAILS, DEFAULT_PROGRESS, PATHS, SONGS, STORAGE_KEY };
