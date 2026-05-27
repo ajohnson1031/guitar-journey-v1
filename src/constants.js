@@ -9,6 +9,7 @@ const DEFAULT_PROGRESS = {
   transitionScores: {},
   sessionHistory: [],
   customSongs: [],
+  customGenres: [],
 };
 
 const SONGS = [

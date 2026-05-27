@@ -960,19 +960,32 @@ select:focus {
 }
 
 .custom-song-actions {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 16px;
+}
+
+.custom-song-button-group {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
 }
 
 .custom-song-message {
-  border: 1px solid rgba(125, 211, 252, 0.35);
-  border-radius: 16px;
-  background: rgba(125, 211, 252, 0.1);
-  color: #bae6fd;
-  padding: 10px 12px;
+  min-height: 1.35em;
+  margin: 0;
   font-size: 13px;
   font-weight: 800;
+  line-height: 1.35;
+}
+
+.custom-song-message.is-error {
+  color: #ff7575;
+}
+
+.custom-song-message.is-info {
+  color: #7dd3fc;
 }
 
 .import-link-card {
@@ -1227,4 +1240,200 @@ select:focus {
 .song-header-actions .mastered-button,
 .song-header-actions .danger-button {
   flex-shrink: 0;
+}
+
+.song-header-actions.song-icon-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+  gap: 8px;
+}
+
+.song-header-actions.song-icon-actions .icon-button {
+  display: inline-grid;
+  width: 42px;
+  min-width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  place-items: center;
+  padding: 0;
+}
+
+.icon-button svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.35;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (max-width: 640px) {
+  .song-header-actions.song-icon-actions {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+  }
+}
+
+.edit-icon-button {
+  color: #7dd3fc;
+}
+
+.edit-icon-button:hover {
+  border-color: var(--blue);
+  background: var(--blue-soft);
+}
+
+.mastered-icon-button {
+  color: var(--green);
+}
+
+.mastered-icon-button:hover {
+  border-color: var(--green);
+  background: var(--green-soft);
+}
+
+.mastered-icon-button.mastered-button {
+  color: var(--green);
+}
+
+.genre-manager-card {
+  display: grid;
+  gap: 14px;
+}
+
+.genre-manager-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+
+.genre-manager-form input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--panel-strong);
+  color: var(--text);
+  padding: 11px 12px;
+  outline: none;
+}
+
+.genre-manager-form input:focus {
+  border-color: var(--blue);
+}
+
+.custom-genre-list {
+  display: grid;
+  gap: 8px;
+}
+
+.custom-genre-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: rgba(10, 10, 11, 0.42);
+  padding: 10px;
+}
+
+.custom-genre-row.is-active {
+  border-color: var(--blue);
+  background: var(--blue-soft);
+}
+
+.custom-genre-row strong {
+  display: block;
+  font-size: 13px;
+}
+
+.custom-genre-row small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.genre-remove-button {
+  display: inline-grid;
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  place-items: center;
+  padding: 0;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.genre-manager-empty,
+.genre-manager-message {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.genre-manager-message {
+  color: #ff7575;
+  font-weight: 800;
+}
+
+@media (max-width: 640px) {
+  .genre-manager-form {
+    grid-template-columns: 1fr;
+  }
+}
+
+.session-length-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 14px;
+  margin-top: 18px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: rgba(10, 10, 11, 0.42);
+  padding: 14px;
+}
+
+.session-length-card span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.session-length-card p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.session-length-actions {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  gap: 8px;
+}
+
+.session-length-actions .ghost-button,
+.session-length-actions .selected-button {
+  min-width: 54px;
+  padding: 9px 12px;
+}
+
+@media (max-width: 640px) {
+  .session-length-card {
+    grid-template-columns: 1fr;
+  }
+
+  .session-length-actions {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }

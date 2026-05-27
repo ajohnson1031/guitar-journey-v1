@@ -1,6 +1,6 @@
 import * as React from "react";
-import { DEFAULT_FORM, DIFFICULTY_OPTIONS, DOWN_STRUM, KEY_OPTIONS, UP_STRUM } from "../constants";
-const { useMemo, useState } = React;
+import { DEFAULT_FORM, DOWN_STRUM, KEY_OPTIONS, UP_STRUM } from "../constants";
+const { useMemo, useEffect, useState } = React;
 
 function slugify(value) {
   return String(value || "")
@@ -48,6 +48,46 @@ function parseSections(value) {
   if (sections.length) return sections;
 
   return [{ name: "Main", progression: "X - X - X - X" }];
+}
+
+function sectionsToText(sections) {
+  if (!Array.isArray(sections) || !sections.length) {
+    return DEFAULT_FORM.sections;
+  }
+
+  return sections.map((section) => `${section.name || "Section"}: ${section.progression || "X - X - X - X"}`).join("\n");
+}
+
+function parseStrummingPattern(value) {
+  const text = String(value || "").trim();
+
+  if (!text) return [];
+
+  if (!/^[↓↑\s]+$/.test(text)) {
+    return [];
+  }
+
+  return text.split(/\s+/).filter((direction) => direction === DOWN_STRUM || direction === UP_STRUM);
+}
+
+function songToForm(song) {
+  if (!song) return DEFAULT_FORM;
+
+  return {
+    sourceUrl: song.sourceUrl || "",
+    artist: song.artist || "",
+    instrument: song.instrument || "",
+    title: song.title || "",
+    genre: song.genre || "",
+    key: song.key || "",
+    bpm: String(song.bpm || "72"),
+    difficulty: song.difficulty || "",
+    chords: Array.isArray(song.chords) ? song.chords.join(", ") : "",
+    transitions: Array.isArray(song.transitions) ? song.transitions.join(", ") : "",
+    sections: sectionsToText(song.sections),
+    strummingPattern: parseStrummingPattern(song.strumming),
+    goal: song.goal || DEFAULT_FORM.goal,
+  };
 }
 
 function parseUltimateGuitarUrl(value) {
@@ -162,13 +202,34 @@ function getNextTransitionValue(currentValue, addition) {
   return value;
 }
 
-export default function CustomSongForm({ genres, onAddSong }) {
+export default function CustomSongForm({ editingSong, genres, onAddSong, onCancelEdit, onUpdateSong }) {
+  const isEditing = Boolean(editingSong);
+
   const [form, setForm] = useState(DEFAULT_FORM);
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState("");
+  const [messageTone, setMessageTone] = useState("error");
 
   const previewChords = useMemo(() => parseCommaList(form.chords), [form.chords]);
   const strummingPatternText = form.strummingPattern.join(" ");
+
+  useEffect(() => {
+    if (!editingSong) return;
+
+    setForm(songToForm(editingSong));
+    setIsOpen(true);
+    setMessage("");
+  }, [editingSong]);
+
+  function setValidationMessage(value) {
+    setMessage(value);
+    setMessageTone("error");
+  }
+
+  function setInfoMessage(value) {
+    setMessage(value);
+    setMessageTone("info");
+  }
 
   function updateField(fieldName, value) {
     setForm((current) => ({
@@ -179,15 +240,25 @@ export default function CustomSongForm({ genres, onAddSong }) {
   }
 
   function resetForm() {
-    setForm(DEFAULT_FORM);
+    setForm(isEditing ? songToForm(editingSong) : DEFAULT_FORM);
     setMessage("");
+  }
+
+  function closeForm() {
+    setIsOpen(false);
+    setMessage("");
+    setForm(DEFAULT_FORM);
+
+    if (isEditing) {
+      onCancelEdit();
+    }
   }
 
   function importFromUltimateGuitarLink() {
     const result = parseUltimateGuitarUrl(form.sourceUrl);
 
     if (!result.ok) {
-      setMessage(result.message);
+      setValidationMessage(result.message);
       return;
     }
 
@@ -206,7 +277,7 @@ export default function CustomSongForm({ genres, onAddSong }) {
           : current.goal,
     }));
 
-    setMessage("Imported starter details from Ultimate Guitar. Review and fill in genre, key, difficulty, chords, sections, and strumming before saving.");
+    setInfoMessage("Imported starter details. Review and fill in genre, key, difficulty, chords, sections, and strumming.");
   }
 
   function addStrum(direction) {
@@ -273,41 +344,41 @@ export default function CustomSongForm({ genres, onAddSong }) {
     const title = form.title.trim();
 
     if (!title) {
-      setMessage("Add a song title before saving.");
+      setValidationMessage("Add a song title before saving.");
       return;
     }
 
     if (!form.genre) {
-      setMessage("Select a genre before saving.");
+      setValidationMessage("Select a genre before saving.");
       return;
     }
 
     if (!form.key) {
-      setMessage("Select a key before saving.");
+      setValidationMessage("Select a key before saving.");
       return;
     }
 
     if (!form.difficulty) {
-      setMessage("Select a difficulty before saving.");
+      setValidationMessage("Select a difficulty before saving.");
       return;
     }
 
     if (!form.strummingPattern.length) {
-      setMessage("Add at least one down or up strum to the strumming pattern.");
+      setValidationMessage("Add at least one down or up strum to the strumming pattern.");
       return;
     }
 
     const chords = parseCommaList(form.chords);
 
     if (!chords.length) {
-      setMessage("Add at least one chord.");
+      setValidationMessage("Add at least one chord.");
       return;
     }
 
     const bpm = Number(form.bpm);
 
     const song = {
-      id: `custom-${slugify(title)}-${Date.now()}`,
+      id: editingSong?.id || `custom-${slugify(title)}-${Date.now()}`,
       title,
       artist: form.artist.trim(),
       instrument: form.instrument.trim(),
@@ -323,12 +394,19 @@ export default function CustomSongForm({ genres, onAddSong }) {
       source: form.sourceUrl.trim() ? "Ultimate Guitar" : "",
       sourceUrl: form.sourceUrl.trim(),
       isCustom: true,
-      createdAt: new Date().toISOString(),
+      createdAt: editingSong?.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
-    onAddSong(song);
-    setMessage(`Added ${song.title} to your study list.`);
-    resetForm();
+    if (isEditing) {
+      onUpdateSong(song);
+    } else {
+      onAddSong(song);
+    }
+
+    setMessage("");
+    setMessageTone("error");
+    setForm(DEFAULT_FORM);
     setIsOpen(false);
   }
 
@@ -336,23 +414,30 @@ export default function CustomSongForm({ genres, onAddSong }) {
     <section className="panel-card custom-song-card">
       <div className="custom-song-header">
         <div>
-          <h2>Add Custom Song</h2>
-          <p className="section-copy">Create a personal study song with chords, sections, rhythm, and a practice goal.</p>
+          <h2>{isEditing ? "Edit Custom Song" : "Add Custom Song"}</h2>
+          <p className="section-copy">
+            {isEditing
+              ? "Update this song’s study details, rhythm, sections, and practice goal."
+              : "Create a personal study song with chords, sections, rhythm, and a practice goal."}
+          </p>
         </div>
 
         <button
           type="button"
           className={isOpen ? "selected-button" : "ghost-button"}
           onClick={() => {
-            setIsOpen((current) => !current);
+            if (isOpen) {
+              closeForm();
+              return;
+            }
+
+            setIsOpen(true);
             setMessage("");
           }}
         >
           {isOpen ? "Close" : "Add Song"}
         </button>
       </div>
-
-      {message ? <p className="custom-song-message">{message}</p> : null}
 
       {isOpen ? (
         <form className="custom-song-form" onSubmit={handleSubmit}>
@@ -423,7 +508,7 @@ export default function CustomSongForm({ genres, onAddSong }) {
               <span>Difficulty</span>
               <select value={form.difficulty} onChange={(event) => updateField("difficulty", event.target.value)}>
                 <option value="">Select difficulty...</option>
-                {DIFFICULTY_OPTIONS.map((difficulty) => (
+                {["Beginner", "Intermediate", "Advanced", "Expert"].map((difficulty) => (
                   <option key={difficulty} value={difficulty}>
                     {difficulty}
                   </option>
@@ -476,7 +561,14 @@ export default function CustomSongForm({ genres, onAddSong }) {
 
           <label>
             <span>Transitions</span>
-            <input type="text" value={form.transitions} placeholder="e.g., G → C, C → G, G → D, Em → C" onKeyDown={handleTransitionKeyDown} onChange={handleTransitionChange} />
+            <input
+              type="text"
+              value={form.transitions}
+              placeholder="e.g., G → C, C → G, G → D, Em → C"
+              onKeyDown={handleTransitionKeyDown}
+              onChange={handleTransitionChange}
+              onBlur={handleTransitionBlur}
+            />
           </label>
 
           <label>
@@ -500,12 +592,25 @@ export default function CustomSongForm({ genres, onAddSong }) {
           </div>
 
           <div className="custom-song-actions">
-            <button type="button" className="ghost-button" onClick={resetForm}>
-              Reset Form
-            </button>
-            <button type="submit" className="complete-session-button">
-              Save Custom Song
-            </button>
+            <p className={`custom-song-message ${messageTone === "error" ? "is-error" : "is-info"}`} aria-live="polite">
+              {message}
+            </p>
+
+            <div className="custom-song-button-group">
+              {isEditing ? (
+                <button type="button" className="ghost-button" onClick={closeForm}>
+                  Cancel Edit
+                </button>
+              ) : (
+                <button type="button" className="ghost-button" onClick={resetForm}>
+                  Reset Form
+                </button>
+              )}
+
+              <button type="submit" className="complete-session-button">
+                {isEditing ? "Save Updated Song" : "Save Custom Song"}
+              </button>
+            </div>
           </div>
         </form>
       ) : null}
