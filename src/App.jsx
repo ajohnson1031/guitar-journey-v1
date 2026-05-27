@@ -1,7 +1,5 @@
 import * as React from "react";
-import ChordDiagram from "./components/ChordDiagram";
-import Metronome from "./components/Metronome";
-import SessionHistory from "./components/SessionHistory";
+import { ChordDiagram, Metronome, SessionHistory } from "./components";
 import { CHORD_DETAILS, CHORD_DIAGRAMS, DEFAULT_PROGRESS, PATHS, SONGS, STORAGE_KEY } from "./constants";
 
 import "./App.css";
@@ -75,6 +73,20 @@ function createSessionId() {
   return `session-${Date.now()}`;
 }
 
+function formatElapsedTime(totalSeconds) {
+  const safeSeconds = Math.max(0, Number(totalSeconds) || 0);
+  const minutes = Math.floor(safeSeconds / 60);
+  const seconds = safeSeconds % 60;
+
+  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
+
+function secondsToPracticeMinutes(totalSeconds) {
+  if (!totalSeconds) return 0;
+
+  return Math.max(1, Math.ceil(totalSeconds / 60));
+}
+
 export default function App() {
   const storedProgress = useMemo(() => loadStoredProgress(), []);
 
@@ -87,6 +99,8 @@ export default function App() {
   const [sessionHistory, setSessionHistory] = useState(storedProgress.sessionHistory);
   const [sessionRating, setSessionRating] = useState("Okay");
   const [sessionMessage, setSessionMessage] = useState("");
+  const [isSessionTimerRunning, setIsSessionTimerRunning] = useState(false);
+  const [elapsedSessionSeconds, setElapsedSessionSeconds] = useState(0);
 
   const filteredSongs = useMemo(() => SONGS.filter((song) => song.genre === selectedPath), [selectedPath]);
 
@@ -102,6 +116,8 @@ export default function App() {
   const progressPercent = Math.round((completedCount / plan.length) * 100);
   const masteredCount = Object.values(masteredSongs).filter(Boolean).length;
   const totalPracticeMinutes = sessionHistory.reduce((sum, session) => sum + session.minutes, 0);
+  const actualPracticeMinutes = secondsToPracticeMinutes(elapsedSessionSeconds);
+  const canCompleteSession = elapsedSessionSeconds > 0;
 
   useEffect(() => {
     const progress = {
@@ -116,6 +132,24 @@ export default function App() {
 
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
   }, [selectedPath, selectedSongId, sessionMinutes, completedStepsBySong, masteredSongs, transitionScores, sessionHistory]);
+
+  useEffect(() => {
+    if (!isSessionTimerRunning) return undefined;
+
+    const intervalId = window.setInterval(() => {
+      setElapsedSessionSeconds((currentSeconds) => currentSeconds + 1);
+    }, 1000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [isSessionTimerRunning]);
+
+  useEffect(() => {
+    setIsSessionTimerRunning(false);
+    setElapsedSessionSeconds(0);
+    setSessionMessage("");
+  }, [selectedSong.id, sessionMinutes]);
 
   function handlePathChange(pathName) {
     const firstSong = SONGS.find((song) => song.genre === pathName);
@@ -148,13 +182,31 @@ export default function App() {
     }));
   }
 
+  function toggleSessionTimer() {
+    setSessionMessage("");
+    setIsSessionTimerRunning((isRunning) => !isRunning);
+  }
+
+  function resetSessionTimer() {
+    setIsSessionTimerRunning(false);
+    setElapsedSessionSeconds(0);
+    setSessionMessage("");
+  }
+
   function completeSession() {
+    if (!canCompleteSession) {
+      setSessionMessage("Start the session timer before saving practice history.");
+      return;
+    }
+
     const session = {
       id: createSessionId(),
       songId: selectedSong.id,
       songTitle: selectedSong.title,
       genre: selectedSong.genre,
-      minutes: sessionMinutes,
+      plannedMinutes: sessionMinutes,
+      minutes: actualPracticeMinutes,
+      elapsedSeconds: elapsedSessionSeconds,
       rating: sessionRating,
       completedStepCount: completedCount,
       totalStepCount: plan.length,
@@ -168,7 +220,9 @@ export default function App() {
       [selectedSong.id]: {},
     }));
 
-    setSessionMessage(`Session saved: ${selectedSong.title} • ${sessionMinutes} min • ${sessionRating}`);
+    setIsSessionTimerRunning(false);
+    setElapsedSessionSeconds(0);
+    setSessionMessage(`Session saved: ${selectedSong.title} • ${actualPracticeMinutes} min actual • ${sessionRating}`);
   }
 
   function resetLocalProgress() {
@@ -183,6 +237,8 @@ export default function App() {
     setSessionHistory([]);
     setSessionRating("Okay");
     setSessionMessage("");
+    setIsSessionTimerRunning(false);
+    setElapsedSessionSeconds(0);
   }
 
   return (
@@ -237,7 +293,7 @@ export default function App() {
               </div>
               <div>
                 <span>{totalPracticeMinutes}</span>
-                <small>minutes practiced</small>
+                <small>actual minutes</small>
               </div>
             </div>
 
@@ -325,7 +381,25 @@ export default function App() {
               <div className="complete-session-card">
                 <div>
                   <h3>Complete Session</h3>
-                  <p>Rate how today’s practice felt, then save it to your history.</p>
+                  <p>Start the timer, practice, rate how it felt, then save actual practice time.</p>
+                </div>
+
+                <div className="session-timer-display">
+                  <span>Elapsed</span>
+                  <strong>{formatElapsedTime(elapsedSessionSeconds)}</strong>
+                  <small>
+                    Planned: {sessionMinutes} min • Actual saved: {actualPracticeMinutes} min
+                  </small>
+                </div>
+
+                <div className="session-timer-actions">
+                  <button type="button" className={isSessionTimerRunning ? "metronome-stop-button" : "selected-button"} onClick={toggleSessionTimer}>
+                    {isSessionTimerRunning ? "Pause Session" : "Start Session"}
+                  </button>
+
+                  <button type="button" className="ghost-button" onClick={resetSessionTimer}>
+                    Reset Timer
+                  </button>
                 </div>
 
                 <div className="rating-row" aria-label="Session rating">
@@ -336,7 +410,7 @@ export default function App() {
                   ))}
                 </div>
 
-                <button type="button" className="complete-session-button" onClick={completeSession}>
+                <button type="button" className="complete-session-button" onClick={completeSession} disabled={!canCompleteSession}>
                   Save Completed Session
                 </button>
 
