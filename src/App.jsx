@@ -1,6 +1,7 @@
 import * as React from "react";
 import { CurrentSongCard, CustomSongForm, GenreManager, Metronome, RequiredChords, SessionHistory, SongSections, TodayPlan, TransitionTracker } from "./components";
-import { DEFAULT_PROGRESS, NAV_SECTIONS, PATHS, SONGS, STORAGE_KEY } from "./constants";
+import { DEFAULT_PROGRESS, NAV_SECTIONS, STORAGE_KEY } from "./constants";
+import { usePracticeProgress, useSessionTimer, useSongLibrary } from "./hooks";
 
 import "./App.css";
 
@@ -73,79 +74,76 @@ function createSessionId() {
   return `session-${Date.now()}`;
 }
 
-function secondsToPracticeMinutes(totalSeconds) {
-  if (!totalSeconds) return 0;
-
-  return Math.max(1, Math.ceil(totalSeconds / 60));
-}
-
 export default function App() {
   const storedProgress = useMemo(() => loadStoredProgress(), []);
 
-  const [selectedPath, setSelectedPath] = useState(storedProgress.selectedPath);
-  const [selectedSongId, setSelectedSongId] = useState(storedProgress.selectedSongId);
   const [sessionMinutes, setSessionMinutes] = useState(storedProgress.sessionMinutes);
-  const [completedStepsBySong, setCompletedStepsBySong] = useState(storedProgress.completedStepsBySong);
-  const [masteredSongs, setMasteredSongs] = useState(storedProgress.masteredSongs);
-  const [transitionScores, setTransitionScores] = useState(storedProgress.transitionScores);
-  const [sessionHistory, setSessionHistory] = useState(storedProgress.sessionHistory);
-  const [customSongs, setCustomSongs] = useState(storedProgress.customSongs);
-  const [customGenres, setCustomGenres] = useState(storedProgress.customGenres);
   const [sessionRating, setSessionRating] = useState("Okay");
   const [sessionMessage, setSessionMessage] = useState("");
-  const [isSessionTimerRunning, setIsSessionTimerRunning] = useState(false);
-  const [elapsedSessionSeconds, setElapsedSessionSeconds] = useState(0);
   const [activeSection, setActiveSection] = useState("dashboard");
-  const [editingSongId, setEditingSongId] = useState("");
 
-  const allSongs = useMemo(() => [...SONGS, ...customSongs], [customSongs]);
+  const {
+    addCustomGenre,
+    addCustomSong,
+    allSongs,
+    builtInGenreNames,
+    cancelEditCustomSong,
+    customGenres,
+    customSongs,
+    deleteCustomSong,
+    editingSong,
+    filteredSongs,
+    pathCards,
+    pathOptions,
+    removeCustomGenre,
+    resetSongLibrary,
+    selectPath,
+    selectSong,
+    selectedPath,
+    selectedSong,
+    selectedSongId,
+    startEditCustomSong,
+    updateCustomSong,
+  } = useSongLibrary({
+    initialProgress: storedProgress,
+  });
 
-  const builtInGenreNames = useMemo(() => PATHS.map((path) => path.name), []);
-
-  const pathOptions = useMemo(() => {
-    const customSongGenres = customSongs.map((song) => song.genre).filter(Boolean);
-
-    return Array.from(new Set([...builtInGenreNames, ...customGenres, ...customSongGenres]));
-  }, [builtInGenreNames, customGenres, customSongs]);
-
-  const pathCards = useMemo(() => {
-    const builtInCards = PATHS.map((path) => ({
-      name: path.name,
-      description: path.description,
-      isCustom: false,
-    }));
-
-    const customCards = customGenres.map((genre) => ({
-      name: genre,
-      description: "Custom genre for your personal practice library.",
-      isCustom: true,
-    }));
-
-    return [...builtInCards, ...customCards];
-  }, [customGenres]);
-
-  const filteredSongs = useMemo(() => allSongs.filter((song) => song.genre === selectedPath), [allSongs, selectedPath]);
-
-  const selectedSong = useMemo(() => {
-    return allSongs.find((song) => song.id === selectedSongId) || filteredSongs[0] || allSongs[0];
-  }, [allSongs, selectedSongId, filteredSongs]);
-
-  const editingSong = useMemo(() => {
-    if (!editingSongId) return null;
-
-    return customSongs.find((song) => song.id === editingSongId) || null;
-  }, [customSongs, editingSongId]);
-
-  const completedSteps = completedStepsBySong[selectedSong.id] || {};
+  const {
+    actualPracticeMinutes,
+    canCompleteSession,
+    elapsedSessionSeconds,
+    isSessionTimerRunning,
+    resetSessionTimer,
+    setElapsedSessionSeconds,
+    setIsSessionTimerRunning,
+    toggleSessionTimer,
+  } = useSessionTimer({
+    resetKeys: [selectedSong.id, sessionMinutes],
+  });
 
   const plan = useMemo(() => createPracticePlan(selectedSong, sessionMinutes), [selectedSong, sessionMinutes]);
 
-  const completedCount = plan.filter((step) => completedSteps[step.label]).length;
-  const progressPercent = Math.round((completedCount / plan.length) * 100);
-  const masteredCount = Object.values(masteredSongs).filter(Boolean).length;
-  const totalPracticeMinutes = sessionHistory.reduce((sum, session) => sum + session.minutes, 0);
-  const actualPracticeMinutes = secondsToPracticeMinutes(elapsedSessionSeconds);
-  const canCompleteSession = elapsedSessionSeconds > 0;
+  const {
+    addSession,
+    completedCount,
+    completedSteps,
+    completedStepsBySong,
+    masteredCount,
+    masteredSongs,
+    progressPercent,
+    removeSongProgress,
+    resetPracticeProgress,
+    sessionHistory,
+    toggleMasteredSong,
+    toggleStep: togglePracticeStep,
+    totalPracticeMinutes,
+    transitionScores,
+    updateTransitionScore: updatePracticeTransitionScore,
+  } = usePracticeProgress({
+    initialProgress: storedProgress,
+    selectedSong,
+    plan,
+  });
 
   useEffect(() => {
     const progress = {
@@ -164,179 +162,82 @@ export default function App() {
   }, [selectedPath, selectedSongId, sessionMinutes, completedStepsBySong, masteredSongs, transitionScores, sessionHistory, customSongs, customGenres]);
 
   useEffect(() => {
-    if (!isSessionTimerRunning) return undefined;
-
-    const intervalId = window.setInterval(() => {
-      setElapsedSessionSeconds((currentSeconds) => currentSeconds + 1);
-    }, 1000);
-
-    return () => {
-      window.clearInterval(intervalId);
-    };
-  }, [isSessionTimerRunning]);
-
-  useEffect(() => {
-    setIsSessionTimerRunning(false);
-    setElapsedSessionSeconds(0);
     setSessionMessage("");
   }, [selectedSong.id, sessionMinutes]);
 
   function handlePathChange(pathName) {
-    const firstSong = allSongs.find((song) => song.genre === pathName);
-
-    setSelectedPath(pathName);
-    setSelectedSongId(firstSong?.id || selectedSongId);
+    selectPath(pathName);
     setSessionMessage("");
     setActiveSection("dashboard");
   }
 
   function handleSelectSong(songId) {
-    setSelectedSongId(songId);
+    selectSong(songId);
     setSessionMessage("");
   }
 
   function handleAddCustomSong(song) {
-    setCustomSongs((current) => [song, ...current]);
-    setSelectedPath(song.genre);
-    setSelectedSongId(song.id);
-    setEditingSongId("");
+    addCustomSong(song);
     setSessionMessage("");
     setActiveSection("dashboard");
   }
 
   function handleStartEditCustomSong(songId) {
-    setEditingSongId(songId);
+    startEditCustomSong(songId);
     setActiveSection("dashboard");
     setSessionMessage("");
   }
 
   function handleCancelEditCustomSong() {
-    setEditingSongId("");
+    cancelEditCustomSong();
   }
 
   function handleUpdateCustomSong(updatedSong) {
-    setCustomSongs((current) => current.map((song) => (song.id === updatedSong.id ? updatedSong : song)));
-
-    setSelectedPath(updatedSong.genre);
-    setSelectedSongId(updatedSong.id);
-    setEditingSongId("");
+    updateCustomSong(updatedSong);
     setSessionMessage("");
     setActiveSection("dashboard");
   }
 
   function handleDeleteCustomSong(songId) {
-    const songToDelete = customSongs.find((song) => song.id === songId);
+    const deletedSong = deleteCustomSong(songId);
 
-    if (!songToDelete) return;
+    if (!deletedSong) return;
 
-    const nextCustomSongs = customSongs.filter((song) => song.id !== songId);
-    const nextAllSongs = [...SONGS, ...nextCustomSongs];
-
-    setCustomSongs(nextCustomSongs);
-
-    setCompletedStepsBySong((current) => {
-      const next = { ...current };
-      delete next[songId];
-      return next;
-    });
-
-    setMasteredSongs((current) => {
-      const next = { ...current };
-      delete next[songId];
-      return next;
-    });
-
-    setTransitionScores((current) => {
-      const next = {};
-
-      for (const [key, value] of Object.entries(current)) {
-        if (!key.startsWith(`${songId}:`)) {
-          next[key] = value;
-        }
-      }
-
-      return next;
-    });
-
-    if (selectedSongId === songId) {
-      const fallbackSong = nextAllSongs.find((song) => song.genre === songToDelete.genre) || nextAllSongs[0];
-
-      setSelectedPath(fallbackSong.genre);
-      setSelectedSongId(fallbackSong.id);
-    }
-
-    if (editingSongId === songId) {
-      setEditingSongId("");
-    }
-
+    removeSongProgress(songId);
     setActiveSection("dashboard");
   }
 
   function handleAddCustomGenre(genre) {
-    setCustomGenres((current) => {
-      if (current.some((item) => item.toLowerCase() === genre.toLowerCase())) {
-        return current;
-      }
-
-      return [...current, genre];
-    });
-
-    setSelectedPath(genre);
+    addCustomGenre(genre);
     setActiveSection("dashboard");
   }
 
   function handleRemoveCustomGenre(genre) {
-    setCustomGenres((current) => current.filter((item) => item !== genre));
-
-    if (selectedPath === genre) {
-      const fallbackSong = allSongs.find((song) => song.genre === DEFAULT_PROGRESS.selectedPath) || allSongs[0];
-
-      setSelectedPath(fallbackSong.genre);
-      setSelectedSongId(fallbackSong.id);
-    }
-
+    removeCustomGenre(genre);
     setActiveSection("dashboard");
   }
 
-  function toggleStep(label) {
-    setCompletedStepsBySong((current) => {
-      const currentSongSteps = current[selectedSong.id] || {};
-
-      return {
-        ...current,
-        [selectedSong.id]: {
-          ...currentSongSteps,
-          [label]: !currentSongSteps[label],
-        },
-      };
-    });
-
+  function handleToggleStep(label) {
+    togglePracticeStep(label);
     setSessionMessage("");
   }
 
-  function updateTransitionScore(transition, value) {
-    setTransitionScores((current) => ({
-      ...current,
-      [`${selectedSong.id}:${transition}`]: value,
-    }));
+  function handleUpdateTransitionScore(transition, value) {
+    updatePracticeTransitionScore(transition, value);
   }
 
-  function toggleMasteredSong(songId) {
-    setMasteredSongs((current) => ({
-      ...current,
-      [songId]: !current[songId],
-    }));
+  function handleToggleMasteredSong(songId) {
+    toggleMasteredSong(songId);
   }
 
-  function toggleSessionTimer() {
+  function handleToggleSessionTimer() {
     setSessionMessage("");
-    setIsSessionTimerRunning((isRunning) => !isRunning);
+    toggleSessionTimer();
   }
 
-  function resetSessionTimer() {
-    setIsSessionTimerRunning(false);
-    setElapsedSessionSeconds(0);
+  function handleResetSessionTimer() {
     setSessionMessage("");
+    resetSessionTimer();
   }
 
   function completeSession() {
@@ -359,12 +260,7 @@ export default function App() {
       completedAt: new Date().toISOString(),
     };
 
-    setSessionHistory((current) => [session, ...current].slice(0, 50));
-
-    setCompletedStepsBySong((current) => ({
-      ...current,
-      [selectedSong.id]: {},
-    }));
+    addSession(session);
 
     setIsSessionTimerRunning(false);
     setElapsedSessionSeconds(0);
@@ -374,21 +270,15 @@ export default function App() {
   function resetLocalProgress() {
     window.localStorage.removeItem(STORAGE_KEY);
 
-    setSelectedPath(DEFAULT_PROGRESS.selectedPath);
-    setSelectedSongId(DEFAULT_PROGRESS.selectedSongId);
+    resetPracticeProgress();
+    resetSongLibrary();
+
     setSessionMinutes(DEFAULT_PROGRESS.sessionMinutes);
-    setCompletedStepsBySong({});
-    setMasteredSongs({});
-    setTransitionScores({});
-    setSessionHistory([]);
-    setCustomSongs([]);
     setSessionRating("Okay");
     setSessionMessage("");
     setIsSessionTimerRunning(false);
     setElapsedSessionSeconds(0);
     setActiveSection("dashboard");
-    setEditingSongId("");
-    setCustomGenres([]);
   }
 
   return (
@@ -482,7 +372,7 @@ export default function App() {
                   onDeleteCustomSong={handleDeleteCustomSong}
                   onSelectSong={handleSelectSong}
                   onStartEditCustomSong={handleStartEditCustomSong}
-                  onToggleMastered={toggleMasteredSong}
+                  onToggleMastered={handleToggleMasteredSong}
                   selectedSong={selectedSong}
                 />
 
@@ -496,11 +386,11 @@ export default function App() {
                 elapsedSessionSeconds={elapsedSessionSeconds}
                 isSessionTimerRunning={isSessionTimerRunning}
                 onCompleteSession={completeSession}
-                onResetSessionTimer={resetSessionTimer}
+                onResetSessionTimer={handleResetSessionTimer}
                 onSessionMinutesChange={setSessionMinutes}
                 onSessionRatingChange={setSessionRating}
-                onToggleSessionTimer={toggleSessionTimer}
-                onToggleStep={toggleStep}
+                onToggleSessionTimer={handleToggleSessionTimer}
+                onToggleStep={handleToggleStep}
                 plan={plan}
                 progressPercent={progressPercent}
                 sessionMessage={sessionMessage}
@@ -511,7 +401,7 @@ export default function App() {
           ) : null}
 
           {activeSection === "transitions" ? (
-            <TransitionTracker selectedSong={selectedSong} transitionScores={transitionScores} onUpdateTransitionScore={updateTransitionScore} />
+            <TransitionTracker selectedSong={selectedSong} transitionScores={transitionScores} onUpdateTransitionScore={handleUpdateTransitionScore} />
           ) : null}
 
           {activeSection === "sections" ? <SongSections selectedSong={selectedSong} /> : null}

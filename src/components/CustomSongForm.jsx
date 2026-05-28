@@ -4,6 +4,8 @@ import { formatTransitionValue, getNextTransitionValue, parseCommaList, parseSec
 import { StrummingPatternBuilder } from "./";
 const { useMemo, useEffect, useState } = React;
 
+const DIFFICULTY_OPTIONS = ["Beginner", "Intermediate", "Advanced", "Expert"];
+
 function sectionsToText(sections) {
   if (!Array.isArray(sections) || !sections.length) {
     return DEFAULT_CUSTOM_SONG_FORM.sections;
@@ -304,6 +306,18 @@ export default function CustomSongForm({ editingSong, genres, onAddSong, onCance
                 {genres.map((genre) => (
                   <option key={genre} value={genre}>
                     {genre}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label>
+              <span>Difficulty</span>
+              <select value={form.difficulty} onChange={(event) => updateField("difficulty", event.target.value)}>
+                <option value="">Select difficulty...</option>
+                {DIFFICULTY_OPTIONS.map((difficulty) => (
+                  <option key={difficulty} value={difficulty}>
+                    {difficulty}
                   </option>
                 ))}
               </select>
