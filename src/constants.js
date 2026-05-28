@@ -1,6 +1,11 @@
 const STORAGE_KEY = "guitar-journey:v1:progress";
 
+const STORAGE_VERSION = 2;
+
+const DEFAULT_CUSTOM_GENRE_DESCRIPTION = "Custom genre for your personal practice library.";
+
 const DEFAULT_PROGRESS = {
+  storageVersion: STORAGE_VERSION,
   selectedPath: "Worship",
   selectedSongId: "good-good-father",
   sessionMinutes: 20,
@@ -371,6 +376,7 @@ const DIFFICULTY_OPTIONS = ["Beginner", "Intermediate", "Advanced", "Expert"];
 export {
   CHORD_DETAILS,
   CHORD_DIAGRAMS,
+  DEFAULT_CUSTOM_GENRE_DESCRIPTION,
   DEFAULT_CUSTOM_SONG_FORM,
   DEFAULT_PROGRESS,
   DIFFICULTY_OPTIONS,
@@ -381,5 +387,6 @@ export {
   SESSION_RATINGS,
   SONGS,
   STORAGE_KEY,
+  STORAGE_VERSION,
   UP_STRUM,
 };

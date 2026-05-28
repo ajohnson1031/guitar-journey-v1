@@ -1,34 +1,12 @@
 import * as React from "react";
 import { CurrentSongCard, CustomSongForm, GenreManager, Metronome, RequiredChords, SessionHistory, SongSections, TodayPlan, TransitionTracker } from "./components";
-import { DEFAULT_PROGRESS, NAV_SECTIONS, STORAGE_KEY } from "./constants";
+import { DEFAULT_PROGRESS, NAV_SECTIONS } from "./constants";
 import { usePracticeProgress, useSessionTimer, useSongLibrary } from "./hooks";
+import { clearStoredProgress, loadStoredProgress, saveStoredProgress } from "./utils/storageUtils";
 
 import "./App.css";
 
 const { useEffect, useMemo, useState } = React;
-
-function loadStoredProgress() {
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-
-    if (!raw) return DEFAULT_PROGRESS;
-
-    const parsed = JSON.parse(raw);
-
-    return {
-      ...DEFAULT_PROGRESS,
-      ...parsed,
-      completedStepsBySong: parsed.completedStepsBySong || {},
-      masteredSongs: parsed.masteredSongs || {},
-      transitionScores: parsed.transitionScores || {},
-      sessionHistory: Array.isArray(parsed.sessionHistory) ? parsed.sessionHistory : [],
-      customSongs: Array.isArray(parsed.customSongs) ? parsed.customSongs : [],
-      customGenres: Array.isArray(parsed.customGenres) ? parsed.customGenres : [],
-    };
-  } catch {
-    return DEFAULT_PROGRESS;
-  }
-}
 
 function createPracticePlan(song, minutes) {
   const warmup = Math.max(2, Math.round(minutes * 0.12));
@@ -103,6 +81,7 @@ export default function App() {
     selectedSong,
     selectedSongId,
     startEditCustomSong,
+    updateCustomGenre,
     updateCustomSong,
   } = useSongLibrary({
     initialProgress: storedProgress,
@@ -146,7 +125,7 @@ export default function App() {
   });
 
   useEffect(() => {
-    const progress = {
+    saveStoredProgress({
       selectedPath,
       selectedSongId,
       sessionMinutes,
@@ -156,9 +135,7 @@ export default function App() {
       sessionHistory,
       customSongs,
       customGenres,
-    };
-
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    });
   }, [selectedPath, selectedSongId, sessionMinutes, completedStepsBySong, masteredSongs, transitionScores, sessionHistory, customSongs, customGenres]);
 
   useEffect(() => {
@@ -217,6 +194,10 @@ export default function App() {
     setActiveSection("dashboard");
   }
 
+  function handleUpdateCustomGenre(genre) {
+    updateCustomGenre(genre);
+  }
+
   function handleToggleStep(label) {
     togglePracticeStep(label);
     setSessionMessage("");
@@ -268,7 +249,7 @@ export default function App() {
   }
 
   function resetLocalProgress() {
-    window.localStorage.removeItem(STORAGE_KEY);
+    clearStoredProgress();
 
     resetPracticeProgress();
     resetSongLibrary();
@@ -310,6 +291,7 @@ export default function App() {
             selectedPath={selectedPath}
             onAddGenre={handleAddCustomGenre}
             onRemoveGenre={handleRemoveCustomGenre}
+            onUpdateGenre={handleUpdateCustomGenre}
           />
 
           <Metronome songTitle={selectedSong.title} songBpm={selectedSong.bpm} />
