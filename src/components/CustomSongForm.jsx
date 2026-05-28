@@ -1,6 +1,7 @@
 import * as React from "react";
 import { DEFAULT_CUSTOM_SONG_FORM, DOWN_STRUM, KEY_OPTIONS, UP_STRUM } from "../constants";
 import { formatTransitionValue, getNextTransitionValue, parseCommaList, parseSections, parseUltimateGuitarUrl, sanitizeTransitionValue, slugify } from "../utils/songFormUtils";
+import { StrummingPatternBuilder } from "./";
 const { useMemo, useEffect, useState } = React;
 
 function sectionsToText(sections) {
@@ -119,30 +120,6 @@ export default function CustomSongForm({ editingSong, genres, onAddSong, onCance
     }));
 
     setInfoMessage("Imported starter details. Review and fill in genre, key, difficulty, chords, sections, and strumming.");
-  }
-
-  function addStrum(direction) {
-    setForm((current) => ({
-      ...current,
-      strummingPattern: [...current.strummingPattern, direction],
-    }));
-    setMessage("");
-  }
-
-  function undoLastStrum() {
-    setForm((current) => ({
-      ...current,
-      strummingPattern: current.strummingPattern.slice(0, -1),
-    }));
-    setMessage("");
-  }
-
-  function clearStrummingPattern() {
-    setForm((current) => ({
-      ...current,
-      strummingPattern: [],
-    }));
-    setMessage("");
   }
 
   function handleTransitionKeyDown(event) {
@@ -358,42 +335,16 @@ export default function CustomSongForm({ editingSong, genres, onAddSong, onCance
             </label>
           </div>
 
-          <div className="strumming-builder">
-            <div>
-              <span>Strumming Pattern</span>
-              <p>Tap down/up arrows to build the rhythm sequence.</p>
-            </div>
-
-            <div className="strumming-display" aria-label="Selected strumming pattern">
-              {form.strummingPattern.length ? (
-                form.strummingPattern.map((direction, index) => (
-                  <strong key={`${direction}-${index}`} className={direction === DOWN_STRUM ? "strum-down" : "strum-up"}>
-                    {direction}
-                  </strong>
-                ))
-              ) : (
-                <small>No strumming pattern yet</small>
-              )}
-            </div>
-
-            <div className="strumming-actions">
-              <button type="button" className="strum-arrow-button strum-down-button" onClick={() => addStrum(DOWN_STRUM)} aria-label="Add down strum">
-                {DOWN_STRUM}
-              </button>
-
-              <button type="button" className="strum-arrow-button strum-up-button" onClick={() => addStrum(UP_STRUM)} aria-label="Add up strum">
-                {UP_STRUM}
-              </button>
-
-              <button type="button" className="ghost-button" onClick={undoLastStrum}>
-                Undo
-              </button>
-
-              <button type="button" className="danger-button" onClick={clearStrummingPattern}>
-                Clear
-              </button>
-            </div>
-          </div>
+          <StrummingPatternBuilder
+            value={form.strummingPattern}
+            onChange={(nextPattern) => {
+              setForm((current) => ({
+                ...current,
+                strummingPattern: nextPattern,
+              }));
+              setMessage("");
+            }}
+          />
 
           <label>
             <span>Chords</span>
