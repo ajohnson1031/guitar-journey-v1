@@ -1,5 +1,6 @@
 import * as React from "react";
-import { DEFAULT_PROGRESS, PATHS, SONGS } from "../constants";
+import { DEFAULT_CUSTOM_GENRE_DESCRIPTION, DEFAULT_PROGRESS, PATHS, SONGS } from "../constants";
+import { normalizeCustomGenre, normalizeCustomGenres } from "../utils/storageUtils";
 
 const { useMemo, useState } = React;
 
@@ -7,7 +8,7 @@ export default function useSongLibrary({ initialProgress }) {
   const [selectedPath, setSelectedPath] = useState(initialProgress.selectedPath);
   const [selectedSongId, setSelectedSongId] = useState(initialProgress.selectedSongId);
   const [customSongs, setCustomSongs] = useState(initialProgress.customSongs);
-  const [customGenres, setCustomGenres] = useState(initialProgress.customGenres);
+  const [customGenres, setCustomGenres] = useState(() => normalizeCustomGenres(initialProgress.customGenres));
   const [editingSongId, setEditingSongId] = useState("");
 
   const allSongs = useMemo(() => [...SONGS, ...customSongs], [customSongs]);
@@ -16,8 +17,9 @@ export default function useSongLibrary({ initialProgress }) {
 
   const pathOptions = useMemo(() => {
     const customSongGenres = customSongs.map((song) => song.genre).filter(Boolean);
+    const customGenreNames = customGenres.map((genre) => genre.name).filter(Boolean);
 
-    return Array.from(new Set([...builtInGenreNames, ...customGenres, ...customSongGenres]));
+    return Array.from(new Set([...builtInGenreNames, ...customGenreNames, ...customSongGenres]));
   }, [builtInGenreNames, customGenres, customSongs]);
 
   const pathCards = useMemo(() => {
@@ -28,8 +30,8 @@ export default function useSongLibrary({ initialProgress }) {
     }));
 
     const customCards = customGenres.map((genre) => ({
-      name: genre,
-      description: "Custom genre for your personal practice library.",
+      name: genre.name,
+      description: genre.description || DEFAULT_CUSTOM_GENRE_DESCRIPTION,
       isCustom: true,
     }));
 
@@ -107,21 +109,42 @@ export default function useSongLibrary({ initialProgress }) {
   }
 
   function addCustomGenre(genre) {
+    const nextGenre = normalizeCustomGenre(genre);
+
+    if (!nextGenre.name) return;
+
     setCustomGenres((current) => {
-      if (current.some((item) => item.toLowerCase() === genre.toLowerCase())) {
+      if (current.some((item) => item.name.toLowerCase() === nextGenre.name.toLowerCase())) {
         return current;
       }
 
-      return [...current, genre];
+      return [...current, nextGenre];
     });
 
-    setSelectedPath(genre);
+    setSelectedPath(nextGenre.name);
   }
 
-  function removeCustomGenre(genre) {
-    setCustomGenres((current) => current.filter((item) => item !== genre));
+  function updateCustomGenre(updatedGenre) {
+    const nextGenre = normalizeCustomGenre(updatedGenre);
 
-    if (selectedPath === genre) {
+    if (!nextGenre.name) return;
+
+    setCustomGenres((current) =>
+      current.map((genre) =>
+        genre.name.toLowerCase() === nextGenre.name.toLowerCase()
+          ? {
+              ...genre,
+              description: nextGenre.description,
+            }
+          : genre,
+      ),
+    );
+  }
+
+  function removeCustomGenre(genreName) {
+    setCustomGenres((current) => current.filter((item) => item.name !== genreName));
+
+    if (selectedPath === genreName) {
       const fallbackSong = allSongs.find((song) => song.genre === DEFAULT_PROGRESS.selectedPath) || allSongs[0];
 
       setSelectedPath(fallbackSong.genre);
@@ -158,6 +181,7 @@ export default function useSongLibrary({ initialProgress }) {
     selectedSong,
     selectedSongId,
     startEditCustomSong,
+    updateCustomGenre,
     updateCustomSong,
   };
 }
