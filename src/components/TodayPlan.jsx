@@ -42,7 +42,7 @@ export default function TodayPlan({
 
         <div className="session-length-card">
           <div>
-            <span>Practice Length</span>
+            <strong>Practice Length</strong>
             <p>Adjust the session length to update each practice block.</p>
           </div>
 

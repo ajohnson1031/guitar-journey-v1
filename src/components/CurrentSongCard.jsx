@@ -49,11 +49,18 @@ export default function CurrentSongCard({ filteredSongs, masteredSongs, onDelete
         </div>
       </div>
 
-      <div className="info-grid compact-info-grid">
-        <InfoCard label="Key" value={selectedSong.key} />
-        <InfoCard label="BPM" value={selectedSong.bpm} />
-        <InfoCard label="Level" value={selectedSong.difficulty} />
-        <InfoCard label="Style" value={selectedSong.genre} />
+      <div className="song-detail-grid-wrap">
+        <div className="info-grid compact-info-grid song-detail-grid">
+          <InfoCard label="Level" value={selectedSong.difficulty} />
+          <InfoCard label="Style" value={selectedSong.genre} />
+          <InfoCard label="Tuning" value={selectedSong.tuning} />
+        </div>
+
+        <div className="info-grid compact-info-grid song-detail-grid">
+          <InfoCard label="Key" value={selectedSong.key} />
+          <InfoCard label="BPM" value={selectedSong.bpm} />
+          <InfoCard label="Capo" value={selectedSong.capo} />
+        </div>
       </div>
 
       <label className="select-label" htmlFor="song-select">
@@ -73,10 +80,12 @@ export default function CurrentSongCard({ filteredSongs, masteredSongs, onDelete
 }
 
 function InfoCard({ label, value }) {
+  const displayValue = value || value === 0 ? value : "—";
+
   return (
     <div className="info-card">
       <span>{label}</span>
-      <strong>{value}</strong>
+      <strong>{displayValue}</strong>
     </div>
   );
 }
