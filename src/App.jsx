@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ChordDiagram, CustomSongForm, Metronome, SessionHistory } from "./components";
+import { ChordDiagram, CustomSongForm, GenreManager, Metronome, SessionHistory } from "./components";
 import { CHORD_DETAILS, CHORD_DIAGRAMS, DEFAULT_PROGRESS, NAV_SECTIONS, PATHS, SESSION_RATINGS, SONGS, STORAGE_KEY } from "./constants";
 
 import "./App.css";
@@ -22,6 +22,7 @@ function loadStoredProgress() {
       transitionScores: parsed.transitionScores || {},
       sessionHistory: Array.isArray(parsed.sessionHistory) ? parsed.sessionHistory : [],
       customSongs: Array.isArray(parsed.customSongs) ? parsed.customSongs : [],
+      customGenres: Array.isArray(parsed.customGenres) ? parsed.customGenres : [],
     };
   } catch {
     return DEFAULT_PROGRESS;
@@ -120,26 +121,51 @@ export default function App() {
   const [transitionScores, setTransitionScores] = useState(storedProgress.transitionScores);
   const [sessionHistory, setSessionHistory] = useState(storedProgress.sessionHistory);
   const [customSongs, setCustomSongs] = useState(storedProgress.customSongs);
+  const [customGenres, setCustomGenres] = useState(storedProgress.customGenres);
   const [sessionRating, setSessionRating] = useState("Okay");
   const [sessionMessage, setSessionMessage] = useState("");
   const [isSessionTimerRunning, setIsSessionTimerRunning] = useState(false);
   const [elapsedSessionSeconds, setElapsedSessionSeconds] = useState(0);
   const [activeSection, setActiveSection] = useState("dashboard");
+  const [editingSongId, setEditingSongId] = useState("");
 
   const allSongs = useMemo(() => [...SONGS, ...customSongs], [customSongs]);
 
-  const pathOptions = useMemo(() => {
-    const builtInPaths = PATHS.map((path) => path.name);
-    const customGenres = customSongs.map((song) => song.genre).filter(Boolean);
+  const builtInGenreNames = useMemo(() => PATHS.map((path) => path.name), []);
 
-    return Array.from(new Set([...builtInPaths, ...customGenres]));
-  }, [customSongs]);
+  const pathOptions = useMemo(() => {
+    const customSongGenres = customSongs.map((song) => song.genre).filter(Boolean);
+
+    return Array.from(new Set([...builtInGenreNames, ...customGenres, ...customSongGenres]));
+  }, [builtInGenreNames, customGenres, customSongs]);
+
+  const pathCards = useMemo(() => {
+    const builtInCards = PATHS.map((path) => ({
+      name: path.name,
+      description: path.description,
+      isCustom: false,
+    }));
+
+    const customCards = customGenres.map((genre) => ({
+      name: genre,
+      description: "Custom genre for your personal practice library.",
+      isCustom: true,
+    }));
+
+    return [...builtInCards, ...customCards];
+  }, [customGenres]);
 
   const filteredSongs = useMemo(() => allSongs.filter((song) => song.genre === selectedPath), [allSongs, selectedPath]);
 
   const selectedSong = useMemo(() => {
     return allSongs.find((song) => song.id === selectedSongId) || filteredSongs[0] || allSongs[0];
   }, [allSongs, selectedSongId, filteredSongs]);
+
+  const editingSong = useMemo(() => {
+    if (!editingSongId) return null;
+
+    return customSongs.find((song) => song.id === editingSongId) || null;
+  }, [customSongs, editingSongId]);
 
   const completedSteps = completedStepsBySong[selectedSong.id] || {};
 
@@ -162,10 +188,11 @@ export default function App() {
       transitionScores,
       sessionHistory,
       customSongs,
+      customGenres,
     };
 
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
-  }, [selectedPath, selectedSongId, sessionMinutes, completedStepsBySong, masteredSongs, transitionScores, sessionHistory, customSongs]);
+  }, [selectedPath, selectedSongId, sessionMinutes, completedStepsBySong, masteredSongs, transitionScores, sessionHistory, customSongs, customGenres]);
 
   useEffect(() => {
     if (!isSessionTimerRunning) return undefined;
@@ -198,6 +225,27 @@ export default function App() {
     setCustomSongs((current) => [song, ...current]);
     setSelectedPath(song.genre);
     setSelectedSongId(song.id);
+    setEditingSongId("");
+    setSessionMessage("");
+    setActiveSection("dashboard");
+  }
+
+  function handleStartEditCustomSong(songId) {
+    setEditingSongId(songId);
+    setActiveSection("dashboard");
+    setSessionMessage("");
+  }
+
+  function handleCancelEditCustomSong() {
+    setEditingSongId("");
+  }
+
+  function handleUpdateCustomSong(updatedSong) {
+    setCustomSongs((current) => current.map((song) => (song.id === updatedSong.id ? updatedSong : song)));
+
+    setSelectedPath(updatedSong.genre);
+    setSelectedSongId(updatedSong.id);
+    setEditingSongId("");
     setSessionMessage("");
     setActiveSection("dashboard");
   }
@@ -238,6 +286,36 @@ export default function App() {
 
     if (selectedSongId === songId) {
       const fallbackSong = nextAllSongs.find((song) => song.genre === songToDelete.genre) || nextAllSongs[0];
+
+      setSelectedPath(fallbackSong.genre);
+      setSelectedSongId(fallbackSong.id);
+    }
+
+    if (editingSongId === songId) {
+      setEditingSongId("");
+    }
+
+    setActiveSection("dashboard");
+  }
+
+  function handleAddCustomGenre(genre) {
+    setCustomGenres((current) => {
+      if (current.some((item) => item.toLowerCase() === genre.toLowerCase())) {
+        return current;
+      }
+
+      return [...current, genre];
+    });
+
+    setSelectedPath(genre);
+    setActiveSection("dashboard");
+  }
+
+  function handleRemoveCustomGenre(genre) {
+    setCustomGenres((current) => current.filter((item) => item !== genre));
+
+    if (selectedPath === genre) {
+      const fallbackSong = allSongs.find((song) => song.genre === DEFAULT_PROGRESS.selectedPath) || allSongs[0];
 
       setSelectedPath(fallbackSong.genre);
       setSelectedSongId(fallbackSong.id);
@@ -328,6 +406,8 @@ export default function App() {
     setIsSessionTimerRunning(false);
     setElapsedSessionSeconds(0);
     setActiveSection("dashboard");
+    setEditingSongId("");
+    setCustomGenres([]);
   }
 
   return (
@@ -343,7 +423,7 @@ export default function App() {
           <section className="panel-card">
             <h2>Genre Path</h2>
             <div className="path-list">
-              {PATHS.map((path) => (
+              {pathCards.map((path) => (
                 <button key={path.name} type="button" onClick={() => handlePathChange(path.name)} className={`path-card ${selectedPath === path.name ? "is-active" : ""}`}>
                   <span>{path.name}</span>
                   <small>{path.description}</small>
@@ -352,16 +432,14 @@ export default function App() {
             </div>
           </section>
 
-          <section className="panel-card">
-            <h2>Practice Length</h2>
-            <div className="button-row three">
-              {[15, 20, 30].map((minutes) => (
-                <button key={minutes} type="button" onClick={() => setSessionMinutes(minutes)} className={sessionMinutes === minutes ? "selected-button" : "ghost-button"}>
-                  {minutes}m
-                </button>
-              ))}
-            </div>
-          </section>
+          <GenreManager
+            builtInGenres={builtInGenreNames}
+            customGenres={customGenres}
+            songs={allSongs}
+            selectedPath={selectedPath}
+            onAddGenre={handleAddCustomGenre}
+            onRemoveGenre={handleRemoveCustomGenre}
+          />
 
           <Metronome songTitle={selectedSong.title} songBpm={selectedSong.bpm} />
 
@@ -393,7 +471,13 @@ export default function App() {
         </aside>
 
         <section className="main-content">
-          <CustomSongForm genres={pathOptions} onAddSong={handleAddCustomSong} />
+          <CustomSongForm
+            editingSong={editingSong}
+            genres={pathOptions}
+            onAddSong={handleAddCustomSong}
+            onCancelEdit={handleCancelEditCustomSong}
+            onUpdateSong={handleUpdateCustomSong}
+          />
 
           <nav className="dashboard-nav" aria-label="Guitar Journey sections">
             {NAV_SECTIONS.map((section) => (
@@ -419,24 +503,44 @@ export default function App() {
                       <p>{selectedSong.goal}</p>
                     </div>
 
-                    <div className="song-header-actions">
+                    <div className="song-header-actions song-icon-actions">
                       {selectedSong.isCustom ? (
-                        <button type="button" className="danger-button" onClick={() => handleDeleteCustomSong(selectedSong.id)}>
-                          Delete Custom Song
-                        </button>
+                        <>
+                          <button
+                            type="button"
+                            className="icon-button ghost-button edit-icon-button"
+                            title="Edit Custom Song"
+                            aria-label="Edit Custom Song"
+                            onClick={() => handleStartEditCustomSong(selectedSong.id)}
+                          >
+                            <PencilIcon />
+                          </button>
+
+                          <button
+                            type="button"
+                            className="icon-button danger-button"
+                            title="Delete Custom Song"
+                            aria-label="Delete Custom Song"
+                            onClick={() => handleDeleteCustomSong(selectedSong.id)}
+                          >
+                            <XIcon />
+                          </button>
+                        </>
                       ) : null}
 
                       <button
                         type="button"
+                        title={masteredSongs[selectedSong.id] ? "Marked Mastered" : "Mark Mastered"}
+                        aria-label={masteredSongs[selectedSong.id] ? "Marked Mastered" : "Mark Mastered"}
                         onClick={() =>
                           setMasteredSongs((current) => ({
                             ...current,
                             [selectedSong.id]: !current[selectedSong.id],
                           }))
                         }
-                        className={masteredSongs[selectedSong.id] ? "mastered-button" : "ghost-button"}
+                        className={`icon-button mastered-icon-button ${masteredSongs[selectedSong.id] ? "mastered-button" : "ghost-button"}`}
                       >
-                        {masteredSongs[selectedSong.id] ? "Marked Mastered" : "Mark Mastered"}
+                        <DoubleCheckIcon />
                       </button>
                     </div>
                   </div>
@@ -498,6 +602,21 @@ export default function App() {
                     <h2>Today’s Plan</h2>
                   </div>
                   <div className="progress-badge">{progressPercent}%</div>
+                </div>
+
+                <div className="session-length-card">
+                  <div>
+                    <span>Practice Length</span>
+                    <p>Adjust the session length to update each practice block.</p>
+                  </div>
+
+                  <div className="session-length-actions">
+                    {[15, 20, 30].map((minutes) => (
+                      <button key={minutes} type="button" onClick={() => setSessionMinutes(minutes)} className={sessionMinutes === minutes ? "selected-button" : "ghost-button"}>
+                        {minutes}m
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="progress-track">
@@ -624,5 +743,32 @@ function InfoCard({ label, value }) {
       <span>{label}</span>
       <strong>{value}</strong>
     </div>
+  );
+}
+
+function PencilIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M4 20h4.25L19.7 8.55a2.12 2.12 0 0 0 0-3L18.45 4.3a2.12 2.12 0 0 0-3 0L4 15.75V20Z" />
+      <path d="m14.5 5.25 4.25 4.25" />
+    </svg>
+  );
+}
+
+function XIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M6 6 18 18" />
+      <path d="M18 6 6 18" />
+    </svg>
+  );
+}
+
+function DoubleCheckIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="m3.5 12.5 4 4L15 7.5" />
+      <path d="m10.5 14.5 2 2L21 7.5" />
+    </svg>
   );
 }
