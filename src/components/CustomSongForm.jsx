@@ -1,58 +1,11 @@
 import * as React from "react";
-import { DEFAULT_FORM, DOWN_STRUM, KEY_OPTIONS, UP_STRUM } from "../constants";
+import { DEFAULT_CUSTOM_SONG_FORM, DOWN_STRUM, KEY_OPTIONS, UP_STRUM } from "../constants";
+import { formatTransitionValue, getNextTransitionValue, parseCommaList, parseSections, parseUltimateGuitarUrl, sanitizeTransitionValue, slugify } from "../utils/songFormUtils";
 const { useMemo, useEffect, useState } = React;
-
-function slugify(value) {
-  return String(value || "")
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-function titleCase(value) {
-  return String(value || "")
-    .split("-")
-    .filter(Boolean)
-    .map((word) => {
-      if (!word) return word;
-
-      return `${word[0].toUpperCase()}${word.slice(1)}`;
-    })
-    .join(" ");
-}
-
-function parseCommaList(value) {
-  return String(value || "")
-    .split(",")
-    .map((item) => item.trim())
-    .filter(Boolean);
-}
-
-function parseSections(value) {
-  const sections = String(value || "")
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .map((line) => {
-      const [nameRaw, ...progressionParts] = line.split(":");
-      const name = nameRaw?.trim() || "Section";
-      const progression = progressionParts.join(":").trim();
-
-      return {
-        name,
-        progression: progression || line,
-      };
-    });
-
-  if (sections.length) return sections;
-
-  return [{ name: "Main", progression: "X - X - X - X" }];
-}
 
 function sectionsToText(sections) {
   if (!Array.isArray(sections) || !sections.length) {
-    return DEFAULT_FORM.sections;
+    return DEFAULT_CUSTOM_SONG_FORM.sections;
   }
 
   return sections.map((section) => `${section.name || "Section"}: ${section.progression || "X - X - X - X"}`).join("\n");
@@ -71,7 +24,7 @@ function parseStrummingPattern(value) {
 }
 
 function songToForm(song) {
-  if (!song) return DEFAULT_FORM;
+  if (!song) return DEFAULT_CUSTOM_SONG_FORM;
 
   return {
     sourceUrl: song.sourceUrl || "",
@@ -86,126 +39,14 @@ function songToForm(song) {
     transitions: Array.isArray(song.transitions) ? song.transitions.join(", ") : "",
     sections: sectionsToText(song.sections),
     strummingPattern: parseStrummingPattern(song.strumming),
-    goal: song.goal || DEFAULT_FORM.goal,
+    goal: song.goal || DEFAULT_CUSTOM_SONG_FORM.goal,
   };
-}
-
-function parseUltimateGuitarUrl(value) {
-  try {
-    const url = new URL(value.trim());
-
-    const isUltimateGuitar = url.hostname === "tabs.ultimate-guitar.com" || url.hostname === "www.ultimate-guitar.com" || url.hostname === "ultimate-guitar.com";
-
-    if (!isUltimateGuitar) {
-      return {
-        ok: false,
-        message: "That does not look like an Ultimate Guitar link.",
-      };
-    }
-
-    const pathParts = url.pathname.split("/").filter(Boolean);
-    const tabIndex = pathParts.indexOf("tab");
-
-    if (tabIndex === -1) {
-      return {
-        ok: false,
-        message: "Could not find a tab path in that Ultimate Guitar link.",
-      };
-    }
-
-    const artistSlug = pathParts[tabIndex + 1] || "";
-    const songSlug = pathParts[tabIndex + 2] || "";
-
-    if (!artistSlug || !songSlug) {
-      return {
-        ok: false,
-        message: "Could not read artist and song information from that link.",
-      };
-    }
-
-    const tabIdMatch = songSlug.match(/-(\d+)$/);
-    const tabId = tabIdMatch?.[1] || "";
-
-    const songSlugWithoutId = tabId ? songSlug.replace(`-${tabId}`, "") : songSlug;
-    const knownTypes = ["chords", "tab", "tabs", "bass", "ukulele", "drums", "guitar-pro"];
-    const songParts = songSlugWithoutId.split("-").filter(Boolean);
-
-    let instrument = "Guitar";
-    let titleParts = songParts;
-
-    const lastPart = songParts[songParts.length - 1];
-
-    if (knownTypes.includes(lastPart)) {
-      instrument = lastPart === "guitar-pro" ? "Guitar Pro" : titleCase(lastPart);
-      titleParts = songParts.slice(0, -1);
-    }
-
-    const artist = titleCase(artistSlug);
-    const title = titleCase(titleParts.join("-"));
-
-    return {
-      ok: true,
-      data: {
-        artist,
-        title,
-        instrument,
-        tabId,
-        source: "Ultimate Guitar",
-        sourceUrl: url.toString(),
-      },
-    };
-  } catch {
-    return {
-      ok: false,
-      message: "Enter a valid Ultimate Guitar URL.",
-    };
-  }
-}
-
-function sanitizeTransitionValue(value) {
-  return String(value || "")
-    .replace(/[^a-zA-Z,\s→]/g, "")
-    .replace(/\s{2,}/g, " ");
-}
-
-function formatTransitionValue(value) {
-  return sanitizeTransitionValue(value)
-    .replace(/\s*→\s*/g, " → ")
-    .replace(/\s*,\s*/g, ", ")
-    .replace(/\s{2,}/g, " ")
-    .trim();
-}
-
-function getNextTransitionValue(currentValue, addition) {
-  const value = String(currentValue || "");
-
-  if (addition === "arrow") {
-    const trimmed = value.trimEnd();
-
-    if (!trimmed) return value;
-    if (trimmed.endsWith("→")) return `${trimmed} `;
-    if (trimmed.endsWith(",")) return `${trimmed} `;
-
-    return `${trimmed} → `;
-  }
-
-  if (addition === "comma") {
-    const trimmed = value.trimEnd();
-
-    if (!trimmed) return value;
-    if (trimmed.endsWith(",")) return `${trimmed} `;
-    if (trimmed.endsWith("→")) return trimmed;
-
-    return `${trimmed}, `;
-  }
-
-  return value;
 }
 
 export default function CustomSongForm({ editingSong, genres, onAddSong, onCancelEdit, onUpdateSong }) {
   const isEditing = Boolean(editingSong);
 
-  const [form, setForm] = useState(DEFAULT_FORM);
+  const [form, setForm] = useState(DEFAULT_CUSTOM_SONG_FORM);
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [messageTone, setMessageTone] = useState("error");
@@ -240,14 +81,14 @@ export default function CustomSongForm({ editingSong, genres, onAddSong, onCance
   }
 
   function resetForm() {
-    setForm(isEditing ? songToForm(editingSong) : DEFAULT_FORM);
+    setForm(isEditing ? songToForm(editingSong) : DEFAULT_CUSTOM_SONG_FORM);
     setMessage("");
   }
 
   function closeForm() {
     setIsOpen(false);
     setMessage("");
-    setForm(DEFAULT_FORM);
+    setForm(DEFAULT_CUSTOM_SONG_FORM);
 
     if (isEditing) {
       onCancelEdit();
@@ -272,7 +113,7 @@ export default function CustomSongForm({ editingSong, genres, onAddSong, onCance
       instrument: imported.instrument || current.instrument,
       sourceUrl: imported.sourceUrl || current.sourceUrl,
       goal:
-        current.goal === DEFAULT_FORM.goal
+        current.goal === DEFAULT_CUSTOM_SONG_FORM.goal
           ? `Learn ${titleWithArtist} with clean timing, smooth transitions, and a focused ${imported.instrument.toLowerCase()} practice plan.`
           : current.goal,
     }));
@@ -406,7 +247,7 @@ export default function CustomSongForm({ editingSong, genres, onAddSong, onCance
 
     setMessage("");
     setMessageTone("error");
-    setForm(DEFAULT_FORM);
+    setForm(DEFAULT_CUSTOM_SONG_FORM);
     setIsOpen(false);
   }
 

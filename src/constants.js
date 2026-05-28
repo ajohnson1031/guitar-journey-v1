@@ -322,6 +322,7 @@ const DEFAULT_CUSTOM_SONG_FORM = {
   transitions: "G → C, C → G, G → D, Em → C",
   sections: "Verse: G - C - G - D\nChorus: G - D - Em - C",
   strumming: "Down, down-up, up-down-up",
+  strummingPattern: ["↓", "↓", "↑", "↓", "↑"],
   goal: "Build clean chord changes and steady timing.",
 };
 
@@ -366,27 +367,10 @@ const KEY_OPTIONS = [
 
 const DIFFICULTY_OPTIONS = ["Beginner", "Intermediate", "Advanced", "Expert"];
 
-const DEFAULT_FORM = {
-  sourceUrl: "",
-  artist: "",
-  instrument: "",
-  title: "",
-  genre: "",
-  key: "",
-  bpm: "72",
-  difficulty: "",
-  chords: "G, C, Em, D",
-  transitions: "",
-  sections: "Verse: X - X - X - X\nChorus: X - X - X - X",
-  strummingPattern: [],
-  goal: "Build clean chord changes and steady timing.",
-};
-
 export {
   CHORD_DETAILS,
   CHORD_DIAGRAMS,
   DEFAULT_CUSTOM_SONG_FORM,
-  DEFAULT_FORM,
   DEFAULT_PROGRESS,
   DIFFICULTY_OPTIONS,
   DOWN_STRUM,
