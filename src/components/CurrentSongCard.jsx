@@ -51,15 +51,15 @@ export default function CurrentSongCard({ filteredSongs, masteredSongs, onDelete
 
       <div className="song-detail-grid-wrap">
         <div className="info-grid compact-info-grid song-detail-grid">
-          <InfoCard label="Level" value={selectedSong.difficulty} />
           <InfoCard label="Style" value={selectedSong.genre} />
+          <InfoCard label="Level" value={selectedSong.difficulty} />
           <InfoCard label="Tuning" value={selectedSong.tuning} />
         </div>
 
         <div className="info-grid compact-info-grid song-detail-grid">
           <InfoCard label="Key" value={selectedSong.key} />
-          <InfoCard label="BPM" value={selectedSong.bpm} />
           <InfoCard label="Capo" value={selectedSong.capo} />
+          <InfoCard label="BPM" value={selectedSong.bpm} />
         </div>
       </div>
 
