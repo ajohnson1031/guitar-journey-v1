@@ -1,6 +1,6 @@
 import * as React from "react";
-import { ChordDiagram, CustomSongForm, GenreManager, Metronome, SessionHistory } from "./components";
-import { CHORD_DETAILS, CHORD_DIAGRAMS, DEFAULT_PROGRESS, NAV_SECTIONS, PATHS, SESSION_RATINGS, SONGS, STORAGE_KEY } from "./constants";
+import { CurrentSongCard, CustomSongForm, GenreManager, Metronome, RequiredChords, SessionHistory, SongSections, TodayPlan, TransitionTracker } from "./components";
+import { DEFAULT_PROGRESS, NAV_SECTIONS, PATHS, SONGS, STORAGE_KEY } from "./constants";
 
 import "./App.css";
 
@@ -73,41 +73,10 @@ function createSessionId() {
   return `session-${Date.now()}`;
 }
 
-function formatElapsedTime(totalSeconds) {
-  const safeSeconds = Math.max(0, Number(totalSeconds) || 0);
-  const minutes = Math.floor(safeSeconds / 60);
-  const seconds = safeSeconds % 60;
-
-  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-}
-
 function secondsToPracticeMinutes(totalSeconds) {
   if (!totalSeconds) return 0;
 
   return Math.max(1, Math.ceil(totalSeconds / 60));
-}
-
-function isArrowStrummingPattern(value) {
-  return /^[↓↑\s]+$/.test(String(value || "").trim());
-}
-
-function StrummingPatternDisplay({ pattern }) {
-  if (!isArrowStrummingPattern(pattern)) {
-    return <span>{pattern}</span>;
-  }
-
-  return (
-    <span className="inline-strumming-display" aria-label="Strumming pattern">
-      {String(pattern)
-        .trim()
-        .split(/\s+/)
-        .map((direction, index) => (
-          <strong key={`${direction}-${index}`} className={direction === "↓" ? "strum-down" : "strum-up"}>
-            {direction}
-          </strong>
-        ))}
-    </span>
-  );
 }
 
 export default function App() {
@@ -219,6 +188,11 @@ export default function App() {
     setSelectedSongId(firstSong?.id || selectedSongId);
     setSessionMessage("");
     setActiveSection("dashboard");
+  }
+
+  function handleSelectSong(songId) {
+    setSelectedSongId(songId);
+    setSessionMessage("");
   }
 
   function handleAddCustomSong(song) {
@@ -344,6 +318,13 @@ export default function App() {
     setTransitionScores((current) => ({
       ...current,
       [`${selectedSong.id}:${transition}`]: value,
+    }));
+  }
+
+  function toggleMasteredSong(songId) {
+    setMasteredSongs((current) => ({
+      ...current,
+      [songId]: !current[songId],
     }));
   }
 
@@ -495,280 +476,49 @@ export default function App() {
           {activeSection === "dashboard" ? (
             <div className="top-grid dashboard-top-grid">
               <div className="song-column">
-                <section className="song-card compact-song-card">
-                  <div className="song-header">
-                    <div>
-                      <p className="eyebrow">Current Song</p>
-                      <h2>{selectedSong.title}</h2>
-                      <p>{selectedSong.goal}</p>
-                    </div>
+                <CurrentSongCard
+                  filteredSongs={filteredSongs}
+                  masteredSongs={masteredSongs}
+                  onDeleteCustomSong={handleDeleteCustomSong}
+                  onSelectSong={handleSelectSong}
+                  onStartEditCustomSong={handleStartEditCustomSong}
+                  onToggleMastered={toggleMasteredSong}
+                  selectedSong={selectedSong}
+                />
 
-                    <div className="song-header-actions song-icon-actions">
-                      {selectedSong.isCustom ? (
-                        <>
-                          <button
-                            type="button"
-                            className="icon-button ghost-button edit-icon-button"
-                            title="Edit Custom Song"
-                            aria-label="Edit Custom Song"
-                            onClick={() => handleStartEditCustomSong(selectedSong.id)}
-                          >
-                            <PencilIcon />
-                          </button>
-
-                          <button
-                            type="button"
-                            className="icon-button danger-button"
-                            title="Delete Custom Song"
-                            aria-label="Delete Custom Song"
-                            onClick={() => handleDeleteCustomSong(selectedSong.id)}
-                          >
-                            <XIcon />
-                          </button>
-                        </>
-                      ) : null}
-
-                      <button
-                        type="button"
-                        title={masteredSongs[selectedSong.id] ? "Marked Mastered" : "Mark Mastered"}
-                        aria-label={masteredSongs[selectedSong.id] ? "Marked Mastered" : "Mark Mastered"}
-                        onClick={() =>
-                          setMasteredSongs((current) => ({
-                            ...current,
-                            [selectedSong.id]: !current[selectedSong.id],
-                          }))
-                        }
-                        className={`icon-button mastered-icon-button ${masteredSongs[selectedSong.id] ? "mastered-button" : "ghost-button"}`}
-                      >
-                        <DoubleCheckIcon />
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="info-grid compact-info-grid">
-                    <InfoCard label="Key" value={selectedSong.key} />
-                    <InfoCard label="BPM" value={selectedSong.bpm} />
-                    <InfoCard label="Level" value={selectedSong.difficulty} />
-                    <InfoCard label="Style" value={selectedSong.genre} />
-                  </div>
-
-                  <label className="select-label" htmlFor="song-select">
-                    Choose Song
-                  </label>
-                  <select
-                    id="song-select"
-                    value={selectedSong.id}
-                    onChange={(event) => {
-                      setSelectedSongId(event.target.value);
-                      setSessionMessage("");
-                    }}
-                  >
-                    {filteredSongs.map((song) => (
-                      <option key={song.id} value={song.id}>
-                        {song.title} — {song.difficulty}
-                        {song.isCustom ? " — custom" : ""}
-                      </option>
-                    ))}
-                  </select>
-                </section>
-
-                <section className="panel-card">
-                  <h2>Required Chords</h2>
-                  <p className="section-copy">Practice these before attempting the full song.</p>
-
-                  <div className="chord-grid">
-                    {selectedSong.chords.map((chord) => (
-                      <div key={chord} className="chord-card">
-                        <div className="chord-card-header">
-                          <div>
-                            <strong>{chord}</strong>
-                            <span>{CHORD_DETAILS[chord]?.level || "Custom"}</span>
-                          </div>
-                        </div>
-
-                        <ChordDiagram chordName={chord} diagram={CHORD_DIAGRAMS[chord]} />
-
-                        <p>{CHORD_DETAILS[chord]?.tip || "No diagram/tip yet. Practice slowly and listen for clean ringing notes."}</p>
-                      </div>
-                    ))}
-                  </div>
-                </section>
+                <RequiredChords selectedSong={selectedSong} />
               </div>
 
-              <section className="session-card">
-                <div className="session-header">
-                  <div>
-                    <p className="eyebrow">Session</p>
-                    <h2>Today’s Plan</h2>
-                  </div>
-                  <div className="progress-badge">{progressPercent}%</div>
-                </div>
-
-                <div className="session-length-card">
-                  <div>
-                    <span>Practice Length</span>
-                    <p>Adjust the session length to update each practice block.</p>
-                  </div>
-
-                  <div className="session-length-actions">
-                    {[15, 20, 30].map((minutes) => (
-                      <button key={minutes} type="button" onClick={() => setSessionMinutes(minutes)} className={sessionMinutes === minutes ? "selected-button" : "ghost-button"}>
-                        {minutes}m
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="progress-track">
-                  <div className="progress-fill" style={{ width: `${progressPercent}%` }} />
-                </div>
-
-                <div className="step-list">
-                  {plan.map((step) => (
-                    <button key={step.label} type="button" onClick={() => toggleStep(step.label)} className={`step-card ${completedSteps[step.label] ? "is-complete" : ""}`}>
-                      <span>
-                        <strong>{step.label}</strong>
-                        <small>{step.minutes} min</small>
-                      </span>
-                      <p>{step.detail}</p>
-                    </button>
-                  ))}
-                </div>
-
-                <div className="complete-session-card">
-                  <div>
-                    <h3>Complete Session</h3>
-                    <p>Start the timer, practice, rate how it felt, then save actual practice time.</p>
-                  </div>
-
-                  <div className="session-timer-display">
-                    <span>Elapsed</span>
-                    <strong>{formatElapsedTime(elapsedSessionSeconds)}</strong>
-                    <small>
-                      Planned: {sessionMinutes} min • Actual saved: {actualPracticeMinutes} min
-                    </small>
-                  </div>
-
-                  <div className="session-timer-actions">
-                    <button type="button" className={isSessionTimerRunning ? "metronome-stop-button" : "selected-button"} onClick={toggleSessionTimer}>
-                      {isSessionTimerRunning ? "Pause Session" : "Start Session"}
-                    </button>
-
-                    <button type="button" className="ghost-button" onClick={resetSessionTimer}>
-                      Reset Timer
-                    </button>
-                  </div>
-
-                  <div className="rating-row" aria-label="Session rating">
-                    {SESSION_RATINGS.map((rating) => (
-                      <button key={rating} type="button" onClick={() => setSessionRating(rating)} className={sessionRating === rating ? "selected-button" : "ghost-button"}>
-                        {rating}
-                      </button>
-                    ))}
-                  </div>
-
-                  <button type="button" className="complete-session-button" onClick={completeSession} disabled={!canCompleteSession}>
-                    Save Completed Session
-                  </button>
-
-                  {sessionMessage ? <p className="session-message">{sessionMessage}</p> : null}
-                </div>
-              </section>
+              <TodayPlan
+                actualPracticeMinutes={actualPracticeMinutes}
+                canCompleteSession={canCompleteSession}
+                completedSteps={completedSteps}
+                elapsedSessionSeconds={elapsedSessionSeconds}
+                isSessionTimerRunning={isSessionTimerRunning}
+                onCompleteSession={completeSession}
+                onResetSessionTimer={resetSessionTimer}
+                onSessionMinutesChange={setSessionMinutes}
+                onSessionRatingChange={setSessionRating}
+                onToggleSessionTimer={toggleSessionTimer}
+                onToggleStep={toggleStep}
+                plan={plan}
+                progressPercent={progressPercent}
+                sessionMessage={sessionMessage}
+                sessionMinutes={sessionMinutes}
+                sessionRating={sessionRating}
+              />
             </div>
           ) : null}
 
           {activeSection === "transitions" ? (
-            <section className="panel-card detail-section-card">
-              <div className="detail-section-header">
-                <div>
-                  <p className="eyebrow">Practice Detail</p>
-                  <h2>Transition Tracker</h2>
-                  <p className="section-copy">Log clean changes per minute. Aim for smoothness before speed.</p>
-                </div>
-              </div>
-
-              <div className="transition-list transition-grid">
-                {selectedSong.transitions.map((transition) => {
-                  const key = `${selectedSong.id}:${transition}`;
-
-                  return (
-                    <div key={transition} className="transition-card">
-                      <div>
-                        <strong>{transition}</strong>
-                        <span>{transitionScores[key] || 0} clean/min</span>
-                      </div>
-                      <input type="range" min="0" max="80" value={transitionScores[key] || 0} onChange={(event) => updateTransitionScore(transition, Number(event.target.value))} />
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
+            <TransitionTracker selectedSong={selectedSong} transitionScores={transitionScores} onUpdateTransitionScore={updateTransitionScore} />
           ) : null}
 
-          {activeSection === "sections" ? (
-            <section className="panel-card detail-section-card">
-              <div className="section-heading-row">
-                <div>
-                  <p className="eyebrow">Practice Detail</p>
-                  <h2>Song Sections</h2>
-                  <p className="section-copy">Break the song into manageable pieces before the full playthrough.</p>
-                </div>
-                <span className="strum-pill">
-                  <span>Strum:</span>
-                  <StrummingPatternDisplay pattern={selectedSong.strumming} />
-                </span>
-              </div>
-
-              <div className="section-list">
-                {selectedSong.sections.map((section) => (
-                  <div key={section.name} className="song-section-card">
-                    <span>{section.name}</span>
-                    <strong>{section.progression}</strong>
-                  </div>
-                ))}
-              </div>
-            </section>
-          ) : null}
+          {activeSection === "sections" ? <SongSections selectedSong={selectedSong} /> : null}
 
           {activeSection === "history" ? <SessionHistory sessions={sessionHistory} /> : null}
         </section>
       </div>
     </main>
-  );
-}
-
-function InfoCard({ label, value }) {
-  return (
-    <div className="info-card">
-      <span>{label}</span>
-      <strong>{value}</strong>
-    </div>
-  );
-}
-
-function PencilIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path d="M4 20h4.25L19.7 8.55a2.12 2.12 0 0 0 0-3L18.45 4.3a2.12 2.12 0 0 0-3 0L4 15.75V20Z" />
-      <path d="m14.5 5.25 4.25 4.25" />
-    </svg>
-  );
-}
-
-function XIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path d="M6 6 18 18" />
-      <path d="M18 6 6 18" />
-    </svg>
-  );
-}
-
-function DoubleCheckIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path d="m3.5 12.5 4 4L15 7.5" />
-      <path d="m10.5 14.5 2 2L21 7.5" />
-    </svg>
   );
 }

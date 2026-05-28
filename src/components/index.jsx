@@ -1,6 +1,11 @@
 export { default as ChordDiagram } from "./ChordDiagram";
+export { default as CurrentSongCard } from "./CurrentSongCard";
 export { default as CustomSongForm } from "./CustomSongForm";
 export { default as GenreManager } from "./GenreManager";
 export { default as Metronome } from "./Metronome";
+export { default as RequiredChords } from "./RequiredChords";
 export { default as SessionHistory } from "./SessionHistory";
+export { default as SongSections } from "./SongSections";
 export { default as StrummingPatternBuilder } from "./StrummingPatternBuilder";
+export { default as TodayPlan } from "./TodayPlan";
+export { default as TransitionTracker } from "./TransitionTracker";
