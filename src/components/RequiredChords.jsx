@@ -1,5 +1,6 @@
 import * as React from "react";
-import { CHORD_DETAILS, CHORD_DIAGRAMS } from "../constants";
+import { CHORD_DETAILS } from "../constants";
+import { getChordDiagram } from "../utils/chordDiagramUtils";
 import ChordDiagram from "./ChordDiagram";
 
 const { Fragment } = React;
@@ -12,20 +13,30 @@ export default function RequiredChords({ selectedSong }) {
         <p className="section-copy">Practice these before attempting the full song.</p>
 
         <div className="chord-grid">
-          {selectedSong.chords.map((chord) => (
-            <div key={chord} className="chord-card">
-              <div className="chord-card-header">
-                <div>
-                  <strong>{chord}</strong>
-                  <span>{CHORD_DETAILS[chord]?.level || "Custom"}</span>
+          {selectedSong.chords.map((chord) => {
+            const chordDetail = CHORD_DETAILS[chord];
+            const diagram = getChordDiagram(chord);
+
+            return (
+              <div key={chord} className="chord-card">
+                <div className="chord-card-header">
+                  <div>
+                    <strong>{chord}</strong>
+                    <span>{chordDetail?.level || (diagram ? "Auto shape" : "Custom")}</span>
+                  </div>
                 </div>
+
+                <ChordDiagram chordName={chord} diagram={diagram} />
+
+                <p>
+                  {chordDetail?.tip ||
+                    (diagram
+                      ? "Generated from a common movable chord shape. Adjust fingering as needed."
+                      : "No diagram/tip yet. Practice slowly and listen for clean ringing notes.")}
+                </p>
               </div>
-
-              <ChordDiagram chordName={chord} diagram={CHORD_DIAGRAMS[chord]} />
-
-              <p>{CHORD_DETAILS[chord]?.tip || "No diagram/tip yet. Practice slowly and listen for clean ringing notes."}</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
     </Fragment>
