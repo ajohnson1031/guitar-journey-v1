@@ -10,3 +10,4 @@ export { default as StrummingPatternBuilder } from "./StrummingPatternBuilder";
 export { default as TodayPlan } from "./TodayPlan";
 export { default as TransitionInput } from "./TransitionInput";
 export { default as TransitionTracker } from "./TransitionTracker";
+export { default as WeeklyPlan } from "./WeeklyPlan";

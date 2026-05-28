@@ -1492,4 +1492,144 @@ select:focus,
   .history-card div {
     flex-direction: column;
   }
+
+  .weekly-summary-grid,
+  .weekly-day-card {
+    grid-template-columns: 1fr;
+  }
+
+  .weekly-day-title-row {
+    flex-direction: column;
+  }
+}
+
+/* =========================
+   Weekly Plan
+========================= */
+
+.weekly-plan-card {
+  display: grid;
+  gap: 18px;
+}
+
+.weekly-plan-header {
+  margin-bottom: 0;
+}
+
+.weekly-focus-card {
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: rgba(10, 10, 11, 0.42);
+  padding: 16px;
+}
+
+.weekly-focus-card span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.weekly-focus-card strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 26px;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.weekly-focus-card p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.weekly-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.weekly-summary-grid div {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(10, 10, 11, 0.42);
+  padding: 14px;
+}
+
+.weekly-summary-grid span {
+  display: block;
+  color: var(--text);
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.weekly-summary-grid small {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.weekly-day-list {
+  display: grid;
+  gap: 10px;
+}
+
+.weekly-day-card {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 14px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: rgba(10, 10, 11, 0.42);
+  padding: 14px;
+}
+
+.weekly-day-badge {
+  display: grid;
+  min-height: 54px;
+  place-items: center;
+  border: 1px solid var(--blue);
+  border-radius: 18px;
+  background: var(--blue-soft);
+  color: #7dd3fc;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.weekly-day-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.weekly-day-title-row h3 {
+  margin: 0;
+  font-size: 18px;
+  letter-spacing: -0.03em;
+}
+
+.weekly-day-title-row span {
+  flex: 0 0 auto;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(10, 10, 11, 0.5);
+  color: var(--muted-strong);
+  padding: 5px 9px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.weekly-day-card p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
 }

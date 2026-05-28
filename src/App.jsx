@@ -1,5 +1,5 @@
 import * as React from "react";
-import { CurrentSongCard, CustomSongForm, GenreManager, Metronome, RequiredChords, SessionHistory, SongSections, TodayPlan, TransitionTracker } from "./components";
+import { CurrentSongCard, CustomSongForm, GenreManager, Metronome, RequiredChords, SessionHistory, SongSections, TodayPlan, TransitionTracker, WeeklyPlan } from "./components";
 import { DEFAULT_PROGRESS, NAV_SECTIONS } from "./constants";
 import { usePracticeProgress, useSessionTimer, useSongLibrary } from "./hooks";
 import { clearStoredProgress, loadStoredProgress, saveStoredProgress } from "./utils/storageUtils";
@@ -389,6 +389,16 @@ export default function App() {
           {activeSection === "sections" ? <SongSections selectedSong={selectedSong} /> : null}
 
           {activeSection === "history" ? <SessionHistory sessions={sessionHistory} /> : null}
+
+          {activeSection === "weekly-plan" ? (
+            <WeeklyPlan
+              masteredSongs={masteredSongs}
+              selectedSong={selectedSong}
+              sessionHistory={sessionHistory}
+              sessionMinutes={sessionMinutes}
+              transitionScores={transitionScores}
+            />
+          ) : null}
         </section>
       </div>
     </main>
