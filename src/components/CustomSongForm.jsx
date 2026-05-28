@@ -1,7 +1,7 @@
 import * as React from "react";
 import { DEFAULT_CUSTOM_SONG_FORM, DOWN_STRUM, KEY_OPTIONS, UP_STRUM } from "../constants";
-import { formatTransitionValue, getNextTransitionValue, parseCommaList, parseSections, parseUltimateGuitarUrl, sanitizeTransitionValue, slugify } from "../utils/songFormUtils";
-import { StrummingPatternBuilder } from "./";
+import { parseCommaList, parseSections, parseUltimateGuitarUrl, slugify } from "../utils/songFormUtils";
+import { StrummingPatternBuilder, TransitionInput } from "./";
 const { useMemo, useEffect, useState } = React;
 
 const DIFFICULTY_OPTIONS = ["Beginner", "Intermediate", "Advanced", "Expert"];
@@ -124,40 +124,6 @@ export default function CustomSongForm({ editingSong, genres, onAddSong, onCance
     }));
 
     setInfoMessage("Imported starter details. Review and fill in genre, key, difficulty, chords, sections, and strumming.");
-  }
-
-  function handleTransitionKeyDown(event) {
-    const allowedControlKeys = ["Backspace", "Delete", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "Tab"];
-
-    if (allowedControlKeys.includes(event.key) || event.metaKey || event.ctrlKey) {
-      return;
-    }
-
-    if (/^[a-zA-Z]$/.test(event.key)) {
-      return;
-    }
-
-    if (event.key === " ") {
-      event.preventDefault();
-      updateField("transitions", getNextTransitionValue(form.transitions, "arrow"));
-      return;
-    }
-
-    if (event.key === ",") {
-      event.preventDefault();
-      updateField("transitions", getNextTransitionValue(form.transitions, "comma"));
-      return;
-    }
-
-    event.preventDefault();
-  }
-
-  function handleTransitionChange(event) {
-    updateField("transitions", sanitizeTransitionValue(event.target.value));
-  }
-
-  function handleTransitionBlur(event) {
-    updateField("transitions", formatTransitionValue(event.target.value));
   }
 
   function handleSubmit(event) {
@@ -367,17 +333,7 @@ export default function CustomSongForm({ editingSong, genres, onAddSong, onCance
             <input type="text" value={form.chords} placeholder="G, C, Em, D" onChange={(event) => updateField("chords", event.target.value)} />
           </label>
 
-          <label>
-            <span>Transitions</span>
-            <input
-              type="text"
-              value={form.transitions}
-              placeholder="e.g., G → C, C → G, G → D, Em → C"
-              onKeyDown={handleTransitionKeyDown}
-              onChange={handleTransitionChange}
-              onBlur={handleTransitionBlur}
-            />
-          </label>
+          <TransitionInput value={form.transitions} onChange={(nextTransitions) => updateField("transitions", nextTransitions)} />
 
           <label>
             <span>Song Sections</span>
