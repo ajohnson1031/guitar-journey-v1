@@ -34,6 +34,8 @@ function songToForm(song) {
     title: song.title || "",
     genre: song.genre || "",
     key: song.key || "",
+    tuning: song.tuning || "",
+    capo: song.capo || "",
     bpm: String(song.bpm || "72"),
     difficulty: song.difficulty || "",
     chords: Array.isArray(song.chords) ? song.chords.join(", ") : "",
@@ -202,6 +204,8 @@ export default function CustomSongForm({ editingSong, genres, onAddSong, onCance
       instrument: form.instrument.trim(),
       genre: form.genre,
       key: form.key,
+      tuning: form.tuning.trim(),
+      capo: form.capo.trim(),
       bpm: Number.isFinite(bpm) ? bpm : 80,
       difficulty: form.difficulty,
       chords,
@@ -318,20 +322,18 @@ export default function CustomSongForm({ editingSong, genres, onAddSong, onCance
             </label>
 
             <label>
+              <span>Tuning</span>
+              <input type="text" value={form.tuning} placeholder="e.g., Standard, Eb Standard, Drop D" onChange={(event) => updateField("tuning", event.target.value)} />
+            </label>
+
+            <label>
               <span>BPM</span>
               <input type="number" min="40" max="220" value={form.bpm} onChange={(event) => updateField("bpm", event.target.value)} />
             </label>
 
             <label>
-              <span>Difficulty</span>
-              <select value={form.difficulty} onChange={(event) => updateField("difficulty", event.target.value)}>
-                <option value="">Select difficulty...</option>
-                {["Beginner", "Intermediate", "Advanced", "Expert"].map((difficulty) => (
-                  <option key={difficulty} value={difficulty}>
-                    {difficulty}
-                  </option>
-                ))}
-              </select>
+              <span>Capo</span>
+              <input type="text" value={form.capo} placeholder="e.g., None, 1st fret, 3rd fret" onChange={(event) => updateField("capo", event.target.value)} />
             </label>
           </div>
 
