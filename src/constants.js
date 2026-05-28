@@ -335,10 +335,26 @@ const DEFAULT_CUSTOM_SONG_FORM = {
 const SESSION_RATINGS = ["Easy", "Okay", "Hard"];
 
 const NAV_SECTIONS = [
-  { id: "dashboard", label: "Dashboard" },
-  { id: "transitions", label: "Transition Tracker" },
-  { id: "sections", label: "Song Sections" },
-  { id: "history", label: "Practice History" },
+  {
+    id: "dashboard",
+    label: "Dashboard",
+  },
+  {
+    id: "transitions",
+    label: "Transition Tracker",
+  },
+  {
+    id: "sections",
+    label: "Song Sections",
+  },
+  {
+    id: "history",
+    label: "Practice History",
+  },
+  {
+    id: "weekly-plan",
+    label: "Weekly Plan",
+  },
 ];
 
 const DOWN_STRUM = "↓";
