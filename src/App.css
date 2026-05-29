@@ -436,6 +436,7 @@ select:focus,
 }
 
 .progress-stat-grid,
+history-stat-grid,
 .history-stat-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -1177,333 +1178,6 @@ select:focus,
 }
 
 /* =========================
-   Custom Song Form
-========================= */
-
-.custom-song-card,
-.custom-song-form {
-  display: grid;
-  gap: 16px;
-}
-
-.custom-song-form {
-  gap: 14px;
-}
-
-.custom-song-header,
-.custom-song-actions {
-  display: grid;
-  gap: 16px;
-}
-
-.custom-song-header {
-  grid-template-columns: 1fr auto;
-  align-items: start;
-}
-
-.custom-song-actions {
-  grid-template-columns: 1fr auto;
-  align-items: center;
-}
-
-.custom-song-button-group {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-.form-grid.two {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-
-.custom-song-form label {
-  display: grid;
-  gap: 7px;
-}
-
-.custom-song-form label span {
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.custom-song-message {
-  min-height: 1.35em;
-  margin: 0;
-  font-size: 13px;
-  font-weight: 800;
-  line-height: 1.35;
-}
-
-.custom-song-message.is-error {
-  color: #ff7575;
-}
-
-.custom-song-message.is-info {
-  color: #7dd3fc;
-}
-
-.import-link-card {
-  display: grid;
-  gap: 12px;
-  border: 1px solid rgba(125, 211, 252, 0.25);
-  border-radius: 20px;
-  background: rgba(125, 211, 252, 0.08);
-  padding: 14px;
-}
-
-.import-link-card p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.45;
-}
-
-.custom-song-preview {
-  display: grid;
-  gap: 10px;
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  background: rgba(10, 10, 11, 0.42);
-  padding: 12px;
-}
-
-.custom-song-preview > span {
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.custom-song-preview div {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.custom-song-preview strong {
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 6px 10px;
-  background: var(--blue-soft);
-  color: #7dd3fc;
-  font-size: 13px;
-}
-
-.custom-song-preview small {
-  color: var(--muted);
-}
-
-/* =========================
-   Strumming Builder
-========================= */
-
-.strumming-builder {
-  display: grid;
-  gap: 12px;
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  background: rgba(10, 10, 11, 0.42);
-  padding: 14px;
-}
-
-.strumming-builder > div:first-child > span {
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.strumming-builder > div:first-child > p {
-  margin: 4px 0 0;
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.45;
-}
-
-.strumming-display {
-  display: flex;
-  min-height: 58px;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  background: var(--panel-strong);
-  padding: 10px 12px;
-}
-
-.strumming-display small {
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.strumming-display strong,
-.inline-strumming-display strong {
-  display: inline-grid;
-  place-items: center;
-  color: #f4f4f5;
-  font-size: 34px;
-  font-weight: 900;
-  line-height: 1;
-}
-
-.strumming-actions {
-  display: grid;
-  grid-template-columns: 72px 72px 1fr 1fr;
-  gap: 10px;
-}
-
-.strum-arrow-button {
-  display: grid;
-  min-height: 52px;
-  place-items: center;
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  background: rgba(10, 10, 11, 0.5);
-  color: var(--text);
-  font-size: 36px;
-  font-weight: 900;
-  line-height: 1;
-}
-
-.strum-arrow-button:hover {
-  border-color: var(--blue);
-}
-
-.strum-down-button,
-.strum-down {
-  color: #f4f4f5;
-}
-
-.strum-up-button,
-.strum-up {
-  color: #7dd3fc;
-}
-
-.inline-strumming-display {
-  display: inline-flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.inline-strumming-display strong {
-  font-size: 22px;
-}
-
-/* =========================
-   Responsive
-========================= */
-
-@media (max-width: 1100px) {
-  .app-grid,
-  .top-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .info-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .transition-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 640px) {
-  .app-grid {
-    padding: 14px;
-  }
-
-  .hero-card h1,
-  .song-header h2 {
-    font-size: 32px;
-  }
-
-  .song-header,
-  .session-header,
-  .section-heading-row {
-    flex-direction: column;
-  }
-
-  .custom-song-header,
-  .custom-song-actions,
-  .custom-song-button-group {
-    grid-template-columns: 1fr;
-  }
-
-  .custom-song-button-group {
-    display: grid;
-  }
-
-  .song-header-actions.song-icon-actions {
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-  }
-
-  .dashboard-nav,
-  .genre-manager-form {
-    grid-template-columns: 1fr;
-  }
-
-  .dashboard-nav {
-    display: grid;
-  }
-
-  .dashboard-nav-button {
-    width: 100%;
-  }
-
-  .detail-section-card {
-    min-height: unset;
-  }
-
-  .chord-grid,
-  .info-grid,
-  .song-detail-grid,
-  .form-grid.two,
-  .rating-row,
-  .history-stat-grid,
-  .session-timer-actions {
-    grid-template-columns: 1fr;
-  }
-
-  .custom-genre-footer {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .custom-genre-actions {
-    justify-content: flex-end;
-  }
-
-  .strumming-actions {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .history-card div {
-    flex-direction: column;
-  }
-
-  .weekly-summary-grid,
-  .weekly-day-card {
-    grid-template-columns: 1fr;
-  }
-
-  .weekly-day-title-row {
-    flex-direction: column;
-  }
-}
-
-/* =========================
    Weekly Plan
 ========================= */
 
@@ -1632,4 +1306,402 @@ select:focus,
   color: var(--muted);
   font-size: 13px;
   line-height: 1.5;
+}
+
+/* =========================
+   Custom Song Form
+========================= */
+
+.custom-song-card,
+.custom-song-form {
+  display: grid;
+  gap: 16px;
+}
+
+.custom-song-form {
+  gap: 14px;
+}
+
+.custom-song-header,
+.custom-song-actions {
+  display: grid;
+  gap: 16px;
+}
+
+.custom-song-header {
+  grid-template-columns: 1fr auto;
+  align-items: start;
+}
+
+.custom-song-actions {
+  grid-template-columns: 1fr auto;
+  align-items: center;
+}
+
+.custom-song-button-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.form-grid.two {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.custom-song-form label {
+  display: grid;
+  gap: 7px;
+}
+
+.custom-song-form label span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.custom-song-message {
+  min-height: 1.35em;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.custom-song-message.is-error {
+  color: #ff7575;
+}
+
+.custom-song-message.is-info {
+  color: #7dd3fc;
+}
+
+.import-link-card {
+  display: grid;
+  gap: 12px;
+  border: 1px solid rgba(125, 211, 252, 0.25);
+  border-radius: 20px;
+  background: rgba(125, 211, 252, 0.08);
+  padding: 14px;
+}
+
+.import-link-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.custom-song-preview {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(10, 10, 11, 0.42);
+  padding: 12px;
+}
+
+.custom-song-preview > span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.custom-song-preview div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.custom-song-preview strong {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: var(--blue-soft);
+  color: #7dd3fc;
+  font-size: 13px;
+}
+
+.custom-song-preview small {
+  color: var(--muted);
+}
+
+/* =========================
+   Strumming Pattern
+========================= */
+
+.strumming-builder {
+  display: grid;
+  gap: 14px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: rgba(10, 10, 11, 0.42);
+  padding: 14px;
+}
+
+.strumming-builder > div:first-child > span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.strumming-builder > div:first-child > p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.strumming-pattern-display {
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--panel-strong);
+  padding: 12px;
+}
+
+.strumming-arrow-row,
+.strumming-beat-row {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 6px;
+  text-align: center;
+}
+
+.strumming-direction {
+  display: grid;
+  min-height: 34px;
+  place-items: center;
+  color: #52525b;
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.strumming-direction.is-active {
+  color: #f4f4f5;
+}
+
+.strumming-direction.is-active:nth-child(even) {
+  color: #7dd3fc;
+}
+
+.strumming-beat-row span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.strumming-pattern-display.is-compact {
+  border-radius: 14px;
+  padding: 8px;
+}
+
+.strumming-pattern-display.is-compact .strumming-direction {
+  min-height: 24px;
+  font-size: 20px;
+}
+
+.strumming-pattern-display.is-compact .strumming-beat-row span {
+  font-size: 11px;
+}
+
+.strumming-slot-grid {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.strumming-slot-card {
+  display: grid;
+  gap: 7px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: rgba(10, 10, 11, 0.42);
+  padding: 8px;
+}
+
+.strumming-slot-card > span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.strumming-slot-card > div {
+  display: grid;
+  gap: 6px;
+}
+
+.strum-arrow-button {
+  display: grid;
+  min-height: 44px;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(10, 10, 11, 0.5);
+  color: var(--text);
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.strum-arrow-button:hover {
+  border-color: var(--blue);
+}
+
+.strum-arrow-button.is-selected {
+  border-color: var(--blue);
+  background: var(--blue-soft);
+}
+
+.strum-down-button {
+  color: #f4f4f5;
+}
+
+.strum-up-button {
+  color: #7dd3fc;
+}
+
+.inline-strumming-display {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.inline-strumming-display strong {
+  display: inline-grid;
+  place-items: center;
+  color: #f4f4f5;
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+/* =========================
+   Responsive
+========================= */
+
+@media (max-width: 1100px) {
+  .app-grid,
+  .top-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .info-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .transition-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .weekly-summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .strumming-slot-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .app-grid {
+    padding: 14px;
+  }
+
+  .hero-card h1,
+  .song-header h2 {
+    font-size: 32px;
+  }
+
+  .song-header,
+  .session-header,
+  .section-heading-row {
+    flex-direction: column;
+  }
+
+  .custom-song-header,
+  .custom-song-actions,
+  .custom-song-button-group {
+    grid-template-columns: 1fr;
+  }
+
+  .custom-song-button-group {
+    display: grid;
+  }
+
+  .song-header-actions.song-icon-actions {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .dashboard-nav,
+  .genre-manager-form {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-nav {
+    display: grid;
+  }
+
+  .dashboard-nav-button {
+    width: 100%;
+  }
+
+  .detail-section-card {
+    min-height: unset;
+  }
+
+  .chord-grid,
+  .info-grid,
+  .song-detail-grid,
+  .form-grid.two,
+  .rating-row,
+  .history-stat-grid,
+  .session-timer-actions,
+  .weekly-summary-grid,
+  .weekly-day-card {
+    grid-template-columns: 1fr;
+  }
+
+  .custom-genre-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .custom-genre-actions {
+    justify-content: flex-end;
+  }
+
+  .weekly-day-title-row {
+    flex-direction: column;
+  }
+
+  .strumming-slot-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .strumming-arrow-row,
+  .strumming-beat-row {
+    gap: 3px;
+  }
+
+  .strumming-direction {
+    font-size: 22px;
+  }
+
+  .history-card div {
+    flex-direction: column;
+  }
 }

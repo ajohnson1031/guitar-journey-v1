@@ -1,6 +1,7 @@
 import * as React from "react";
-import { DEFAULT_CUSTOM_SONG_FORM, DOWN_STRUM, KEY_OPTIONS, UP_STRUM } from "../constants";
+import { DEFAULT_CUSTOM_SONG_FORM, KEY_OPTIONS } from "../constants";
 import { parseCommaList, parseSections, parseUltimateGuitarUrl, slugify } from "../utils/songFormUtils";
+import { hasStrummingPattern, normalizeStrummingPattern, serializeStrummingPattern } from "../utils/strummingUtils";
 import { SongImportAssistant, StrummingPatternBuilder, TransitionInput } from "./";
 
 const { useEffect, useMemo, useState } = React;
@@ -15,18 +16,6 @@ function sectionsToText(sections) {
   }
 
   return sections.map((section) => `${section.name || "Section"}: ${section.progression || "X - X - X - X"}`).join("\n");
-}
-
-function parseStrummingPattern(value) {
-  const text = String(value || "").trim();
-
-  if (!text) return [];
-
-  if (!/^[↓↑\s]+$/.test(text)) {
-    return [];
-  }
-
-  return text.split(/\s+/).filter((direction) => direction === DOWN_STRUM || direction === UP_STRUM);
 }
 
 function songToForm(song) {
@@ -46,7 +35,7 @@ function songToForm(song) {
     chords: Array.isArray(song.chords) ? song.chords.join(", ") : "",
     transitions: Array.isArray(song.transitions) ? song.transitions.join(", ") : "",
     sections: sectionsToText(song.sections),
-    strummingPattern: parseStrummingPattern(song.strumming),
+    strummingPattern: normalizeStrummingPattern(song.strummingPattern || song.strumming),
     goal: song.goal || DEFAULT_CUSTOM_SONG_FORM.goal,
   };
 }
@@ -54,13 +43,17 @@ function songToForm(song) {
 export default function CustomSongForm({ editingSong, genres, onAddSong, onCancelEdit, onOpenChange = noop, onUpdateSong }) {
   const isEditing = Boolean(editingSong);
 
-  const [form, setForm] = useState(DEFAULT_CUSTOM_SONG_FORM);
+  const [form, setForm] = useState(() => ({
+    ...DEFAULT_CUSTOM_SONG_FORM,
+    strummingPattern: normalizeStrummingPattern(DEFAULT_CUSTOM_SONG_FORM.strummingPattern),
+  }));
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [messageTone, setMessageTone] = useState("error");
 
   const previewChords = useMemo(() => parseCommaList(form.chords), [form.chords]);
-  const strummingPatternText = form.strummingPattern.join(" ");
+  const strummingPattern = useMemo(() => normalizeStrummingPattern(form.strummingPattern), [form.strummingPattern]);
+  const strummingPatternText = serializeStrummingPattern(strummingPattern);
 
   useEffect(() => {
     if (!editingSong) return;
@@ -90,7 +83,7 @@ export default function CustomSongForm({ editingSong, genres, onAddSong, onCance
   }
 
   function resetForm() {
-    setForm(isEditing ? songToForm(editingSong) : DEFAULT_CUSTOM_SONG_FORM);
+    setForm(isEditing ? songToForm(editingSong) : songToForm(null));
     setMessage("");
   }
 
@@ -98,7 +91,7 @@ export default function CustomSongForm({ editingSong, genres, onAddSong, onCance
     setIsOpen(false);
     onOpenChange(false);
     setMessage("");
-    setForm(DEFAULT_CUSTOM_SONG_FORM);
+    setForm(songToForm(null));
 
     if (isEditing) {
       onCancelEdit();
@@ -146,6 +139,7 @@ export default function CustomSongForm({ editingSong, genres, onAddSong, onCance
 
     setInfoMessage("Song analysis applied. Review and edit anything before saving.");
   }
+
   function handleSubmit(event) {
     event.preventDefault();
 
@@ -171,7 +165,7 @@ export default function CustomSongForm({ editingSong, genres, onAddSong, onCance
       return;
     }
 
-    if (!form.strummingPattern.length) {
+    if (!hasStrummingPattern(strummingPattern)) {
       setValidationMessage("Add at least one down or up strum to the strumming pattern.");
       return;
     }
@@ -200,6 +194,7 @@ export default function CustomSongForm({ editingSong, genres, onAddSong, onCance
       transitions: parseCommaList(form.transitions),
       sections: parseSections(form.sections),
       strumming: strummingPatternText,
+      strummingPattern,
       goal: form.goal.trim() || "Practice this song with clean timing and smooth transitions.",
       source: form.sourceUrl.trim() ? "Ultimate Guitar" : "",
       sourceUrl: form.sourceUrl.trim(),
@@ -216,7 +211,7 @@ export default function CustomSongForm({ editingSong, genres, onAddSong, onCance
 
     setMessage("");
     setMessageTone("error");
-    setForm(DEFAULT_CUSTOM_SONG_FORM);
+    setForm(songToForm(null));
     setIsOpen(false);
     onOpenChange(false);
   }
@@ -342,7 +337,7 @@ export default function CustomSongForm({ editingSong, genres, onAddSong, onCance
           </div>
 
           <StrummingPatternBuilder
-            value={form.strummingPattern}
+            value={strummingPattern}
             onChange={(nextPattern) => {
               setForm((current) => ({
                 ...current,
