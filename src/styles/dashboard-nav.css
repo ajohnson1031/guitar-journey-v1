@@ -32,3 +32,13 @@
   background: var(--blue);
   color: #ffffff;
 }
+
+.dashboard-nav a {
+  text-decoration: none;
+}
+
+.dashboard-nav-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

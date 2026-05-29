@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Navigate, NavLink, Route, Routes, useNavigate, useParams } from "react-router-dom";
 import { CurrentSongCard, CustomSongForm, GenreManager, Metronome, RequiredChords, SessionHistory, SongSections, TodayPlan, TransitionTracker, WeeklyPlan } from "./components";
 import { DEFAULT_PROGRESS, NAV_SECTIONS } from "./constants";
 import { usePracticeProgress, useSessionTimer, useSongLibrary } from "./hooks";
@@ -6,7 +7,19 @@ import { clearStoredProgress, loadStoredProgress, saveStoredProgress } from "./u
 
 import "./App.css";
 
-const { useEffect, useMemo, useState } = React;
+const { Fragment, useEffect, useMemo, useState } = React;
+
+const SECTION_ROUTES = {
+  dashboard: "/",
+  transitions: "/transitions",
+  sections: "/sections",
+  history: "/history",
+  "weekly-plan": "/weekly-plan",
+};
+
+function getSectionRoute(sectionId) {
+  return SECTION_ROUTES[sectionId] || "/";
+}
 
 function createPracticePlan(song, minutes) {
   const warmup = Math.max(2, Math.round(minutes * 0.12));
@@ -52,14 +65,59 @@ function createSessionId() {
   return `session-${Date.now()}`;
 }
 
+function DashboardNav() {
+  return (
+    <nav className="dashboard-nav" aria-label="Guitar Journey sections">
+      {NAV_SECTIONS.map((section) => (
+        <NavLink
+          key={section.id}
+          to={getSectionRoute(section.id)}
+          end={section.id === "dashboard"}
+          className={({ isActive }) => `dashboard-nav-button ${isActive ? "is-active" : ""}`}
+        >
+          {section.label}
+        </NavLink>
+      ))}
+
+      <NavLink to="/songs/new" className={({ isActive }) => `dashboard-nav-button ${isActive ? "is-active" : ""}`}>
+        Add Song
+      </NavLink>
+    </nav>
+  );
+}
+
+function EditCustomSongRoute({ customSongs, genres, onCancelEdit, onClose, onUpdateSong }) {
+  const { songId } = useParams();
+
+  const songToEdit = useMemo(() => {
+    return customSongs.find((song) => song.id === songId) || null;
+  }, [customSongs, songId]);
+
+  if (!songToEdit) {
+    return <Navigate to="/" replace />;
+  }
+
+  return (
+    <CustomSongForm
+      defaultOpen
+      editingSong={songToEdit}
+      genres={genres}
+      showToggle={false}
+      onAddSong={() => {}}
+      onCancelEdit={onCancelEdit}
+      onClose={onClose}
+      onUpdateSong={onUpdateSong}
+    />
+  );
+}
+
 export default function App() {
+  const navigate = useNavigate();
   const storedProgress = useMemo(() => loadStoredProgress(), []);
 
   const [sessionMinutes, setSessionMinutes] = useState(storedProgress.sessionMinutes);
   const [sessionRating, setSessionRating] = useState("Okay");
   const [sessionMessage, setSessionMessage] = useState("");
-  const [activeSection, setActiveSection] = useState("dashboard");
-  const [isCustomSongFormOpen, setIsCustomSongFormOpen] = useState(false);
 
   const {
     addCustomGenre,
@@ -70,7 +128,6 @@ export default function App() {
     customGenres,
     customSongs,
     deleteCustomSong,
-    editingSong,
     filteredSongs,
     pathCards,
     pathOptions,
@@ -81,7 +138,6 @@ export default function App() {
     selectedPath,
     selectedSong,
     selectedSongId,
-    startEditCustomSong,
     updateCustomGenre,
     updateCustomSong,
   } = useSongLibrary({
@@ -143,10 +199,14 @@ export default function App() {
     setSessionMessage("");
   }, [selectedSong.id, sessionMinutes]);
 
+  function goToDashboard() {
+    navigate("/");
+  }
+
   function handlePathChange(pathName) {
     selectPath(pathName);
     setSessionMessage("");
-    setActiveSection("dashboard");
+    goToDashboard();
   }
 
   function handleSelectSong(songId) {
@@ -156,28 +216,29 @@ export default function App() {
 
   function handleAddCustomSong(song) {
     addCustomSong(song);
-    setIsCustomSongFormOpen(false);
     setSessionMessage("");
-    setActiveSection("dashboard");
+    goToDashboard();
   }
 
   function handleStartEditCustomSong(songId) {
-    startEditCustomSong(songId);
-    setIsCustomSongFormOpen(true);
-    setActiveSection("dashboard");
     setSessionMessage("");
+    navigate(`/songs/edit/${songId}`);
   }
 
   function handleCancelEditCustomSong() {
     cancelEditCustomSong();
-    setIsCustomSongFormOpen(false);
+    goToDashboard();
+  }
+
+  function handleCloseCustomSongRoute() {
+    cancelEditCustomSong();
+    goToDashboard();
   }
 
   function handleUpdateCustomSong(updatedSong) {
     updateCustomSong(updatedSong);
-    setIsCustomSongFormOpen(false);
     setSessionMessage("");
-    setActiveSection("dashboard");
+    goToDashboard();
   }
 
   function handleDeleteCustomSong(songId) {
@@ -186,17 +247,17 @@ export default function App() {
     if (!deletedSong) return;
 
     removeSongProgress(songId);
-    setActiveSection("dashboard");
+    goToDashboard();
   }
 
   function handleAddCustomGenre(genre) {
     addCustomGenre(genre);
-    setActiveSection("dashboard");
+    goToDashboard();
   }
 
   function handleRemoveCustomGenre(genre) {
     removeCustomGenre(genre);
-    setActiveSection("dashboard");
+    goToDashboard();
   }
 
   function handleUpdateCustomGenre(genre) {
@@ -264,8 +325,7 @@ export default function App() {
     setSessionMessage("");
     setIsSessionTimerRunning(false);
     setElapsedSessionSeconds(0);
-    setActiveSection("dashboard");
-    setIsCustomSongFormOpen(false);
+    goToDashboard();
   }
 
   return (
@@ -330,31 +390,12 @@ export default function App() {
         </aside>
 
         <section className="main-content">
-          <CustomSongForm
-            editingSong={editingSong}
-            genres={pathOptions}
-            onAddSong={handleAddCustomSong}
-            onCancelEdit={handleCancelEditCustomSong}
-            onOpenChange={setIsCustomSongFormOpen}
-            onUpdateSong={handleUpdateCustomSong}
-          />
+          <DashboardNav />
 
-          {!isCustomSongFormOpen ? (
-            <>
-              <nav className="dashboard-nav" aria-label="Guitar Journey sections">
-                {NAV_SECTIONS.map((section) => (
-                  <button
-                    key={section.id}
-                    type="button"
-                    className={`dashboard-nav-button ${activeSection === section.id ? "is-active" : ""}`}
-                    onClick={() => setActiveSection(section.id)}
-                  >
-                    {section.label}
-                  </button>
-                ))}
-              </nav>
-
-              {activeSection === "dashboard" ? (
+          <Routes>
+            <Route
+              index
+              element={
                 <div className="top-grid dashboard-top-grid">
                   <div className="song-column">
                     <CurrentSongCard
@@ -389,17 +430,21 @@ export default function App() {
                     sessionRating={sessionRating}
                   />
                 </div>
-              ) : null}
+              }
+            />
 
-              {activeSection === "transitions" ? (
-                <TransitionTracker selectedSong={selectedSong} transitionScores={transitionScores} onUpdateTransitionScore={handleUpdateTransitionScore} />
-              ) : null}
+            <Route
+              path="transitions"
+              element={<TransitionTracker selectedSong={selectedSong} transitionScores={transitionScores} onUpdateTransitionScore={handleUpdateTransitionScore} />}
+            />
 
-              {activeSection === "sections" ? <SongSections selectedSong={selectedSong} /> : null}
+            <Route path="sections" element={<SongSections selectedSong={selectedSong} />} />
 
-              {activeSection === "history" ? <SessionHistory sessions={sessionHistory} /> : null}
+            <Route path="history" element={<SessionHistory sessions={sessionHistory} />} />
 
-              {activeSection === "weekly-plan" ? (
+            <Route
+              path="weekly-plan"
+              element={
                 <WeeklyPlan
                   masteredSongs={masteredSongs}
                   selectedSong={selectedSong}
@@ -407,9 +452,40 @@ export default function App() {
                   sessionMinutes={sessionMinutes}
                   transitionScores={transitionScores}
                 />
-              ) : null}
-            </>
-          ) : null}
+              }
+            />
+
+            <Route
+              path="songs/new"
+              element={
+                <CustomSongForm
+                  defaultOpen
+                  editingSong={null}
+                  genres={pathOptions}
+                  showToggle={false}
+                  onAddSong={handleAddCustomSong}
+                  onCancelEdit={handleCancelEditCustomSong}
+                  onClose={handleCloseCustomSongRoute}
+                  onUpdateSong={handleUpdateCustomSong}
+                />
+              }
+            />
+
+            <Route
+              path="songs/edit/:songId"
+              element={
+                <EditCustomSongRoute
+                  customSongs={customSongs}
+                  genres={pathOptions}
+                  onCancelEdit={handleCancelEditCustomSong}
+                  onClose={handleCloseCustomSongRoute}
+                  onUpdateSong={handleUpdateCustomSong}
+                />
+              }
+            />
+
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
         </section>
       </div>
     </main>
