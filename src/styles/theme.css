@@ -1,0 +1,18 @@
+/* =========================
+   Theme
+========================= */
+
+:root {
+  --bg: #0a0a0b;
+  --panel: rgba(24, 24, 27, 0.82);
+  --panel-strong: rgba(18, 18, 20, 0.96);
+  --border: #2d2d33;
+  --text: #f4f4f5;
+  --muted: #a1a1aa;
+  --muted-strong: #d4d4d8;
+  --blue: #1b82e6;
+  --blue-soft: rgba(27, 130, 230, 0.14);
+  --green: #34d399;
+  --green-soft: rgba(52, 211, 153, 0.12);
+  --mango: #ffb347;
+}

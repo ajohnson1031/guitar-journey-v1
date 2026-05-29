@@ -1,0 +1,41 @@
+/* =========================
+   Typography
+========================= */
+
+.hero-card h1 {
+  margin: 8px 0 12px;
+  font-size: 38px;
+  line-height: 0.98;
+  letter-spacing: -0.06em;
+}
+
+.panel-card h2,
+.session-card h2 {
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: -0.03em;
+}
+
+.hero-card p,
+.song-header p,
+.section-copy,
+.step-card p,
+.session-length-card p,
+.path-card small,
+.chord-card p {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.song-header p {
+  margin: 10px 0 5px;
+}
+
+.eyebrow {
+  margin: 0;
+  color: #7dd3fc;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}

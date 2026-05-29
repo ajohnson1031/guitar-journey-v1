@@ -1,0 +1,113 @@
+/* =========================
+   Metronome
+========================= */
+
+.metronome-card {
+  display: grid;
+  gap: 16px;
+}
+
+.metronome-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.metronome-header p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.beat-orb {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(10, 10, 11, 0.42);
+  color: var(--muted);
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.beat-orb.is-running {
+  border-color: var(--blue);
+  background: var(--blue-soft);
+  color: #7dd3fc;
+  box-shadow: 0 0 0 6px rgba(27, 130, 230, 0.08);
+}
+
+.metronome-bpm-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.bpm-button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  font-size: 22px;
+}
+
+.bpm-input-wrap {
+  display: grid;
+  gap: 6px;
+}
+
+.bpm-input-wrap span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.bpm-input-wrap input {
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.beat-dots {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.beat-dot {
+  height: 10px;
+  border-radius: 999px;
+  background: #27272a;
+  transition:
+    background 120ms ease,
+    transform 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.beat-dot.is-accent {
+  background: rgba(255, 179, 71, 0.3);
+}
+
+.beat-dot.is-active {
+  background: #7dd3fc;
+  box-shadow: 0 0 18px rgba(125, 211, 252, 0.55);
+  transform: scaleY(1.45);
+}
+
+.beat-dot.is-active.is-accent {
+  background: var(--mango);
+  box-shadow: 0 0 18px rgba(255, 179, 71, 0.55);
+}
+
+.metronome-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}

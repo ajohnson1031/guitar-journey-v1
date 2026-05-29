@@ -1,0 +1,113 @@
+/* =========================
+   Sidebar: Genre Manager
+========================= */
+
+.genre-manager-card {
+  display: grid;
+  gap: 14px;
+}
+
+.genre-manager-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+
+.genre-manager-form textarea {
+  grid-column: 1 / -1;
+}
+
+.custom-genre-list {
+  display: grid;
+  gap: 8px;
+}
+
+.custom-genre-row {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: rgba(10, 10, 11, 0.42);
+  padding: 12px;
+}
+
+.custom-genre-row.is-active {
+  border-color: var(--blue);
+  background: var(--blue-soft);
+}
+
+.custom-genre-row.is-editing {
+  padding: 14px;
+}
+
+.custom-genre-content {
+  display: grid;
+  min-width: 0;
+  gap: 8px;
+}
+
+.custom-genre-content strong {
+  display: block;
+  font-size: 13px;
+}
+
+.custom-genre-content p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.custom-genre-content small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.custom-genre-content textarea {
+  min-height: 92px;
+  border-radius: 14px;
+  padding: 10px 12px;
+}
+
+.custom-genre-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 2px;
+}
+
+.custom-genre-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.genre-action-button {
+  min-width: 72px;
+  padding: 8px 10px;
+  font-size: 12px;
+}
+
+.genre-remove-button {
+  display: inline-grid;
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  place-items: center;
+  padding: 0;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.genre-manager-empty,
+.genre-manager-message {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.genre-manager-message {
+  color: #ff7575;
+  font-weight: 800;
+}

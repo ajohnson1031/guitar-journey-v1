@@ -1,0 +1,129 @@
+/* =========================
+   Strumming Playback Guide
+========================= */
+
+.strumming-playback-guide {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: rgba(10, 10, 11, 0.42);
+  padding: 14px;
+}
+
+.strumming-playback-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.strumming-playback-header span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.strumming-playback-cue {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(10, 10, 11, 0.5);
+  color: var(--muted-strong);
+  padding: 7px 10px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.strumming-playback-guide.is-idle .strumming-playback-cue {
+  opacity: 0.68;
+}
+
+.strumming-playback-guide.is-idle .strumming-playback-slot-beat {
+  opacity: 0.68;
+}
+
+.strumming-playback-cue.is-down {
+  border-color: rgba(244, 244, 245, 0.38);
+  color: #f4f4f5;
+}
+
+.strumming-playback-cue.is-up {
+  border-color: rgba(255, 239, 150, 0.6);
+  background: rgba(255, 239, 150, 0.1);
+  color: #ffef96;
+}
+
+.strumming-playback-cue.is-rest {
+  color: var(--muted);
+}
+
+.strumming-playback-grid {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.strumming-playback-slot {
+  display: grid;
+  grid-template-rows: auto auto;
+  min-height: 68px;
+  align-content: center;
+  justify-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: rgba(10, 10, 11, 0.42);
+  padding: 8px 6px;
+  text-align: center;
+  transition:
+    border-color 140ms ease,
+    background 140ms ease,
+    box-shadow 140ms ease,
+    transform 140ms ease;
+}
+
+.strumming-playback-slot.is-active {
+  border-color: var(--blue);
+  background: var(--blue-soft);
+  box-shadow: 0 0 0 5px rgba(27, 130, 230, 0.08);
+  transform: translateY(-1px);
+}
+
+.strumming-playback-slot.is-active.is-up {
+  border-color: #ffef96;
+  background: rgba(255, 239, 150, 0.1);
+  box-shadow: 0 0 0 5px rgba(255, 239, 150, 0.08);
+}
+
+.strumming-playback-slot-direction {
+  display: grid;
+  min-height: 28px;
+  place-items: center;
+  color: #52525b;
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.strumming-playback-slot.is-down .strumming-playback-slot-direction {
+  color: #f4f4f5;
+}
+
+.strumming-playback-slot.is-up .strumming-playback-slot-direction {
+  color: #ffef96;
+}
+
+.strumming-playback-slot-beat {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.metronome-card .strumming-playback-guide {
+  margin-top: 2px;
+}

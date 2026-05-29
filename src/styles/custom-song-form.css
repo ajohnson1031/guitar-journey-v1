@@ -1,0 +1,122 @@
+/* =========================
+   Custom Song Form
+========================= */
+
+.custom-song-card,
+.custom-song-form {
+  display: grid;
+  gap: 16px;
+}
+
+.custom-song-form {
+  gap: 14px;
+}
+
+.custom-song-header,
+.custom-song-actions {
+  display: grid;
+  gap: 16px;
+}
+
+.custom-song-header {
+  grid-template-columns: 1fr auto;
+  align-items: start;
+}
+
+.custom-song-actions {
+  grid-template-columns: 1fr auto;
+  align-items: center;
+}
+
+.custom-song-button-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.form-grid.two {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.custom-song-form label {
+  display: grid;
+  gap: 7px;
+}
+
+.custom-song-form label span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.custom-song-message {
+  min-height: 1.35em;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.custom-song-message.is-error {
+  color: #ff7575;
+}
+
+.custom-song-message.is-info {
+  color: #7dd3fc;
+}
+
+.import-link-card {
+  display: grid;
+  gap: 12px;
+  border: 1px solid rgba(125, 211, 252, 0.25);
+  border-radius: 20px;
+  background: rgba(125, 211, 252, 0.08);
+  padding: 14px;
+}
+
+.import-link-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.custom-song-preview {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(10, 10, 11, 0.42);
+  padding: 12px;
+}
+
+.custom-song-preview > span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.custom-song-preview div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.custom-song-preview strong {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: var(--blue-soft);
+  color: #7dd3fc;
+  font-size: 13px;
+}
+
+.custom-song-preview small {
+  color: var(--muted);
+}
