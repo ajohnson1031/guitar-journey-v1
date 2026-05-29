@@ -300,7 +300,7 @@ export default function App() {
             onUpdateGenre={handleUpdateCustomGenre}
           />
 
-          <Metronome songTitle={selectedSong.title} songBpm={selectedSong.bpm} />
+          <Metronome songTitle={selectedSong.title} songBpm={selectedSong.bpm} strummingPattern={selectedSong.strummingPattern || selectedSong.strumming} />
 
           <section className="panel-card local-progress-card">
             <h2>Local Progress</h2>

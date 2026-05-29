@@ -1,128 +1,75 @@
 import * as React from "react";
+import useStrummingPlayback from "../hooks/useStrummingPlayback";
+import StrummingPlaybackGuide from "./StrummingPlaybackGuide";
 
-const { useEffect, useRef, useState } = React;
+const { useEffect, useState } = React;
 
-const BEATS_PER_MEASURE = 4;
 const MIN_BPM = 40;
 const MAX_BPM = 220;
 
 function clampBpm(value) {
-  const numericValue = Number(value);
+  const bpm = Number(value);
 
-  if (Number.isNaN(numericValue)) return 80;
+  if (!Number.isFinite(bpm)) return 72;
 
-  return Math.min(MAX_BPM, Math.max(MIN_BPM, Math.round(numericValue)));
+  return Math.min(MAX_BPM, Math.max(MIN_BPM, Math.round(bpm)));
 }
 
-export default function Metronome({ songBpm, songTitle }) {
-  const [bpm, setBpm] = useState(() => clampBpm(songBpm || 80));
+export default function Metronome({ songBpm, songTitle, strummingPattern }) {
+  const [bpm, setBpm] = useState(() => clampBpm(songBpm));
   const [isRunning, setIsRunning] = useState(false);
   const [currentBeat, setCurrentBeat] = useState(1);
 
-  const audioContextRef = useRef(null);
-  const beatRef = useRef(1);
+  const safeBpm = clampBpm(bpm);
+
+  const playback = useStrummingPlayback({
+    bpm: safeBpm,
+    isRunning,
+    pattern: strummingPattern,
+  });
 
   useEffect(() => {
-    setIsRunning(false);
+    setBpm(clampBpm(songBpm));
     setCurrentBeat(1);
-    beatRef.current = 1;
-    setBpm(clampBpm(songBpm || 80));
+    setIsRunning(false);
   }, [songBpm, songTitle]);
 
   useEffect(() => {
-    if (!isRunning) return undefined;
+    if (!isRunning) {
+      setCurrentBeat(1);
+      return undefined;
+    }
 
-    beatRef.current = 1;
-    setCurrentBeat(1);
-    playClick(true);
+    const quarterNoteMs = Math.max(120, 60000 / safeBpm);
 
     const intervalId = window.setInterval(() => {
-      const nextBeat = beatRef.current >= BEATS_PER_MEASURE ? 1 : beatRef.current + 1;
-
-      beatRef.current = nextBeat;
-      setCurrentBeat(nextBeat);
-      playClick(nextBeat === 1);
-    }, 60000 / bpm);
+      setCurrentBeat((beat) => (beat >= 4 ? 1 : beat + 1));
+    }, quarterNoteMs);
 
     return () => {
       window.clearInterval(intervalId);
     };
-  }, [isRunning, bpm]);
+  }, [isRunning, safeBpm]);
 
-  useEffect(() => {
-    if (isRunning) return;
-
-    beatRef.current = 1;
-    setCurrentBeat(1);
-  }, [isRunning]);
-
-  function getAudioContext() {
-    const AudioContextConstructor = window.AudioContext || window.webkitAudioContext;
-
-    if (!AudioContextConstructor) return null;
-
-    if (!audioContextRef.current) {
-      audioContextRef.current = new AudioContextConstructor();
-    }
-
-    return audioContextRef.current;
-  }
-
-  async function prepareAudioContext() {
-    const audioContext = getAudioContext();
-
-    if (!audioContext) return null;
-
-    if (audioContext.state === "suspended") {
-      await audioContext.resume();
-    }
-
-    return audioContext;
-  }
-
-  function playClick(isAccent) {
-    const audioContext = getAudioContext();
-
-    if (!audioContext) return;
-
-    const now = audioContext.currentTime;
-    const oscillator = audioContext.createOscillator();
-    const gain = audioContext.createGain();
-
-    oscillator.type = "sine";
-    oscillator.frequency.value = isAccent ? 1200 : 820;
-
-    gain.gain.setValueAtTime(0.001, now);
-    gain.gain.exponentialRampToValueAtTime(isAccent ? 0.38 : 0.22, now + 0.006);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.085);
-
-    oscillator.connect(gain);
-    gain.connect(audioContext.destination);
-
-    oscillator.start(now);
-    oscillator.stop(now + 0.09);
-  }
-
-  async function toggleMetronome() {
-    if (isRunning) {
-      setIsRunning(false);
+  function handleBpmChange(value) {
+    if (value === "") {
+      setBpm("");
       return;
     }
 
-    await prepareAudioContext();
-    setIsRunning(true);
+    setBpm(clampBpm(value));
   }
 
   function decreaseBpm() {
-    setBpm((currentBpm) => clampBpm(currentBpm - 1));
+    setBpm((current) => clampBpm(clampBpm(current) - 1));
   }
 
   function increaseBpm() {
-    setBpm((currentBpm) => clampBpm(currentBpm + 1));
+    setBpm((current) => clampBpm(clampBpm(current) + 1));
   }
 
-  function handleBpmInputChange(event) {
-    setBpm(clampBpm(event.target.value));
+  function toggleMetronome() {
+    setIsRunning((running) => !running);
   }
 
   return (
@@ -137,33 +84,33 @@ export default function Metronome({ songBpm, songTitle }) {
       </div>
 
       <div className="metronome-bpm-row">
-        <button type="button" className="ghost-button bpm-button" onClick={decreaseBpm}>
+        <button type="button" className="ghost-button bpm-button" aria-label="Decrease BPM" onClick={decreaseBpm}>
           −
         </button>
 
         <label className="bpm-input-wrap">
           <span>BPM</span>
-          <input type="number" min={MIN_BPM} max={MAX_BPM} value={bpm} onChange={handleBpmInputChange} />
+          <input type="number" min={MIN_BPM} max={MAX_BPM} value={bpm} onChange={(event) => handleBpmChange(event.target.value)} onBlur={() => setBpm(safeBpm)} />
         </label>
 
-        <button type="button" className="ghost-button bpm-button" onClick={increaseBpm}>
+        <button type="button" className="ghost-button bpm-button" aria-label="Increase BPM" onClick={increaseBpm}>
           +
         </button>
       </div>
 
-      <div className="beat-dots" aria-label={`Beat ${currentBeat} of ${BEATS_PER_MEASURE}`}>
-        {Array.from({ length: BEATS_PER_MEASURE }, (_, index) => {
-          const beat = index + 1;
-
-          return <span key={beat} className={`beat-dot ${currentBeat === beat && isRunning ? "is-active" : ""} ${beat === 1 ? "is-accent" : ""}`} />;
-        })}
+      <div className="beat-dots" aria-label="Metronome beats">
+        {[1, 2, 3, 4].map((beat) => (
+          <span key={beat} className={`beat-dot ${beat === 1 ? "is-accent" : ""} ${isRunning && currentBeat === beat ? "is-active" : ""}`} />
+        ))}
       </div>
 
       <button type="button" className={isRunning ? "metronome-stop-button" : "selected-button"} onClick={toggleMetronome}>
         {isRunning ? "Stop" : "Start"}
       </button>
 
-      <p className="metronome-note">Beat 1 is accented. The metronome resets when you change songs.</p>
+      <StrummingPlaybackGuide activeSlot={playback.activeSlot} isRunning={isRunning} pattern={strummingPattern} slots={playback.slots} />
+
+      <p className="metronome-note">Beat 1 is accented. The strumming guide advances through eighth-note slots while the metronome runs.</p>
     </section>
   );
 }
