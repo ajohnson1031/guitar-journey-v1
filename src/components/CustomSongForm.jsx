@@ -137,14 +137,15 @@ export default function CustomSongForm({ editingSong, genres, onAddSong, onCance
       chords: analysis.chords.length ? analysis.chords.join(", ") : current.chords,
       transitions: analysis.transitions.length ? analysis.transitions.join(", ") : current.transitions,
       sections: analysis.sections.length ? sectionsToText(analysis.sections) : current.sections,
-      difficulty: current.difficulty || analysis.difficulty,
-      key: current.key || analysis.key || current.key,
+      difficulty: analysis.difficulty || current.difficulty,
+      key: analysis.key || current.key,
+      tuning: analysis.tuning || current.tuning,
+      capo: analysis.capo || current.capo,
       goal: !current.goal || current.goal === DEFAULT_CUSTOM_SONG_FORM.goal ? analysis.goal : current.goal,
     }));
 
     setInfoMessage("Song analysis applied. Review and edit anything before saving.");
   }
-
   function handleSubmit(event) {
     event.preventDefault();
 

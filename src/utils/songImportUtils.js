@@ -5,6 +5,8 @@ const SECTION_LABELS = ["intro", "verse", "pre-chorus", "pre chorus", "chorus", 
 const CHORD_PATTERN =
   /(^|[\s|()[\]{}:])([A-G](?:#|b)?)(maj7|maj9|maj|min7|min9|min|m7b5|m7|m9|m6|m|dim7|dim|sus2|sus4|sus|add9|7sus4|7sus|13|11|9|7|6|5)?(?:\/([A-G](?:#|b)?))?(?=$|[\s|()[\]{}:.,;!?])/g;
 
+const BRACKETED_CHORD_PATTERN = /\[([A-G](?:#|b)?(?:maj7|maj9|maj|min7|min9|min|m7b5|m7|m9|m6|m|dim7|dim|sus2|sus4|sus|add9|7sus4|7sus|13|11|9|7|6|5)?(?:\/[A-G](?:#|b)?)?)\]/;
+
 const NOTE_VALUES = {
   C: 0,
   "C#": 1,
@@ -109,8 +111,66 @@ function normalizeBracketedText(line) {
   });
 }
 
+function removeSectionLabelFromLine(line, sectionLabel) {
+  if (!sectionLabel) return line;
+
+  const escapedLabel = sectionLabel.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const bracketedPattern = new RegExp(`\\[\\s*${escapedLabel}\\s*\\d*\\s*\\]`, "i");
+  const plainPattern = new RegExp(`^\\s*${escapedLabel}\\s*\\d*\\s*:?\\s*`, "i");
+
+  return String(line || "")
+    .replace(bracketedPattern, " ")
+    .replace(plainPattern, " ");
+}
+
+function isMetadataLine(line) {
+  return /\b(tuning|key|capo)\s*:/i.test(String(line || ""));
+}
+
+function hasBracketedChord(line) {
+  return BRACKETED_CHORD_PATTERN.test(String(line || ""));
+}
+
+function getLineWords(line) {
+  return String(line || "")
+    .trim()
+    .split(/\s+/)
+    .map((word) => word.replace(/^[^A-Za-z#b/]+|[^A-Za-z#b/]+$/g, ""))
+    .filter(Boolean);
+}
+
+function startsWithChordAndSpacing(line, chord) {
+  const escapedChord = chord.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const pattern = new RegExp(`^\\s*${escapedChord}\\s{2,}`, "i");
+
+  return pattern.test(line);
+}
+
+function shouldAcceptChordCandidates(line, chordCandidates) {
+  if (!chordCandidates.length) return false;
+
+  if (hasBracketedChord(line)) return true;
+
+  if (chordCandidates.length >= 2) return true;
+
+  const normalizedLine = normalizeBracketedText(line).trim();
+  const onlyChord = chordCandidates[0];
+
+  if (normalizedLine === onlyChord) return true;
+
+  if (startsWithChordAndSpacing(normalizedLine, onlyChord)) return true;
+
+  const words = getLineWords(normalizedLine);
+  const chordWordCount = words.filter((word) => isLikelyChord(normalizeChord(word))).length;
+  const nonChordWordCount = words.length - chordWordCount;
+
+  return chordWordCount > 0 && nonChordWordCount === 0;
+}
+
 function extractChordsFromLine(line) {
-  const chords = [];
+  if (isMetadataLine(line)) return [];
+
+  const chordCandidates = [];
   const normalizedLine = normalizeBracketedText(line).replace(/[|()]/g, " ");
 
   for (const match of normalizedLine.matchAll(CHORD_PATTERN)) {
@@ -120,11 +180,15 @@ function extractChordsFromLine(line) {
     const chord = normalizeChord(`${root}${quality}${slashRoot}`);
 
     if (isLikelyChord(chord)) {
-      chords.push(chord);
+      chordCandidates.push(chord);
     }
   }
 
-  return chords;
+  if (!shouldAcceptChordCandidates(line, chordCandidates)) {
+    return [];
+  }
+
+  return chordCandidates;
 }
 
 export function extractChordsFromSongText(text) {
@@ -211,6 +275,12 @@ export function extractSectionsFromSongText(text) {
         chords: [],
       };
 
+      const sameLineChords = extractChordsFromLine(removeSectionLabelFromLine(line, sectionLabel));
+
+      if (sameLineChords.length) {
+        currentSection.chords.push(...sameLineChords);
+      }
+
       continue;
     }
 
@@ -257,7 +327,7 @@ export function extractSectionsFromSongText(text) {
 
 function estimateDifficulty(chords) {
   const uniqueChords = uniqueInOrder(chords, 48);
-  const advancedChordCount = uniqueChords.filter((chord) => /(maj7|maj9|m7b5|dim|dim7|sus2|sus4|add9|13|11|9|7|6|#|b)/.test(chord)).length;
+  const advancedChordCount = uniqueChords.filter((chord) => /(maj7|maj9|m7b5|dim|dim7|sus2|sus4|add9|13|11|9|7|6|#|b|\/)/.test(chord)).length;
 
   if (uniqueChords.length <= 4 && advancedChordCount === 0) {
     return "Beginner";
@@ -274,19 +344,46 @@ function estimateDifficulty(chords) {
   return "Expert";
 }
 
-function createPracticeGoal({ chords, transitions, sections }) {
-  const firstSection = sections[0];
+function estimateDifficultyConfidence(chords) {
+  const uniqueChords = uniqueInOrder(chords, 48);
+
+  if (uniqueChords.length >= 6) return "high";
+  if (uniqueChords.length >= 3) return "medium";
+
+  return "low";
+}
+
+function getMainSection(sections) {
+  if (!Array.isArray(sections) || !sections.length) return null;
+
+  return sections.find((section) => /verse|chorus/i.test(section.name)) || sections.find((section) => !/intro|outro/i.test(section.name)) || sections[0];
+}
+
+function createPracticeGoal({ chords, key, sections, transitions }) {
+  const mainSection = getMainSection(sections);
   const firstTransition = transitions[0];
 
-  if (firstSection && firstTransition) {
-    return `Build clean chord changes, steady timing, and a confident ${firstSection.name.toLowerCase()} using ${firstTransition}.`;
+  const parts = [];
+
+  if (key) {
+    parts.push(`Learn the song in ${key}`);
+  } else {
+    parts.push("Learn the song");
   }
 
-  if (chords.length) {
-    return `Build clean chord changes and steady timing across ${chords.slice(0, 4).join(", ")}.`;
+  if (mainSection) {
+    parts.push(`focus on the ${mainSection.name.toLowerCase()} progression`);
   }
 
-  return "Build clean chord changes, steady timing, and a confident song playthrough.";
+  if (firstTransition) {
+    parts.push(`tighten the ${firstTransition} transition`);
+  }
+
+  if (!mainSection && !firstTransition && chords.length) {
+    parts.push(`build clean changes across ${chords.slice(0, 4).join(", ")}`);
+  }
+
+  return `${parts.join(", ")}, and build a confident full-song playthrough.`;
 }
 
 function getChordRoot(chord) {
@@ -370,6 +467,20 @@ function scoreMajorKey(chordSequence, keyRootValue) {
     if (degree === 0 && !isMinorChord(chord)) score += 2;
   });
 
+  for (let index = 0; index < chordSequence.length - 1; index += 1) {
+    const currentRoot = getNoteValue(getChordRoot(chordSequence[index]));
+    const nextRoot = getNoteValue(getChordRoot(chordSequence[index + 1]));
+
+    if (currentRoot === undefined || nextRoot === undefined) continue;
+
+    const currentDegree = getScaleDegree(currentRoot, keyRootValue);
+    const nextDegree = getScaleDegree(nextRoot, keyRootValue);
+
+    if (currentDegree === 7 && nextDegree === 0 && isDominantChord(chordSequence[index])) {
+      score += 8;
+    }
+  }
+
   return score;
 }
 
@@ -402,59 +513,248 @@ function scoreMinorKey(chordSequence, keyRootValue) {
     if (degree === 7 && isDominantChord(chord)) score += 5;
   });
 
+  for (let index = 0; index < chordSequence.length - 1; index += 1) {
+    const currentRoot = getNoteValue(getChordRoot(chordSequence[index]));
+    const nextRoot = getNoteValue(getChordRoot(chordSequence[index + 1]));
+
+    if (currentRoot === undefined || nextRoot === undefined) continue;
+
+    const currentDegree = getScaleDegree(currentRoot, keyRootValue);
+    const nextDegree = getScaleDegree(nextRoot, keyRootValue);
+
+    if (currentDegree === 7 && nextDegree === 0 && isDominantChord(chordSequence[index])) {
+      score += 12;
+    }
+  }
+
   return score;
 }
 
-export function estimateSongKey(chordSequence) {
-  if (!Array.isArray(chordSequence) || !chordSequence.length) return "";
+function getConfidenceFromScoreGap(bestScore, secondBestScore) {
+  if (!Number.isFinite(bestScore) || bestScore <= 0) return "low";
+
+  const gap = bestScore - secondBestScore;
+
+  if (gap >= 18) return "high";
+  if (gap >= 8) return "medium";
+
+  return "low";
+}
+
+export function estimateSongKeyDetails(chordSequence) {
+  if (!Array.isArray(chordSequence) || !chordSequence.length) {
+    return {
+      key: "",
+      confidence: "low",
+      score: 0,
+    };
+  }
 
   let best = {
     key: "",
     score: -Infinity,
   };
 
-  for (let keyRootValue = 0; keyRootValue < 12; keyRootValue += 1) {
-    const majorKey = getKeyName(keyRootValue, "major");
-    const minorKey = getKeyName(keyRootValue, "minor");
-    const majorScore = scoreMajorKey(chordSequence, keyRootValue);
-    const minorScore = scoreMinorKey(chordSequence, keyRootValue);
+  let secondBest = {
+    key: "",
+    score: -Infinity,
+  };
 
-    if (majorKey && majorScore > best.score) {
-      best = {
-        key: majorKey,
-        score: majorScore,
-      };
+  function considerCandidate(candidate) {
+    if (!candidate.key) return;
+
+    if (candidate.score > best.score) {
+      secondBest = best;
+      best = candidate;
+      return;
     }
 
-    if (minorKey && minorScore > best.score) {
-      best = {
-        key: minorKey,
-        score: minorScore,
-      };
+    if (candidate.score > secondBest.score) {
+      secondBest = candidate;
     }
   }
 
-  return best.key;
+  for (let keyRootValue = 0; keyRootValue < 12; keyRootValue += 1) {
+    considerCandidate({
+      key: getKeyName(keyRootValue, "major"),
+      score: scoreMajorKey(chordSequence, keyRootValue),
+    });
+
+    considerCandidate({
+      key: getKeyName(keyRootValue, "minor"),
+      score: scoreMinorKey(chordSequence, keyRootValue),
+    });
+  }
+
+  return {
+    key: best.key,
+    confidence: getConfidenceFromScoreGap(best.score, secondBest.score),
+    score: best.score,
+  };
+}
+
+export function estimateSongKey(chordSequence) {
+  return estimateSongKeyDetails(chordSequence).key;
+}
+
+function normalizeMetadataText(text) {
+  return String(text || "")
+    .replace(/\r\n?/g, "\n")
+    .replace(/(Tuning|Key|Capo)\s*:/gi, "\n$1:");
+}
+
+function getMetadataValue(text, label) {
+  const normalizedText = normalizeMetadataText(text);
+  const pattern = new RegExp(`^\\s*${label}\\s*:\\s*([\\s\\S]*?)(?=\\n\\s*(?:Tuning|Key|Capo)\\s*:|\\n\\s*\\[|$)`, "im");
+  const match = normalizedText.match(pattern);
+
+  return match ? match[1].replace(/\s+/g, " ").trim() : "";
+}
+
+function normalizeTuningValue(value) {
+  const cleaned = String(value || "")
+    .trim()
+    .replace(/\s+/g, " ");
+
+  const compact = cleaned.replace(/\s+/g, "").toUpperCase();
+  const lower = cleaned.toLowerCase();
+
+  if (!cleaned) return "";
+
+  if (lower.includes("standard") && !lower.includes("half") && !lower.includes("eb")) {
+    return "Standard";
+  }
+
+  if (compact === "EADGBE") {
+    return "Standard";
+  }
+
+  if (compact === "EBABDBGbBBEB".toUpperCase() || compact === "D#G#C#F#A#D#" || lower.includes("half-step") || lower.includes("half step") || lower.includes("eb standard")) {
+    return "Eb Standard";
+  }
+
+  if (compact === "DADGBE" || lower.includes("drop d")) {
+    return "Drop D";
+  }
+
+  if (compact === "DGCFAD" || lower.includes("d standard")) {
+    return "D Standard";
+  }
+
+  if (lower.includes("drop c")) {
+    return "Drop C";
+  }
+
+  return cleaned;
+}
+
+function getOrdinalSuffix(value) {
+  const number = Number(value);
+
+  if (!Number.isFinite(number)) return "";
+
+  const mod100 = number % 100;
+
+  if (mod100 >= 11 && mod100 <= 13) return "th";
+
+  switch (number % 10) {
+    case 1:
+      return "st";
+    case 2:
+      return "nd";
+    case 3:
+      return "rd";
+    default:
+      return "th";
+  }
+}
+
+function normalizeCapoValue(value) {
+  const cleaned = String(value || "")
+    .trim()
+    .replace(/\s+/g, " ");
+
+  const lower = cleaned.toLowerCase();
+
+  if (!cleaned) return "";
+
+  if (lower.includes("no capo") || lower === "none" || lower === "no") {
+    return "No capo";
+  }
+
+  const fretMatch = cleaned.match(/(\d+)/);
+
+  if (fretMatch) {
+    const fret = fretMatch[1];
+
+    return `${fret}${getOrdinalSuffix(fret)} fret`;
+  }
+
+  return cleaned;
+}
+
+function normalizeKeyMetadataValue(value) {
+  const cleaned = String(value || "")
+    .trim()
+    .replace(/\s+/g, " ");
+
+  if (!cleaned) return "";
+
+  const exactMatch = KEY_OPTIONS.find((keyOption) => {
+    return keyOption.toLowerCase() === cleaned.toLowerCase();
+  });
+
+  if (exactMatch) return exactMatch;
+
+  const match = cleaned.match(/^([A-G](?:#|b)?)(?:\s*(m|min|minor|maj|major))?/i);
+
+  if (!match) return "";
+
+  const root = `${match[1][0].toUpperCase()}${match[1].slice(1)}`;
+  const quality = String(match[2] || "").toLowerCase();
+  const mode = quality === "m" || quality === "min" || quality === "minor" ? "minor" : "major";
+  const rootValue = NOTE_VALUES[root];
+
+  if (rootValue === undefined) return "";
+
+  return getKeyName(rootValue, mode);
+}
+
+function extractSongMetadata(text) {
+  return {
+    tuning: normalizeTuningValue(getMetadataValue(text, "Tuning")),
+    key: normalizeKeyMetadataValue(getMetadataValue(text, "Key")),
+    capo: normalizeCapoValue(getMetadataValue(text, "Capo")),
+  };
 }
 
 export function analyzeSongText(text) {
+  const metadata = extractSongMetadata(text);
   const rawChordSequence = extractChordsFromSongText(text);
   const chords = uniqueInOrder(rawChordSequence, 24);
   const transitions = createTransitionList(rawChordSequence);
   const sections = extractSectionsFromSongText(text);
   const difficulty = estimateDifficulty(chords);
-  const key = estimateSongKey(rawChordSequence);
+  const difficultyConfidence = estimateDifficultyConfidence(chords);
+  const keyDetails = estimateSongKeyDetails(rawChordSequence);
+  const key = metadata.key || keyDetails.key;
 
   return {
     chords,
     transitions,
     sections,
     difficulty,
+    difficultyConfidence,
     key,
+    keyConfidence: metadata.key ? "high" : keyDetails.confidence,
+    keySource: metadata.key ? "metadata" : "estimated",
+    tuning: metadata.tuning,
+    capo: metadata.capo,
     goal: createPracticeGoal({
       chords,
-      transitions,
+      key,
       sections,
+      transitions,
     }),
   };
 }
