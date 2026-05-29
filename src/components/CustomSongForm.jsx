@@ -40,20 +40,37 @@ function songToForm(song) {
   };
 }
 
-export default function CustomSongForm({ editingSong, genres, onAddSong, onCancelEdit, onOpenChange = noop, onUpdateSong }) {
+export default function CustomSongForm({
+  defaultOpen = false,
+  editingSong,
+  genres,
+  onAddSong,
+  onCancelEdit,
+  onClose = noop,
+  onOpenChange = noop,
+  onUpdateSong,
+  showToggle = true,
+}) {
   const isEditing = Boolean(editingSong);
 
   const [form, setForm] = useState(() => ({
     ...DEFAULT_CUSTOM_SONG_FORM,
     strummingPattern: normalizeStrummingPattern(DEFAULT_CUSTOM_SONG_FORM.strummingPattern),
   }));
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(defaultOpen);
   const [message, setMessage] = useState("");
   const [messageTone, setMessageTone] = useState("error");
 
   const previewChords = useMemo(() => parseCommaList(form.chords), [form.chords]);
   const strummingPattern = useMemo(() => normalizeStrummingPattern(form.strummingPattern), [form.strummingPattern]);
   const strummingPatternText = serializeStrummingPattern(strummingPattern);
+
+  useEffect(() => {
+    if (!defaultOpen) return;
+
+    setIsOpen(true);
+    onOpenChange(true);
+  }, [defaultOpen, onOpenChange]);
 
   useEffect(() => {
     if (!editingSong) return;
@@ -96,6 +113,8 @@ export default function CustomSongForm({ editingSong, genres, onAddSong, onCance
     if (isEditing) {
       onCancelEdit();
     }
+
+    onClose();
   }
 
   function importFromUltimateGuitarLink() {
@@ -228,22 +247,28 @@ export default function CustomSongForm({ editingSong, genres, onAddSong, onCance
           </p>
         </div>
 
-        <button
-          type="button"
-          className={isOpen ? "selected-button" : "ghost-button"}
-          onClick={() => {
-            if (isOpen) {
-              closeForm();
-              return;
-            }
+        {showToggle ? (
+          <button
+            type="button"
+            className={isOpen ? "selected-button" : "ghost-button"}
+            onClick={() => {
+              if (isOpen) {
+                closeForm();
+                return;
+              }
 
-            setIsOpen(true);
-            onOpenChange(true);
-            setMessage("");
-          }}
-        >
-          {isOpen ? "Close" : "Add Song"}
-        </button>
+              setIsOpen(true);
+              onOpenChange(true);
+              setMessage("");
+            }}
+          >
+            {isOpen ? "Close" : "Add Song"}
+          </button>
+        ) : (
+          <button type="button" className="ghost-button" onClick={closeForm}>
+            Close
+          </button>
+        )}
       </div>
 
       {isOpen ? (
