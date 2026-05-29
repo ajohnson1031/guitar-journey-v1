@@ -6,21 +6,22 @@ const { useEffect, useState } = React;
 
 const MIN_BPM = 40;
 const MAX_BPM = 220;
+const DEFAULT_BPM = 72;
 
 function clampBpm(value) {
   const bpm = Number(value);
 
-  if (!Number.isFinite(bpm)) return 72;
+  if (!Number.isFinite(bpm)) return DEFAULT_BPM;
 
   return Math.min(MAX_BPM, Math.max(MIN_BPM, Math.round(bpm)));
 }
 
 export default function Metronome({ songBpm, songTitle, strummingPattern }) {
-  const [bpm, setBpm] = useState(() => clampBpm(songBpm));
+  const [bpmInput, setBpmInput] = useState(() => String(clampBpm(songBpm)));
   const [isRunning, setIsRunning] = useState(false);
   const [currentBeat, setCurrentBeat] = useState(1);
 
-  const safeBpm = clampBpm(bpm);
+  const safeBpm = clampBpm(bpmInput);
 
   const playback = useStrummingPlayback({
     bpm: safeBpm,
@@ -29,7 +30,7 @@ export default function Metronome({ songBpm, songTitle, strummingPattern }) {
   });
 
   useEffect(() => {
-    setBpm(clampBpm(songBpm));
+    setBpmInput(String(clampBpm(songBpm)));
     setCurrentBeat(1);
     setIsRunning(false);
   }, [songBpm, songTitle]);
@@ -52,23 +53,23 @@ export default function Metronome({ songBpm, songTitle, strummingPattern }) {
   }, [isRunning, safeBpm]);
 
   function handleBpmChange(value) {
-    if (value === "") {
-      setBpm("");
-      return;
-    }
+    setBpmInput(value);
+  }
 
-    setBpm(clampBpm(value));
+  function handleBpmBlur() {
+    setBpmInput(String(safeBpm));
   }
 
   function decreaseBpm() {
-    setBpm((current) => clampBpm(clampBpm(current) - 1));
+    setBpmInput((current) => String(clampBpm(clampBpm(current) - 1)));
   }
 
   function increaseBpm() {
-    setBpm((current) => clampBpm(clampBpm(current) + 1));
+    setBpmInput((current) => String(clampBpm(clampBpm(current) + 1)));
   }
 
   function toggleMetronome() {
+    setBpmInput(String(safeBpm));
     setIsRunning((running) => !running);
   }
 
@@ -90,7 +91,7 @@ export default function Metronome({ songBpm, songTitle, strummingPattern }) {
 
         <label className="bpm-input-wrap">
           <span>BPM</span>
-          <input type="number" min={MIN_BPM} max={MAX_BPM} value={bpm} onChange={(event) => handleBpmChange(event.target.value)} onBlur={() => setBpm(safeBpm)} />
+          <input type="number" min={MIN_BPM} max={MAX_BPM} value={bpmInput} onChange={(event) => handleBpmChange(event.target.value)} onBlur={handleBpmBlur} />
         </label>
 
         <button type="button" className="ghost-button bpm-button" aria-label="Increase BPM" onClick={increaseBpm}>
@@ -108,7 +109,7 @@ export default function Metronome({ songBpm, songTitle, strummingPattern }) {
         {isRunning ? "Stop" : "Start"}
       </button>
 
-      <StrummingPlaybackGuide activeSlot={playback.activeSlot} isRunning={isRunning} pattern={strummingPattern} slots={playback.slots} />
+      <StrummingPlaybackGuide activeSlot={playback.activeSlot} isRunning={isRunning} slots={playback.slots} />
 
       <p className="metronome-note">Beat 1 is accented. The strumming guide advances through eighth-note slots while the metronome runs.</p>
     </section>

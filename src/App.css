@@ -1638,7 +1638,6 @@ select:focus,
   line-height: 1;
 }
 
-
 /* =========================
    Strumming Playback Guide
 ========================= */
@@ -1677,6 +1676,14 @@ select:focus,
   font-weight: 900;
 }
 
+.strumming-playback-guide.is-idle .strumming-playback-cue {
+  opacity: 0.68;
+}
+
+.strumming-playback-guide.is-idle .strumming-playback-slot-beat {
+  opacity: 0.68;
+}
+
 .strumming-playback-cue.is-down {
   border-color: rgba(244, 244, 245, 0.38);
   color: #f4f4f5;
@@ -1702,16 +1709,26 @@ select:focus,
   display: grid;
   min-height: 68px;
   place-items: center;
-  gap: 4px;
   border: 1px solid var(--border);
   border-radius: 16px;
   background: rgba(10, 10, 11, 0.42);
   padding: 8px 6px;
+  text-align: center;
   transition:
     border-color 140ms ease,
     background 140ms ease,
     box-shadow 140ms ease,
     transform 140ms ease;
+  justify-content: center;
+}
+
+.strumming-playback-slot-stack {
+  display: grid;
+  grid-template-rows: 30px 16px;
+  align-items: center;
+  justify-items: center;
+  gap: 4px;
+  width: 100%;
 }
 
 .strumming-playback-slot.is-active {
@@ -1728,6 +1745,10 @@ select:focus,
 }
 
 .strumming-playback-slot-direction {
+  display: grid;
+  width: 100%;
+  height: 30px;
+  place-items: center;
   color: #52525b;
   font-size: 26px;
   font-weight: 900;
@@ -1743,9 +1764,14 @@ select:focus,
 }
 
 .strumming-playback-slot-beat {
+  display: grid;
+  width: 100%;
+  height: 16px;
+  place-items: center;
   color: var(--muted);
   font-size: 11px;
   font-weight: 900;
+  line-height: 1;
 }
 
 .metronome-card .strumming-playback-guide {
