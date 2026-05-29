@@ -59,6 +59,7 @@ export default function App() {
   const [sessionRating, setSessionRating] = useState("Okay");
   const [sessionMessage, setSessionMessage] = useState("");
   const [activeSection, setActiveSection] = useState("dashboard");
+  const [isCustomSongFormOpen, setIsCustomSongFormOpen] = useState(false);
 
   const {
     addCustomGenre,
@@ -155,22 +156,26 @@ export default function App() {
 
   function handleAddCustomSong(song) {
     addCustomSong(song);
+    setIsCustomSongFormOpen(false);
     setSessionMessage("");
     setActiveSection("dashboard");
   }
 
   function handleStartEditCustomSong(songId) {
     startEditCustomSong(songId);
+    setIsCustomSongFormOpen(true);
     setActiveSection("dashboard");
     setSessionMessage("");
   }
 
   function handleCancelEditCustomSong() {
     cancelEditCustomSong();
+    setIsCustomSongFormOpen(false);
   }
 
   function handleUpdateCustomSong(updatedSong) {
     updateCustomSong(updatedSong);
+    setIsCustomSongFormOpen(false);
     setSessionMessage("");
     setActiveSection("dashboard");
   }
@@ -260,6 +265,7 @@ export default function App() {
     setIsSessionTimerRunning(false);
     setElapsedSessionSeconds(0);
     setActiveSection("dashboard");
+    setIsCustomSongFormOpen(false);
   }
 
   return (
@@ -329,75 +335,80 @@ export default function App() {
             genres={pathOptions}
             onAddSong={handleAddCustomSong}
             onCancelEdit={handleCancelEditCustomSong}
+            onOpenChange={setIsCustomSongFormOpen}
             onUpdateSong={handleUpdateCustomSong}
           />
 
-          <nav className="dashboard-nav" aria-label="Guitar Journey sections">
-            {NAV_SECTIONS.map((section) => (
-              <button
-                key={section.id}
-                type="button"
-                className={`dashboard-nav-button ${activeSection === section.id ? "is-active" : ""}`}
-                onClick={() => setActiveSection(section.id)}
-              >
-                {section.label}
-              </button>
-            ))}
-          </nav>
+          {!isCustomSongFormOpen ? (
+            <>
+              <nav className="dashboard-nav" aria-label="Guitar Journey sections">
+                {NAV_SECTIONS.map((section) => (
+                  <button
+                    key={section.id}
+                    type="button"
+                    className={`dashboard-nav-button ${activeSection === section.id ? "is-active" : ""}`}
+                    onClick={() => setActiveSection(section.id)}
+                  >
+                    {section.label}
+                  </button>
+                ))}
+              </nav>
 
-          {activeSection === "dashboard" ? (
-            <div className="top-grid dashboard-top-grid">
-              <div className="song-column">
-                <CurrentSongCard
-                  filteredSongs={filteredSongs}
+              {activeSection === "dashboard" ? (
+                <div className="top-grid dashboard-top-grid">
+                  <div className="song-column">
+                    <CurrentSongCard
+                      filteredSongs={filteredSongs}
+                      masteredSongs={masteredSongs}
+                      onDeleteCustomSong={handleDeleteCustomSong}
+                      onSelectSong={handleSelectSong}
+                      onStartEditCustomSong={handleStartEditCustomSong}
+                      onToggleMastered={handleToggleMasteredSong}
+                      selectedSong={selectedSong}
+                    />
+
+                    <RequiredChords selectedSong={selectedSong} />
+                  </div>
+
+                  <TodayPlan
+                    actualPracticeMinutes={actualPracticeMinutes}
+                    canCompleteSession={canCompleteSession}
+                    completedSteps={completedSteps}
+                    elapsedSessionSeconds={elapsedSessionSeconds}
+                    isSessionTimerRunning={isSessionTimerRunning}
+                    onCompleteSession={completeSession}
+                    onResetSessionTimer={handleResetSessionTimer}
+                    onSessionMinutesChange={setSessionMinutes}
+                    onSessionRatingChange={setSessionRating}
+                    onToggleSessionTimer={handleToggleSessionTimer}
+                    onToggleStep={handleToggleStep}
+                    plan={plan}
+                    progressPercent={progressPercent}
+                    sessionMessage={sessionMessage}
+                    sessionMinutes={sessionMinutes}
+                    sessionRating={sessionRating}
+                  />
+                </div>
+              ) : null}
+
+              {activeSection === "transitions" ? (
+                <TransitionTracker selectedSong={selectedSong} transitionScores={transitionScores} onUpdateTransitionScore={handleUpdateTransitionScore} />
+              ) : null}
+
+              {activeSection === "sections" ? <SongSections selectedSong={selectedSong} /> : null}
+
+              {activeSection === "history" ? <SessionHistory sessions={sessionHistory} /> : null}
+
+              {activeSection === "weekly-plan" ? (
+                <WeeklyPlan
                   masteredSongs={masteredSongs}
-                  onDeleteCustomSong={handleDeleteCustomSong}
-                  onSelectSong={handleSelectSong}
-                  onStartEditCustomSong={handleStartEditCustomSong}
-                  onToggleMastered={handleToggleMasteredSong}
                   selectedSong={selectedSong}
+                  sessionHistory={sessionHistory}
+                  sessionMinutes={sessionMinutes}
+                  transitionScores={transitionScores}
                 />
-
-                <RequiredChords selectedSong={selectedSong} />
-              </div>
-
-              <TodayPlan
-                actualPracticeMinutes={actualPracticeMinutes}
-                canCompleteSession={canCompleteSession}
-                completedSteps={completedSteps}
-                elapsedSessionSeconds={elapsedSessionSeconds}
-                isSessionTimerRunning={isSessionTimerRunning}
-                onCompleteSession={completeSession}
-                onResetSessionTimer={handleResetSessionTimer}
-                onSessionMinutesChange={setSessionMinutes}
-                onSessionRatingChange={setSessionRating}
-                onToggleSessionTimer={handleToggleSessionTimer}
-                onToggleStep={handleToggleStep}
-                plan={plan}
-                progressPercent={progressPercent}
-                sessionMessage={sessionMessage}
-                sessionMinutes={sessionMinutes}
-                sessionRating={sessionRating}
-              />
-            </div>
-          ) : null}
-
-          {activeSection === "transitions" ? (
-            <TransitionTracker selectedSong={selectedSong} transitionScores={transitionScores} onUpdateTransitionScore={handleUpdateTransitionScore} />
-          ) : null}
-
-          {activeSection === "sections" ? <SongSections selectedSong={selectedSong} /> : null}
-
-          {activeSection === "history" ? <SessionHistory sessions={sessionHistory} /> : null}
-
-          {activeSection === "weekly-plan" ? (
-            <WeeklyPlan
-              masteredSongs={masteredSongs}
-              selectedSong={selectedSong}
-              sessionHistory={sessionHistory}
-              sessionMinutes={sessionMinutes}
-              transitionScores={transitionScores}
-            />
+              ) : null}
+            </>
           ) : null}
         </section>
       </div>
