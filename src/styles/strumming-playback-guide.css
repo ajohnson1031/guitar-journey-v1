@@ -98,6 +98,13 @@
   box-shadow: 0 0 0 5px rgba(255, 239, 150, 0.08);
 }
 
+.strumming-playback-slot-stack {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+}
+
 .strumming-playback-slot-direction {
   display: grid;
   min-height: 28px;

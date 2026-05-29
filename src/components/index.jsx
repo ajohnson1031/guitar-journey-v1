@@ -1,6 +1,8 @@
+export { default as AppSidebar } from "./AppSidebar";
 export { default as ChordDiagram } from "./ChordDiagram";
 export { default as CurrentSongCard } from "./CurrentSongCard";
 export { default as CustomSongForm } from "./CustomSongForm";
+export { default as DashboardNav } from "./DashboardNav";
 export { default as GenreManager } from "./GenreManager";
 export { default as Metronome } from "./Metronome";
 export { default as RequiredChords } from "./RequiredChords";
