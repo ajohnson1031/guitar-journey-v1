@@ -1,10 +1,13 @@
 import * as React from "react";
 import { DEFAULT_CUSTOM_SONG_FORM, DOWN_STRUM, KEY_OPTIONS, UP_STRUM } from "../constants";
 import { parseCommaList, parseSections, parseUltimateGuitarUrl, slugify } from "../utils/songFormUtils";
-import { StrummingPatternBuilder, TransitionInput } from "./";
-const { useMemo, useEffect, useState } = React;
+import { SongImportAssistant, StrummingPatternBuilder, TransitionInput } from "./";
+
+const { useEffect, useMemo, useState } = React;
 
 const DIFFICULTY_OPTIONS = ["Beginner", "Intermediate", "Advanced", "Expert"];
+
+const noop = () => {};
 
 function sectionsToText(sections) {
   if (!Array.isArray(sections) || !sections.length) {
@@ -48,7 +51,7 @@ function songToForm(song) {
   };
 }
 
-export default function CustomSongForm({ editingSong, genres, onAddSong, onCancelEdit, onUpdateSong }) {
+export default function CustomSongForm({ editingSong, genres, onAddSong, onCancelEdit, onOpenChange = noop, onUpdateSong }) {
   const isEditing = Boolean(editingSong);
 
   const [form, setForm] = useState(DEFAULT_CUSTOM_SONG_FORM);
@@ -64,8 +67,9 @@ export default function CustomSongForm({ editingSong, genres, onAddSong, onCance
 
     setForm(songToForm(editingSong));
     setIsOpen(true);
+    onOpenChange(true);
     setMessage("");
-  }, [editingSong]);
+  }, [editingSong, onOpenChange]);
 
   function setValidationMessage(value) {
     setMessage(value);
@@ -92,6 +96,7 @@ export default function CustomSongForm({ editingSong, genres, onAddSong, onCance
 
   function closeForm() {
     setIsOpen(false);
+    onOpenChange(false);
     setMessage("");
     setForm(DEFAULT_CUSTOM_SONG_FORM);
 
@@ -124,6 +129,20 @@ export default function CustomSongForm({ editingSong, genres, onAddSong, onCance
     }));
 
     setInfoMessage("Imported starter details. Review and fill in genre, key, difficulty, chords, sections, and strumming.");
+  }
+
+  function applySongAnalysis(analysis) {
+    setForm((current) => ({
+      ...current,
+      chords: analysis.chords.length ? analysis.chords.join(", ") : current.chords,
+      transitions: analysis.transitions.length ? analysis.transitions.join(", ") : current.transitions,
+      sections: analysis.sections.length ? sectionsToText(analysis.sections) : current.sections,
+      difficulty: current.difficulty || analysis.difficulty,
+      key: current.key || analysis.key || current.key,
+      goal: !current.goal || current.goal === DEFAULT_CUSTOM_SONG_FORM.goal ? analysis.goal : current.goal,
+    }));
+
+    setInfoMessage("Song analysis applied. Review and edit anything before saving.");
   }
 
   function handleSubmit(event) {
@@ -198,6 +217,7 @@ export default function CustomSongForm({ editingSong, genres, onAddSong, onCance
     setMessageTone("error");
     setForm(DEFAULT_CUSTOM_SONG_FORM);
     setIsOpen(false);
+    onOpenChange(false);
   }
 
   return (
@@ -222,6 +242,7 @@ export default function CustomSongForm({ editingSong, genres, onAddSong, onCance
             }
 
             setIsOpen(true);
+            onOpenChange(true);
             setMessage("");
           }}
         >
@@ -248,6 +269,8 @@ export default function CustomSongForm({ editingSong, genres, onAddSong, onCance
 
             <p>This reads artist, title, instrument/type, tab ID, and source URL from the link. Chords and sections stay editable so you can build your own study plan.</p>
           </div>
+
+          <SongImportAssistant onApplyAnalysis={applySongAnalysis} />
 
           <div className="form-grid two">
             <label>
