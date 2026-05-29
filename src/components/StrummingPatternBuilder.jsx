@@ -1,61 +1,63 @@
 import * as React from "react";
+import { DOWN_STRUM, UP_STRUM } from "../constants";
+import { clearStrummingPattern, normalizeStrummingPattern, setStrummingSlotDirection } from "../utils/strummingUtils";
+import StrummingPatternDisplay from "./StrummingPatternDisplay";
 
-const { Fragment } = React;
-
-const DOWN_STRUM = "↓";
-const UP_STRUM = "↑";
+const { useMemo } = React;
 
 export default function StrummingPatternBuilder({ value, onChange }) {
-  const pattern = Array.isArray(value) ? value : [];
+  const pattern = useMemo(() => normalizeStrummingPattern(value), [value]);
 
-  function addStrum(direction) {
-    onChange([...pattern, direction]);
+  function handleSetDirection(slot, direction) {
+    onChange(setStrummingSlotDirection(pattern, slot, direction));
   }
 
-  function undoLastStrum() {
-    onChange(pattern.slice(0, -1));
-  }
-
-  function clearStrummingPattern() {
-    onChange([]);
+  function handleClearPattern() {
+    onChange(clearStrummingPattern());
   }
 
   return (
     <div className="strumming-builder">
       <div>
         <span>Strumming Pattern</span>
-        <p>Tap down/up arrows to build the rhythm sequence.</p>
+        <p>Place down and up strums on the beat grid. Click a selected direction again to clear that slot.</p>
       </div>
 
-      <div className="strumming-display" aria-label="Selected strumming pattern">
-        {pattern.length ? (
-          pattern.map((direction, index) => (
-            <strong key={`${direction}-${index}`} className={direction === DOWN_STRUM ? "strum-down" : "strum-up"}>
-              {direction}
-            </strong>
-          ))
-        ) : (
-          <small>No strumming pattern yet</small>
-        )}
+      <StrummingPatternDisplay pattern={pattern} />
+
+      <div className="strumming-slot-grid">
+        {pattern.map((slot) => (
+          <div key={slot.slot} className="strumming-slot-card">
+            <span>{slot.beat}</span>
+
+            <div>
+              <button
+                type="button"
+                className={`strum-arrow-button strum-down-button ${slot.direction === DOWN_STRUM ? "is-selected" : ""}`}
+                title={`Set ${slot.beat} to down strum`}
+                aria-label={`Set ${slot.beat} to down strum`}
+                onClick={() => handleSetDirection(slot.slot, DOWN_STRUM)}
+              >
+                {DOWN_STRUM}
+              </button>
+
+              <button
+                type="button"
+                className={`strum-arrow-button strum-up-button ${slot.direction === UP_STRUM ? "is-selected" : ""}`}
+                title={`Set ${slot.beat} to up strum`}
+                aria-label={`Set ${slot.beat} to up strum`}
+                onClick={() => handleSetDirection(slot.slot, UP_STRUM)}
+              >
+                {UP_STRUM}
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
 
-      <div className="strumming-actions">
-        <button type="button" className="strum-arrow-button strum-down-button" onClick={() => addStrum(DOWN_STRUM)} aria-label="Add down strum">
-          {DOWN_STRUM}
-        </button>
-
-        <button type="button" className="strum-arrow-button strum-up-button" onClick={() => addStrum(UP_STRUM)} aria-label="Add up strum">
-          {UP_STRUM}
-        </button>
-
-        <button type="button" className="ghost-button" onClick={undoLastStrum}>
-          Undo
-        </button>
-
-        <button type="button" className="danger-button" onClick={clearStrummingPattern}>
-          Clear
-        </button>
-      </div>
+      <button type="button" className="ghost-button" onClick={handleClearPattern}>
+        Clear Pattern
+      </button>
     </div>
   );
 }

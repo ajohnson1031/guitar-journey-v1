@@ -8,6 +8,7 @@ export { default as SessionHistory } from "./SessionHistory";
 export { default as SongImportAssistant } from "./SongImportAssistant";
 export { default as SongSections } from "./SongSections";
 export { default as StrummingPatternBuilder } from "./StrummingPatternBuilder";
+export { default as StrummingPatternDisplay } from "./StrummingPatternDisplay";
 export { default as TodayPlan } from "./TodayPlan";
 export { default as TransitionInput } from "./TransitionInput";
 export { default as TransitionTracker } from "./TransitionTracker";
