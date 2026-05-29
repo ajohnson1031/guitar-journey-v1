@@ -1,6 +1,6 @@
 const STORAGE_KEY = "guitar-journey:v1:progress";
 
-const STORAGE_VERSION = 2;
+const STORAGE_VERSION = 3;
 
 const DEFAULT_CUSTOM_GENRE_DESCRIPTION = "Custom genre for your personal practice library.";
 
