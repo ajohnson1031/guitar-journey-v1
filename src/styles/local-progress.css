@@ -1,0 +1,44 @@
+/* =========================
+   Sidebar: Local Progress
+========================= */
+
+.local-progress-card {
+  display: grid;
+  gap: 14px;
+}
+
+.progress-stat-grid,
+.history-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.progress-stat-grid div,
+.history-stat-grid div {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(10, 10, 11, 0.42);
+  padding: 12px;
+}
+
+.progress-stat-grid span,
+.history-stat-grid span {
+  display: block;
+  color: var(--text);
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.history-stat-grid span {
+  font-size: 28px;
+}
+
+.progress-stat-grid small,
+.history-stat-grid small {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}

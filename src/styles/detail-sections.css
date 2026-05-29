@@ -1,0 +1,57 @@
+/* =========================
+   Detail Sections
+========================= */
+
+.detail-section-card {
+  min-height: 420px;
+}
+
+.detail-section-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.transition-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.transition-card input {
+  width: 100%;
+  margin-top: 14px;
+  accent-color: var(--blue);
+}
+
+.strum-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 9px 12px;
+  color: var(--muted-strong);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.strum-pill > span:first-child {
+  color: var(--muted-strong);
+}
+
+.song-section-card {
+  display: grid;
+  gap: 8px;
+}
+
+.song-section-card span {
+  color: #7dd3fc;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.song-section-card strong {
+  font-size: 18px;
+}

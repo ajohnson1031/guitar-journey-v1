@@ -1,0 +1,74 @@
+/* =========================
+   Form Controls
+========================= */
+
+.form-control,
+.custom-song-form input,
+.custom-song-form textarea,
+.genre-manager-form input,
+.genre-manager-form textarea,
+.custom-genre-content textarea,
+.bpm-input-wrap input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--panel-strong);
+  color: var(--text);
+  padding: 11px 12px;
+  outline: none;
+}
+
+select,
+.select-control,
+.custom-song-form select {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background-color: var(--panel-strong);
+  color: var(--text);
+  padding: 12px 34px 12px 14px;
+  outline: none;
+
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5 7.5L10 12.5L15 7.5' stroke='%23d4d4d8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 14px 14px;
+}
+
+textarea,
+.textarea-control,
+.custom-song-form textarea {
+  resize: vertical;
+}
+
+select::-ms-expand {
+  display: none;
+}
+
+.form-control:focus,
+.select-control:focus,
+textarea:focus,
+select:focus,
+.custom-song-form input:focus,
+.custom-song-form select:focus,
+.custom-song-form textarea:focus,
+.genre-manager-form input:focus,
+.genre-manager-form textarea:focus,
+.custom-genre-content textarea:focus,
+.bpm-input-wrap input:focus {
+  border-color: var(--blue);
+}
+
+.select-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--muted-strong);
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}

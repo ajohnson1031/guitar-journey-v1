@@ -1,0 +1,98 @@
+/* =========================
+   Complete Session
+========================= */
+
+.complete-session-card {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: rgba(10, 10, 11, 0.42);
+  padding: 16px;
+}
+
+.complete-session-card h3 {
+  margin: 0;
+  font-size: 18px;
+  letter-spacing: -0.03em;
+}
+
+.complete-session-card p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.session-timer-display {
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: rgba(10, 10, 11, 0.42);
+  padding: 14px;
+  text-align: center;
+}
+
+.session-timer-display span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.session-timer-display strong {
+  color: var(--text);
+  font-size: 42px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.04em;
+}
+
+.session-timer-display small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.session-timer-actions,
+.rating-row {
+  display: grid;
+  gap: 8px;
+}
+
+.session-timer-actions {
+  grid-template-columns: 1fr 1fr;
+}
+
+.rating-row {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.complete-session-button {
+  border: 1px solid var(--green);
+  border-radius: 999px;
+  background: var(--green-soft);
+  color: var(--green);
+  padding: 11px 14px;
+  font-weight: 900;
+}
+
+.complete-session-button:hover {
+  background: rgba(52, 211, 153, 0.18);
+}
+
+.complete-session-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.session-message {
+  border: 1px solid rgba(52, 211, 153, 0.32);
+  border-radius: 16px;
+  background: rgba(52, 211, 153, 0.1);
+  color: #86efac !important;
+  padding: 10px 12px;
+  font-weight: 800;
+}

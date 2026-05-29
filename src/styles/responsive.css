@@ -1,0 +1,126 @@
+/* =========================
+   Responsive
+========================= */
+
+@media (max-width: 1100px) {
+  .app-grid,
+  .top-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .info-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .transition-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .weekly-summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .strumming-slot-grid,
+  .strumming-playback-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .app-grid {
+    padding: 14px;
+  }
+
+  .hero-card h1,
+  .song-header h2,
+  .song-header-main h2 {
+    font-size: 32px;
+  }
+
+  .song-header,
+  .session-header,
+  .section-heading-row {
+    flex-direction: column;
+  }
+
+  .song-card-control-row,
+  .custom-song-header,
+  .custom-song-actions,
+  .custom-song-button-group {
+    grid-template-columns: 1fr;
+  }
+
+  .song-card-control-row {
+    align-items: stretch;
+  }
+
+  .custom-song-button-group {
+    display: grid;
+  }
+
+  .song-header-actions.song-icon-actions {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .dashboard-nav,
+  .genre-manager-form {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-nav {
+    display: grid;
+  }
+
+  .dashboard-nav-button {
+    width: 100%;
+  }
+
+  .detail-section-card {
+    min-height: unset;
+  }
+
+  .chord-grid,
+  .info-grid,
+  .song-detail-grid,
+  .form-grid.two,
+  .rating-row,
+  .history-stat-grid,
+  .session-timer-actions,
+  .weekly-summary-grid,
+  .weekly-day-card {
+    grid-template-columns: 1fr;
+  }
+
+  .custom-genre-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .custom-genre-actions {
+    justify-content: flex-end;
+  }
+
+  .weekly-day-title-row {
+    flex-direction: column;
+  }
+
+  .strumming-slot-grid,
+  .strumming-playback-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .strumming-arrow-row,
+  .strumming-beat-row {
+    gap: 3px;
+  }
+
+  .strumming-direction {
+    font-size: 22px;
+  }
+
+  .history-card div {
+    flex-direction: column;
+  }
+}

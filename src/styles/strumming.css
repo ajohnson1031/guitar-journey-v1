@@ -1,0 +1,167 @@
+/* =========================
+   Strumming Pattern
+========================= */
+
+.strumming-builder {
+  display: grid;
+  gap: 14px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: rgba(10, 10, 11, 0.42);
+  padding: 14px;
+}
+
+.strumming-builder > div:first-child > span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.strumming-builder > div:first-child > p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.strumming-pattern-display {
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--panel-strong);
+  padding: 12px;
+}
+
+.strumming-arrow-row,
+.strumming-beat-row {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 6px;
+  text-align: center;
+}
+
+.strumming-direction {
+  display: grid;
+  min-height: 34px;
+  place-items: center;
+  color: #52525b;
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.strumming-direction.is-active.is-down {
+  color: #f4f4f5;
+}
+
+.strumming-direction.is-active.is-up {
+  color: #ffef96;
+}
+
+.strumming-beat-row span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.strumming-pattern-display.is-compact {
+  border-radius: 14px;
+  padding: 8px;
+}
+
+.strumming-pattern-display.is-compact .strumming-direction {
+  min-height: 24px;
+  font-size: 20px;
+}
+
+.strumming-pattern-display.is-compact .strumming-beat-row span {
+  font-size: 11px;
+}
+
+.strumming-slot-grid {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 8px;
+  padding: 0 12px;
+}
+
+.strumming-slot-card {
+  display: grid;
+  gap: 7px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: rgba(10, 10, 11, 0.42);
+  padding: 8px;
+}
+
+.strumming-slot-card > span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.strumming-slot-card > div {
+  display: grid;
+  gap: 6px;
+}
+
+.strum-arrow-button {
+  display: grid;
+  min-height: 44px;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(10, 10, 11, 0.5);
+  color: var(--text);
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.strum-arrow-button:hover {
+  border-color: var(--blue);
+}
+
+.strum-arrow-button.is-selected {
+  border-color: var(--blue);
+  background: var(--blue-soft);
+}
+
+.strum-down-button {
+  color: #f4f4f5;
+}
+
+.strum-up-button,
+.strum-up {
+  color: #ffef96;
+}
+
+.strum-up-button.is-selected {
+  border-color: #ffef96;
+  background: rgba(255, 239, 150, 0.12);
+  color: #ffef96;
+}
+
+.strum-up-button:hover {
+  border-color: #ffef96;
+}
+
+.inline-strumming-display {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.inline-strumming-display strong {
+  display: inline-grid;
+  place-items: center;
+  color: #f4f4f5;
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1;
+}

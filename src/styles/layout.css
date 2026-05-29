@@ -1,0 +1,31 @@
+/* =========================
+   Layout
+========================= */
+
+.app-grid {
+  width: min(1440px, 100%);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+  padding: 24px;
+}
+
+.sidebar,
+.main-content,
+.song-column {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+}
+
+.top-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
+  align-items: start;
+}
+
+.dashboard-top-grid {
+  align-items: start;
+}

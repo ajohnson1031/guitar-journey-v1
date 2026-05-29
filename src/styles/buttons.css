@@ -1,0 +1,48 @@
+/* =========================
+   Buttons
+========================= */
+
+.ghost-button,
+.selected-button,
+.mastered-button {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(10, 10, 11, 0.5);
+  color: var(--text);
+  padding: 10px 14px;
+  font-weight: 900;
+}
+
+.selected-button {
+  border-color: var(--blue);
+  background: var(--blue);
+  color: #fff;
+}
+
+.mastered-button {
+  border-color: var(--green);
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.danger-button,
+.metronome-stop-button {
+  border: 1px solid rgba(248, 113, 113, 0.45);
+  border-radius: 999px;
+  background: rgba(248, 113, 113, 0.1);
+  color: #fca5a5;
+  padding: 10px 14px;
+  font-weight: 900;
+}
+
+.danger-button:hover,
+.metronome-stop-button:hover {
+  border-color: #f87171;
+  background: rgba(248, 113, 113, 0.16);
+}
+
+.path-card:hover,
+.step-card:hover,
+.ghost-button:hover {
+  border-color: #52525b;
+}

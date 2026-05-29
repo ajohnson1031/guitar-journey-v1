@@ -1,0 +1,36 @@
+/* =========================
+   Sidebar: Genre Paths
+========================= */
+
+.path-list,
+.step-list,
+.transition-list,
+.section-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.path-card,
+.step-card {
+  width: 100%;
+  padding: 14px;
+  color: var(--text);
+  text-align: left;
+}
+
+.path-card {
+  display: grid;
+  gap: 6px;
+}
+
+.path-card span,
+.step-card strong,
+.session-length-card strong {
+  font-weight: 900;
+}
+
+.path-card.is-active {
+  border-color: var(--blue);
+  background: var(--blue-soft);
+}
