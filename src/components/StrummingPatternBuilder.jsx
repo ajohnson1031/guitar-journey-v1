@@ -1,6 +1,6 @@
 import * as React from "react";
 import { DOWN_STRUM, UP_STRUM } from "../constants";
-import { clearStrummingPattern, normalizeStrummingPattern, setStrummingSlotDirection } from "../utils/strummingUtils";
+import { STRUMMING_PRESETS, clearStrummingPattern, createPresetStrummingPattern, normalizeStrummingPattern, setStrummingSlotDirection } from "../utils/strummingUtils";
 import StrummingPatternDisplay from "./StrummingPatternDisplay";
 
 const { useMemo } = React;
@@ -16,6 +16,10 @@ export default function StrummingPatternBuilder({ value, onChange }) {
     onChange(clearStrummingPattern());
   }
 
+  function handleApplyPreset(preset) {
+    onChange(createPresetStrummingPattern(preset));
+  }
+
   return (
     <div className="strumming-builder">
       <div>
@@ -24,6 +28,18 @@ export default function StrummingPatternBuilder({ value, onChange }) {
       </div>
 
       <StrummingPatternDisplay pattern={pattern} />
+
+      <div className="custom-song-preview">
+        <span>Presets</span>
+
+        <div>
+          {STRUMMING_PRESETS.map((preset) => (
+            <button key={preset.id} type="button" className="ghost-button" title={preset.description} onClick={() => handleApplyPreset(preset)}>
+              {preset.name}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className="strumming-slot-grid">
         {pattern.map((slot) => (

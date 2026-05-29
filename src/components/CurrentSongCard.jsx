@@ -1,52 +1,64 @@
 import * as React from "react";
+import StrummingPatternDisplay from "./StrummingPatternDisplay";
 
 const { Fragment } = React;
 
 export default function CurrentSongCard({ filteredSongs, masteredSongs, onDeleteCustomSong, onSelectSong, onStartEditCustomSong, onToggleMastered, selectedSong }) {
   return (
     <section className="song-card compact-song-card">
-      <div className="song-header">
-        <div>
-          <p className="eyebrow">Current Song</p>
-          <h2>{selectedSong.title}</h2>
-          <p>{selectedSong.goal}</p>
+      <div className="song-card-control-row-wrapper">
+        <p className="eyebrow">Choose Song</p>
+        <div className="song-card-control-row">
+          <select id="song-select" className="song-select-inline-control" aria-label="Choose song" value={selectedSong.id} onChange={(event) => onSelectSong(event.target.value)}>
+            {filteredSongs.map((song) => (
+              <option key={song.id} value={song.id}>
+                {song.title} — {song.difficulty}
+                {song.isCustom ? " — custom" : ""}
+              </option>
+            ))}
+          </select>
+
+          <div className="song-header-actions song-icon-actions">
+            {selectedSong.isCustom ? (
+              <Fragment>
+                <button
+                  type="button"
+                  className="icon-button ghost-button edit-icon-button"
+                  title="Edit Custom Song"
+                  aria-label="Edit Custom Song"
+                  onClick={() => onStartEditCustomSong(selectedSong.id)}
+                >
+                  <PencilIcon />
+                </button>
+
+                <button
+                  type="button"
+                  className="icon-button danger-button"
+                  title="Delete Custom Song"
+                  aria-label="Delete Custom Song"
+                  onClick={() => onDeleteCustomSong(selectedSong.id)}
+                >
+                  <XIcon />
+                </button>
+              </Fragment>
+            ) : null}
+
+            <button
+              type="button"
+              title={masteredSongs[selectedSong.id] ? "Marked Mastered" : "Mark Mastered"}
+              aria-label={masteredSongs[selectedSong.id] ? "Marked Mastered" : "Mark Mastered"}
+              onClick={() => onToggleMastered(selectedSong.id)}
+              className={`icon-button mastered-icon-button ${masteredSongs[selectedSong.id] ? "mastered-button" : "ghost-button"}`}
+            >
+              <DoubleCheckIcon />
+            </button>
+          </div>
         </div>
-
-        <div className="song-header-actions song-icon-actions">
-          {selectedSong.isCustom ? (
-            <Fragment>
-              <button
-                type="button"
-                className="icon-button ghost-button edit-icon-button"
-                title="Edit Custom Song"
-                aria-label="Edit Custom Song"
-                onClick={() => onStartEditCustomSong(selectedSong.id)}
-              >
-                <PencilIcon />
-              </button>
-
-              <button
-                type="button"
-                className="icon-button danger-button"
-                title="Delete Custom Song"
-                aria-label="Delete Custom Song"
-                onClick={() => onDeleteCustomSong(selectedSong.id)}
-              >
-                <XIcon />
-              </button>
-            </Fragment>
-          ) : null}
-
-          <button
-            type="button"
-            title={masteredSongs[selectedSong.id] ? "Marked Mastered" : "Mark Mastered"}
-            aria-label={masteredSongs[selectedSong.id] ? "Marked Mastered" : "Mark Mastered"}
-            onClick={() => onToggleMastered(selectedSong.id)}
-            className={`icon-button mastered-icon-button ${masteredSongs[selectedSong.id] ? "mastered-button" : "ghost-button"}`}
-          >
-            <DoubleCheckIcon />
-          </button>
-        </div>
+      </div>
+      <div className="song-header-main">
+        <p className="eyebrow">Current Song</p>
+        <h2>{selectedSong.title}</h2>
+        <p className="goal">{selectedSong.goal}</p>
       </div>
 
       <div className="song-detail-grid-wrap">
@@ -63,18 +75,12 @@ export default function CurrentSongCard({ filteredSongs, masteredSongs, onDelete
         </div>
       </div>
 
-      <label className="select-label" htmlFor="song-select">
-        Choose Song
-      </label>
-
-      <select id="song-select" value={selectedSong.id} onChange={(event) => onSelectSong(event.target.value)}>
-        {filteredSongs.map((song) => (
-          <option key={song.id} value={song.id}>
-            {song.title} — {song.difficulty}
-            {song.isCustom ? " — custom" : ""}
-          </option>
-        ))}
-      </select>
+      <div>
+        <span className="strum-pill">
+          <span>Strum Pattern:</span>
+          <StrummingPatternDisplay pattern={selectedSong.strummingPattern || selectedSong.strumming} compact />
+        </span>
+      </div>
     </section>
   );
 }

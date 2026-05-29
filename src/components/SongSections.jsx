@@ -1,29 +1,7 @@
 import * as React from "react";
+import StrummingPatternDisplay from "./StrummingPatternDisplay";
 
 const { Fragment } = React;
-
-function isArrowStrummingPattern(value) {
-  return /^[↓↑\s]+$/.test(String(value || "").trim());
-}
-
-function StrummingPatternDisplay({ pattern }) {
-  if (!isArrowStrummingPattern(pattern)) {
-    return <span>{pattern}</span>;
-  }
-
-  return (
-    <span className="inline-strumming-display" aria-label="Strumming pattern">
-      {String(pattern)
-        .trim()
-        .split(/\s+/)
-        .map((direction, index) => (
-          <strong key={`${direction}-${index}`} className={direction === "↓" ? "strum-down" : "strum-up"}>
-            {direction}
-          </strong>
-        ))}
-    </span>
-  );
-}
 
 export default function SongSections({ selectedSong }) {
   return (
@@ -37,14 +15,14 @@ export default function SongSections({ selectedSong }) {
           </div>
 
           <span className="strum-pill">
-            <span>Strum:</span>
-            <StrummingPatternDisplay pattern={selectedSong.strumming} />
+            <span>Strum</span>
+            <StrummingPatternDisplay pattern={selectedSong.strummingPattern || selectedSong.strumming} compact />
           </span>
         </div>
 
         <div className="section-list">
           {selectedSong.sections.map((section) => (
-            <div key={section.name} className="song-section-card">
+            <div key={`${section.name}-${section.progression}`} className="song-section-card">
               <span>{section.name}</span>
               <strong>{section.progression}</strong>
             </div>

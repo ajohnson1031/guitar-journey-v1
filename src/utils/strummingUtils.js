@@ -3,6 +3,33 @@ import { DOWN_STRUM, UP_STRUM } from "../constants";
 export const STRUMMING_BEATS = ["1", "&", "2", "&", "3", "&", "4", "&"];
 export const REST_STRUM = "·";
 
+export const STRUMMING_PRESETS = [
+  {
+    id: "beginner-downstrums",
+    name: "Beginner Downstrums",
+    description: "Simple steady quarter-note downstrums.",
+    pattern: [DOWN_STRUM, "", DOWN_STRUM, "", DOWN_STRUM, "", DOWN_STRUM, ""],
+  },
+  {
+    id: "classic-folk",
+    name: "Classic Folk",
+    description: "Common down/down-up/up-down-up feel.",
+    pattern: [DOWN_STRUM, "", DOWN_STRUM, UP_STRUM, UP_STRUM, DOWN_STRUM, DOWN_STRUM, UP_STRUM],
+  },
+  {
+    id: "worship-build",
+    name: "Worship Build",
+    description: "Steady, spacious pattern for open chord songs.",
+    pattern: [DOWN_STRUM, "", DOWN_STRUM, "", DOWN_STRUM, UP_STRUM, DOWN_STRUM, UP_STRUM],
+  },
+  {
+    id: "pop-island",
+    name: "Pop / Island",
+    description: "Light syncopated pop feel.",
+    pattern: [DOWN_STRUM, "", DOWN_STRUM, UP_STRUM, "", UP_STRUM, DOWN_STRUM, UP_STRUM],
+  },
+];
+
 export function createEmptyStrummingPattern() {
   return STRUMMING_BEATS.map((beat, slot) => ({
     slot,
@@ -93,6 +120,10 @@ export function setStrummingSlotDirection(pattern, slot, direction) {
 
 export function clearStrummingPattern() {
   return createEmptyStrummingPattern();
+}
+
+export function createPresetStrummingPattern(preset) {
+  return normalizeStrummingPattern(preset?.pattern);
 }
 
 export function hasStrummingPattern(pattern) {
