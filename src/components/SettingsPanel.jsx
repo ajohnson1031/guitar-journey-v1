@@ -10,6 +10,33 @@ import ConfirmDialog from "./ConfirmDialog";
 
 const { Fragment, useEffect, useMemo, useRef, useState } = React;
 
+const AUDIO_SETTING_ROWS = [
+  {
+    label: "Input mode",
+    value: "Standard",
+    status: "Active",
+    description: "Best for normal practice recording.",
+  },
+  {
+    label: "Echo cancellation",
+    value: "On by default",
+    status: "Browser managed",
+    description: "Helps reduce speaker feedback during recording.",
+  },
+  {
+    label: "Noise suppression",
+    value: "On by default",
+    status: "Browser managed",
+    description: "Helps reduce room noise for cleaner practice takes.",
+  },
+  {
+    label: "Auto gain control",
+    value: "On by default",
+    status: "Browser managed",
+    description: "Helps balance quiet and loud input automatically.",
+  },
+];
+
 function getProgressBackupFilename() {
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
 
@@ -230,6 +257,26 @@ export default function SettingsPanel({ appSettings, onThemeModeChange }) {
               <StatusCard label="Local recordings" value={recordingStorageSummary.label} tone={recordingStorageSummary.count > 0 ? "success" : "neutral"} />
             </div>
 
+            <div className="settings-audio-options-panel" aria-label="Audio input settings">
+              <div className="settings-audio-options-copy">
+                <div>
+                  <strong>Audio settings</strong>
+                  <p>
+                    Standard mode is tuned for normal practice recording. Advanced/raw input mode is planned for chord recognition experiments, but the current defaults stay safer
+                    for everyday recording.
+                  </p>
+                </div>
+
+                <span>Informational</span>
+              </div>
+
+              <div className="settings-audio-setting-grid">
+                {AUDIO_SETTING_ROWS.map((setting) => (
+                  <AudioSettingCard key={setting.label} {...setting} />
+                ))}
+              </div>
+            </div>
+
             <div className="settings-action-panel settings-audio-test-panel">
               <div>
                 <strong>Test microphone</strong>
@@ -312,6 +359,20 @@ function StatusCard({ label, tone = "neutral", value }) {
     <div className={`settings-status-card settings-status-card--${tone}`}>
       <span>{label}</span>
       <strong>{value}</strong>
+    </div>
+  );
+}
+
+function AudioSettingCard({ description, label, status, value }) {
+  return (
+    <div className="settings-audio-setting-card">
+      <div className="settings-audio-setting-header">
+        <span>{label}</span>
+        <strong>{value}</strong>
+      </div>
+
+      <p>{description}</p>
+      <small>{status}</small>
     </div>
   );
 }
