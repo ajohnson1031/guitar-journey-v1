@@ -15,7 +15,7 @@
 .history-card {
   border: 1px solid var(--border);
   border-radius: 18px;
-  background: rgba(10, 10, 11, 0.42);
+  background: var(--surface);
   padding: 14px;
 }
 
@@ -42,6 +42,7 @@
 .history-empty {
   border: 1px dashed var(--border);
   border-radius: 18px;
+  background: var(--surface-soft);
   padding: 16px;
 }
 

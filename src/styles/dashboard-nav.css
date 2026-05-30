@@ -11,7 +11,7 @@
   border-radius: 24px;
   background: var(--panel);
   padding: 10px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.16);
+  box-shadow: var(--shadow-soft);
   backdrop-filter: blur(18px);
 }
 
@@ -25,14 +25,14 @@
 .dashboard-nav-button {
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: rgba(10, 10, 11, 0.5);
+  background: var(--surface-subtle);
   color: var(--muted-strong);
   padding: 10px 14px;
   font-weight: 900;
 }
 
 .dashboard-nav-button:hover {
-  border-color: #52525b;
+  border-color: var(--border-strong);
 }
 
 .dashboard-nav-button.is-active {
@@ -64,7 +64,7 @@
   height: 20px;
   fill: none;
   stroke: currentColor;
-  stroke-width: 2.1;
+  stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
 }

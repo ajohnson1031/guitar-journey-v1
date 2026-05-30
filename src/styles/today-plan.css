@@ -16,8 +16,8 @@
 
 .progress-badge.is-empty {
   border-color: rgba(248, 113, 113, 0.45);
-  background: rgba(248, 113, 113, 0.1);
-  color: #fca5a5;
+  background: var(--danger-soft);
+  color: var(--danger-text);
 }
 
 .progress-badge.is-active {
@@ -38,7 +38,7 @@
   margin-top: 18px;
   border: 1px solid var(--border);
   border-radius: 20px;
-  background: rgba(10, 10, 11, 0.42);
+  background: var(--surface);
   padding: 14px;
 }
 
@@ -59,7 +59,7 @@
   margin: 18px 0;
   overflow: hidden;
   border-radius: 999px;
-  background: #27272a;
+  background: var(--track);
 }
 
 .progress-fill {
@@ -72,7 +72,7 @@
 }
 
 .progress-fill.is-empty {
-  background: #f87171;
+  background: var(--danger);
 }
 
 .progress-fill.is-active {

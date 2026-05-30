@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AppSidebar, DashboardNav } from "./components";
-import { useGuitarJourneyApp } from "./hooks";
+import { useAppSettings, useGuitarJourneyApp } from "./hooks";
 import {
   DashboardRoute,
   EditSongRoute,
@@ -18,6 +18,12 @@ import "./App.css";
 const { Fragment } = React;
 
 export default function App() {
+  const {
+    settings: appSettings,
+    resolvedThemeMode,
+    updateThemeMode,
+  } = useAppSettings();
+
   const {
     dashboardRouteProps,
     editSongRouteProps,
@@ -53,7 +59,7 @@ export default function App() {
 
               <Route path="songs/edit/:songId" element={<EditSongRoute {...editSongRouteProps} />} />
 
-              <Route path="settings" element={<SettingsRoute />} />
+              <Route path="settings" element={<SettingsRoute appSettings={appSettings} onThemeModeChange={updateThemeMode} resolvedThemeMode={resolvedThemeMode} />} />
 
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

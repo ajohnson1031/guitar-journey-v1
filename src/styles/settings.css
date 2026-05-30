@@ -37,7 +37,7 @@
   gap: 18px;
   border: 1px solid var(--border);
   border-radius: 22px;
-  background: rgba(10, 10, 11, 0.42);
+  background: var(--surface);
   padding: 18px;
 }
 
@@ -59,6 +59,44 @@
   gap: 8px;
 }
 
+.settings-option-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.settings-option-card {
+  display: grid;
+  gap: 6px;
+  min-height: 104px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface-soft);
+  color: var(--text);
+  padding: 14px;
+  text-align: left;
+}
+
+.settings-option-card:hover {
+  border-color: var(--border-strong);
+}
+
+.settings-option-card.is-selected {
+  border-color: var(--blue);
+  background: var(--blue-soft);
+}
+
+.settings-option-card span {
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.settings-option-card small {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
 .settings-placeholder-row {
   display: flex;
   align-items: center;
@@ -66,7 +104,7 @@
   gap: 14px;
   border: 1px solid var(--border);
   border-radius: 16px;
-  background: rgba(10, 10, 11, 0.38);
+  background: var(--surface-soft);
   padding: 12px 14px;
 }
 
@@ -79,4 +117,10 @@
 .settings-placeholder-row strong {
   color: var(--muted-strong);
   font-size: 13px;
+}
+
+@media (max-width: 760px) {
+  .settings-option-grid {
+    grid-template-columns: 1fr;
+  }
 }

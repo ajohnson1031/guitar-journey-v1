@@ -29,8 +29,8 @@
   place-items: center;
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: rgba(10, 10, 11, 0.42);
-  color: var(--muted);
+  background: var(--surface-soft);
+  color: var(--muted-strong);
   font-size: 22px;
   font-weight: 900;
 }
@@ -38,7 +38,7 @@
 .beat-orb.is-running {
   border-color: var(--blue);
   background: var(--blue-soft);
-  color: #7dd3fc;
+  color: var(--blue);
   box-shadow: 0 0 0 6px rgba(27, 130, 230, 0.08);
 }
 
@@ -83,7 +83,7 @@
 .beat-dot {
   height: 10px;
   border-radius: 999px;
-  background: #27272a;
+  background: var(--track);
   transition:
     background 120ms ease,
     transform 120ms ease,
@@ -91,18 +91,18 @@
 }
 
 .beat-dot.is-accent {
-  background: rgba(255, 179, 71, 0.3);
+  background: var(--mango-soft);
 }
 
 .beat-dot.is-active {
-  background: #7dd3fc;
-  box-shadow: 0 0 18px rgba(125, 211, 252, 0.55);
+  background: var(--blue);
+  box-shadow: 0 0 18px rgba(27, 130, 230, 0.38);
   transform: scaleY(1.45);
 }
 
 .beat-dot.is-active.is-accent {
   background: var(--mango);
-  box-shadow: 0 0 18px rgba(255, 179, 71, 0.55);
+  box-shadow: 0 0 18px rgba(255, 179, 71, 0.45);
 }
 
 .metronome-note {
