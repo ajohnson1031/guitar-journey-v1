@@ -420,6 +420,7 @@ export default function useGuitarJourneyApp() {
       recordingDurationSeconds,
       recordingMessage,
       selectedSong,
+      sessionHistory,
       sessionMessage,
       sessionMinutes,
       sessionRating,

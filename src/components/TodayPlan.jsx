@@ -1,10 +1,11 @@
 import * as React from "react";
 import { SESSION_RATINGS } from "../constants";
+import { getPracticeHistoryStats, getTodayPracticeSummary } from "../utils/practiceStatsUtils";
 import { formatRecordingDuration } from "../utils/recordingStorageUtils";
 import { PauseIcon, RecordIcon, StopIcon } from "./AppIcons";
 import ConfirmDialog from "./ConfirmDialog";
 
-const { Fragment, useRef, useState } = React;
+const { Fragment, useMemo, useRef, useState } = React;
 
 function formatElapsedTime(totalSeconds) {
   const safeSeconds = Math.max(0, Number(totalSeconds) || 0);
@@ -43,6 +44,7 @@ export default function TodayPlan({
   progressPercent,
   recordingDurationSeconds = 0,
   recordingMessage = "",
+  sessionHistory = [],
   sessionMessage,
   sessionMinutes,
   sessionRating,
@@ -56,6 +58,8 @@ export default function TodayPlan({
   const sessionActionLabel = hasStartedSession ? "Resume Session" : "Start Session";
   const canRecordSession = typeof onToggleSessionRecording === "function";
   const shouldShowRecordingStatus = Boolean(recordingMessage || isSessionRecording || hasPendingRecording);
+  const todaySummary = useMemo(() => getTodayPracticeSummary(sessionHistory), [sessionHistory]);
+  const practiceStats = useMemo(() => getPracticeHistoryStats(sessionHistory), [sessionHistory]);
 
   function resetStopDecisionState() {
     didPauseSessionForStopRef.current = false;
@@ -128,6 +132,8 @@ export default function TodayPlan({
           </div>
           <div className={`progress-badge ${progressState}`}>{progressPercent}%</div>
         </div>
+
+        <PracticeSummaryCard practiceStats={practiceStats} todaySummary={todaySummary} />
 
         <div className="session-length-card">
           <div>
@@ -248,5 +254,39 @@ export default function TodayPlan({
         onConfirm={handleConfirmStopSession}
       />
     </Fragment>
+  );
+}
+
+function PracticeSummaryCard({ practiceStats, todaySummary }) {
+  const sessionLabel = todaySummary.sessionCount === 1 ? "session" : "sessions";
+  const streakLabel = practiceStats.currentStreak === 1 ? "day" : "days";
+
+  return (
+    <div className="practice-summary-card">
+      <div>
+        <p className="eyebrow">Today’s Practice</p>
+        <h3>{todaySummary.hasPracticedToday ? `${todaySummary.sessionCount} saved ${sessionLabel}` : "No saved sessions today"}</h3>
+        <p>
+          {todaySummary.hasPracticedToday
+            ? `You’ve logged ${todaySummary.practiceLabel} today. Keep the streak alive with one focused session.`
+            : "Start and save a session today to build momentum."}
+        </p>
+      </div>
+
+      <div className="practice-summary-grid">
+        <PracticeSummaryStat label="Today" value={todaySummary.practiceLabel} />
+        <PracticeSummaryStat label="This week" value={practiceStats.thisWeekPracticeLabel} />
+        <PracticeSummaryStat label="Streak" value={`${practiceStats.currentStreak} ${streakLabel}`} />
+      </div>
+    </div>
+  );
+}
+
+function PracticeSummaryStat({ label, value }) {
+  return (
+    <div className="practice-summary-stat">
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
   );
 }

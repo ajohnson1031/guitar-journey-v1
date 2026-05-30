@@ -67,7 +67,9 @@ function getMicrophoneLevelFromTimeDomainData(dataArray) {
 }
 
 function getLevelBarStates(level, barCount = DEFAULT_MICROPHONE_LEVEL_BAR_COUNT) {
-  const safeBarCount = Math.max(1, Math.round(Number(barCount) || DEFAULT_MICROPHONE_LEVEL_BAR_COUNT));
+  const parsedBarCount = Number(barCount);
+  const fallbackBarCount = Number.isFinite(parsedBarCount) ? parsedBarCount : DEFAULT_MICROPHONE_LEVEL_BAR_COUNT;
+  const safeBarCount = Math.max(1, Math.round(fallbackBarCount));
   const normalizedLevel = normalizeMicrophoneLevel(level);
   const activeBarCount = normalizedLevel > 0 ? Math.max(1, Math.ceil(normalizedLevel * safeBarCount)) : 0;
 
@@ -130,15 +132,15 @@ async function createMicrophoneTestSession(audioConstraints = true) {
 }
 
 export {
+  createMicrophoneTestSession,
   DEFAULT_MICROPHONE_LEVEL_BAR_COUNT,
   DEFAULT_MICROPHONE_TEST_DURATION_MS,
-  MICROPHONE_NOISE_FLOOR,
-  MICROPHONE_SIGNAL_RANGE,
-  createMicrophoneTestSession,
   getAudioContextConstructor,
   getLevelBarStates,
   getMicrophoneLevelFromTimeDomainData,
   getTimeDomainRmsLevel,
   isUninitializedTimeDomainData,
+  MICROPHONE_NOISE_FLOOR,
+  MICROPHONE_SIGNAL_RANGE,
   normalizeMicrophoneLevel,
 };

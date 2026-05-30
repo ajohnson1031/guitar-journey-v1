@@ -125,6 +125,53 @@
   font-weight: 900;
 }
 
+.history-day-group-list {
+  display: grid;
+  gap: 16px;
+}
+
+.history-day-group {
+  display: grid;
+  gap: 10px;
+}
+
+.history-day-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface-soft);
+  padding: 12px 14px;
+}
+
+.history-day-header > div {
+  display: grid;
+  gap: 2px;
+}
+
+.history-day-header strong {
+  color: var(--text);
+  font-size: 15px;
+}
+
+.history-day-header small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.history-day-header span {
+  border: 1px solid var(--green);
+  border-radius: 999px;
+  background: var(--green-soft);
+  color: var(--green);
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
 .history-list {
   display: grid;
   gap: 10px;
@@ -368,11 +415,13 @@
 }
 
 @media (max-width: 560px) {
-  .history-summary-grid {
+  .history-summary-grid,
+  .practice-summary-grid {
     grid-template-columns: 1fr;
   }
 
-  .history-card-header {
+  .history-card-header,
+  .history-day-header {
     display: grid;
   }
 
