@@ -1,8 +1,9 @@
 import * as React from "react";
 import { useRecordingPlayback } from "../hooks";
 import { formatPracticeDate, formatSessionActualDuration, getPracticeDayGroups, getPracticeHistoryStats } from "../utils/practiceStatsUtils";
+import { downloadRecordingForSession } from "../utils/recordingExportUtils";
 import { formatRecordingDuration } from "../utils/recordingStorageUtils";
-import { PauseIcon, PlayIcon, ReplayIcon, StopIcon, TrashIcon } from "./AppIcons";
+import { DownloadIcon, PauseIcon, PlayIcon, ReplayIcon, StopIcon, TrashIcon } from "./AppIcons";
 import ConfirmDialog from "./ConfirmDialog";
 
 const { Fragment, useEffect, useState } = React;
@@ -33,6 +34,7 @@ function canStopRecordingPlayback({ isActiveRecording, playbackState }) {
 
 export default function SessionHistory({ onDeleteSessionRecording, sessions }) {
   const [historyActionMessage, setHistoryActionMessage] = useState("");
+  const [historyActionTone, setHistoryActionTone] = useState("success");
   const [pendingDeleteSession, setPendingDeleteSession] = useState(null);
 
   const stats = getPracticeHistoryStats(sessions);
@@ -53,6 +55,11 @@ export default function SessionHistory({ onDeleteSessionRecording, sessions }) {
     };
   }, [historyActionMessage]);
 
+  function showHistoryActionMessage(message, tone = "success") {
+    setHistoryActionMessage(message);
+    setHistoryActionTone(tone);
+  }
+
   function handleRequestDeleteRecording(session) {
     setHistoryActionMessage("");
     setPendingDeleteSession(session);
@@ -60,6 +67,16 @@ export default function SessionHistory({ onDeleteSessionRecording, sessions }) {
 
   function handleCancelDeleteRecording() {
     setPendingDeleteSession(null);
+  }
+
+  async function handleDownloadRecording(session) {
+    try {
+      const result = await downloadRecordingForSession(session);
+
+      showHistoryActionMessage(`Recording download started: ${result.filename}`);
+    } catch (error) {
+      showHistoryActionMessage(error instanceof Error ? error.message : "Recording could not be downloaded.", "danger");
+    }
   }
 
   async function handleConfirmDeleteRecording() {
@@ -74,9 +91,9 @@ export default function SessionHistory({ onDeleteSessionRecording, sessions }) {
 
       const didDelete = await onDeleteSessionRecording(session);
 
-      setHistoryActionMessage(didDelete ? "Recording deleted. Session history kept." : "Recording could not be deleted.");
+      showHistoryActionMessage(didDelete ? "Recording deleted. Session history kept." : "Recording could not be deleted.", didDelete ? "success" : "danger");
     } catch {
-      setHistoryActionMessage("Recording could not be deleted.");
+      showHistoryActionMessage("Recording could not be deleted.", "danger");
     }
   }
 
@@ -112,7 +129,7 @@ export default function SessionHistory({ onDeleteSessionRecording, sessions }) {
           </div>
         </div>
 
-        {historyActionMessage ? <p className="history-action-message">{historyActionMessage}</p> : null}
+        {historyActionMessage ? <p className={`history-action-message history-action-message--${historyActionTone}`}>{historyActionMessage}</p> : null}
 
         {recentSessionGroups.length ? (
           <div className="history-day-group-list">
@@ -195,6 +212,16 @@ export default function SessionHistory({ onDeleteSessionRecording, sessions }) {
                                   disabled={!canStopThisRecording}
                                 >
                                   <StopIcon />
+                                </button>
+
+                                <button
+                                  type="button"
+                                  className="history-recording-download-button"
+                                  title="Download recording"
+                                  aria-label={`Download recording for ${session.songTitle}`}
+                                  onClick={() => handleDownloadRecording(session)}
+                                >
+                                  <DownloadIcon />
                                 </button>
 
                                 <button

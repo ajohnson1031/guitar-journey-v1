@@ -1,79 +1,44 @@
 import { describe, expect, it } from "vitest";
-import {
-  createRecordingRecord,
-  formatRecordingCount,
-  formatRecordingDuration,
-  normalizeRecordingDurationSeconds,
-  normalizeRecordingMetadata,
-} from "../recordingStorageUtils";
+import { getRecordingSummaryLabel, getSessionRecordingIds } from "../recordingStorageUtils";
 
 describe("recordingStorageUtils", () => {
-  it("normalizes recording duration seconds", () => {
-    expect(normalizeRecordingDurationSeconds(0)).toBe(0);
-    expect(normalizeRecordingDurationSeconds(4.4)).toBe(4);
-    expect(normalizeRecordingDurationSeconds(4.6)).toBe(5);
-    expect(normalizeRecordingDurationSeconds(-1)).toBe(0);
-    expect(normalizeRecordingDurationSeconds("bad")).toBe(0);
-  });
-
-  it("formats recording duration", () => {
-    expect(formatRecordingDuration(0)).toBe("0:00");
-    expect(formatRecordingDuration(9)).toBe("0:09");
-    expect(formatRecordingDuration(65)).toBe("1:05");
-    expect(formatRecordingDuration(600)).toBe("10:00");
-  });
-
-  it("formats recording count", () => {
-    expect(formatRecordingCount(0)).toBe("0 recordings");
-    expect(formatRecordingCount(1)).toBe("1 recording");
-    expect(formatRecordingCount(12)).toBe("12 recordings");
-    expect(formatRecordingCount("bad")).toBe("0 recordings");
-  });
-
-  it("normalizes recording metadata", () => {
+  it("collects linked recording ids from session history", () => {
     expect(
-      normalizeRecordingMetadata({
-        durationSeconds: 12.7,
-        mimeType: " audio/webm ",
-        songId: "song-1",
+      Array.from(
+        getSessionRecordingIds([
+          {
+            recordingId: "recording-one",
+          },
+          {
+            recordingId: "",
+          },
+          {
+            recordingId: "recording-two",
+          },
+        ]),
+      ),
+    ).toEqual(["recording-one", "recording-two"]);
+  });
+
+  it("shows a simple label when all stored recordings are linked", () => {
+    expect(
+      getRecordingSummaryLabel({
+        linkedStoredCount: 2,
+        missingLinkedCount: 0,
+        orphanedCount: 0,
+        storedCount: 2,
       }),
-    ).toEqual({
-      durationSeconds: 13,
-      mimeType: "audio/webm",
-      songId: "song-1",
-    });
+    ).toBe("2 recordings");
   });
 
-  it("creates a recording record", () => {
-    const blob = new Blob(["test-audio"], {
-      type: "audio/webm",
-    });
-
-    const record = createRecordingRecord("recording-1", blob, {
-      durationSeconds: 8.4,
-      sessionId: "session-1",
-      songTitle: "Test Song",
-    });
-
-    expect(record.recordingId).toBe("recording-1");
-    expect(record.blob).toBe(blob);
-    expect(record.mimeType).toBe("audio/webm");
-    expect(record.durationSeconds).toBe(8);
-    expect(record.sessionId).toBe("session-1");
-    expect(record.songTitle).toBe("Test Song");
-    expect(record.createdAt).toBeTruthy();
-    expect(record.updatedAt).toBeTruthy();
-  });
-
-  it("requires a recording id", () => {
-    const blob = new Blob(["test-audio"], {
-      type: "audio/webm",
-    });
-
-    expect(() => createRecordingRecord("", blob)).toThrow("Recording ID is required.");
-  });
-
-  it("requires a recording blob", () => {
-    expect(() => createRecordingRecord("recording-1")).toThrow("Recording blob is required.");
+  it("shows orphaned and missing recordings when storage and history are out of sync", () => {
+    expect(
+      getRecordingSummaryLabel({
+        linkedStoredCount: 1,
+        missingLinkedCount: 1,
+        orphanedCount: 2,
+        storedCount: 3,
+      }),
+    ).toBe("1 linked • 2 orphaned • 1 missing");
   });
 });

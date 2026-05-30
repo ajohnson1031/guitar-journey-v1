@@ -168,12 +168,15 @@
   gap: 10px;
 }
 
-.session-recording-level-header span {
+.session-recording-level-icon {
+  display: inline-grid;
+  place-items: center;
   color: var(--text);
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
+}
+
+.session-recording-level-icon svg {
+  width: 18px;
+  height: 18px;
 }
 
 .session-recording-level-header small {

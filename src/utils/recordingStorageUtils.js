@@ -36,6 +36,14 @@ function formatRecordingCount(count) {
   return `${safeCount} ${safeCount === 1 ? "recording" : "recordings"}`;
 }
 
+function getSessionRecordingIds(sessionHistory = []) {
+  return new Set(
+    (Array.isArray(sessionHistory) ? sessionHistory : [])
+      .map((session) => String(session?.recordingId || "").trim())
+      .filter(Boolean),
+  );
+}
+
 function createRecordingRecord(recordingId, blob, metadata = {}) {
   const normalizedRecordingId = String(recordingId || "").trim();
 
@@ -58,7 +66,7 @@ function createRecordingRecord(recordingId, blob, metadata = {}) {
     recordingId: normalizedRecordingId,
     blob,
     createdAt,
-    updatedAt: new Date().toISOString(),
+    updatedAt: metadata.updatedAt || new Date().toISOString(),
   };
 }
 
@@ -142,13 +150,41 @@ async function getRecording(recordingId) {
   return withRecordingStore("readonly", (store) => requestToPromise(store.get(normalizedRecordingId)));
 }
 
+async function getAllRecordings() {
+  if (!isRecordingStorageSupported()) return [];
+
+  return withRecordingStore("readonly", (store) => requestToPromise(store.getAll()));
+}
+
 async function countRecordings() {
   if (!isRecordingStorageSupported()) return 0;
 
   return withRecordingStore("readonly", (store) => requestToPromise(store.count()));
 }
 
-async function getRecordingStorageSummary() {
+function getRecordingSummaryLabel({ linkedStoredCount, missingLinkedCount, orphanedCount, storedCount }) {
+  if (!storedCount && !missingLinkedCount) {
+    return "0 recordings";
+  }
+
+  if (!orphanedCount && !missingLinkedCount) {
+    return formatRecordingCount(linkedStoredCount);
+  }
+
+  const parts = [`${linkedStoredCount} linked`];
+
+  if (orphanedCount) {
+    parts.push(`${orphanedCount} orphaned`);
+  }
+
+  if (missingLinkedCount) {
+    parts.push(`${missingLinkedCount} missing`);
+  }
+
+  return parts.join(" • ");
+}
+
+async function getRecordingStorageSummary(sessionHistory = []) {
   const isSupported = isRecordingStorageSupported();
 
   if (!isSupported) {
@@ -156,15 +192,50 @@ async function getRecordingStorageSummary() {
       count: 0,
       isSupported,
       label: "IndexedDB unavailable",
+      linkedStoredCount: 0,
+      missingLinkedCount: 0,
+      orphanedCount: 0,
+      storedCount: 0,
     };
   }
 
-  const count = await countRecordings();
+  const recordings = await getAllRecordings();
+  const linkedRecordingIds = getSessionRecordingIds(sessionHistory);
+  const storedRecordingIds = new Set(recordings.map((recording) => String(recording?.recordingId || "").trim()).filter(Boolean));
+
+  let linkedStoredCount = 0;
+  let missingLinkedCount = 0;
+  let orphanedCount = 0;
+
+  linkedRecordingIds.forEach((recordingId) => {
+    if (storedRecordingIds.has(recordingId)) {
+      linkedStoredCount += 1;
+    } else {
+      missingLinkedCount += 1;
+    }
+  });
+
+  storedRecordingIds.forEach((recordingId) => {
+    if (!linkedRecordingIds.has(recordingId)) {
+      orphanedCount += 1;
+    }
+  });
+
+  const storedCount = storedRecordingIds.size;
 
   return {
-    count,
+    count: storedCount,
     isSupported,
-    label: formatRecordingCount(count),
+    label: getRecordingSummaryLabel({
+      linkedStoredCount,
+      missingLinkedCount,
+      orphanedCount,
+      storedCount,
+    }),
+    linkedStoredCount,
+    missingLinkedCount,
+    orphanedCount,
+    storedCount,
   };
 }
 
@@ -179,9 +250,23 @@ async function deleteRecording(recordingId) {
 }
 
 async function clearRecordings() {
+  if (!isRecordingStorageSupported()) return false;
+
   await withRecordingStore("readwrite", (store) => requestToPromise(store.clear()));
 
   return true;
+}
+
+async function clearUnlinkedRecordings(sessionHistory = []) {
+  const linkedRecordingIds = getSessionRecordingIds(sessionHistory);
+  const recordings = await getAllRecordings();
+  const unlinkedRecordingIds = recordings
+    .map((recording) => String(recording?.recordingId || "").trim())
+    .filter((recordingId) => recordingId && !linkedRecordingIds.has(recordingId));
+
+  await Promise.all(unlinkedRecordingIds.map((recordingId) => deleteRecording(recordingId)));
+
+  return unlinkedRecordingIds.length;
 }
 
 export {
@@ -189,13 +274,17 @@ export {
   RECORDINGS_DB_VERSION,
   RECORDINGS_STORE_NAME,
   clearRecordings,
+  clearUnlinkedRecordings,
   countRecordings,
   createRecordingRecord,
   deleteRecording,
   formatRecordingCount,
   formatRecordingDuration,
+  getAllRecordings,
   getRecording,
   getRecordingStorageSummary,
+  getRecordingSummaryLabel,
+  getSessionRecordingIds,
   isRecordingStorageSupported,
   normalizeRecordingDurationSeconds,
   normalizeRecordingMetadata,
