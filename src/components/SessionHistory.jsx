@@ -1,10 +1,11 @@
 import * as React from "react";
 import { useRecordingPlayback } from "../hooks";
-import { formatRecordingDuration } from "../utils/recordingStorageUtils";
 import { formatPracticeDate, formatSessionActualDuration, getPracticeHistoryStats } from "../utils/practiceStatsUtils";
-import { PauseIcon, PlayIcon, ReplayIcon, StopIcon } from "./AppIcons";
+import { formatRecordingDuration } from "../utils/recordingStorageUtils";
+import { PauseIcon, PlayIcon, ReplayIcon, StopIcon, TrashIcon } from "./AppIcons";
+import ConfirmDialog from "./ConfirmDialog";
 
-const { Fragment } = React;
+const { Fragment, useEffect, useState } = React;
 
 function formatPracticeTime(value) {
   const date = new Date(value);
@@ -30,20 +31,54 @@ function canStopRecordingPlayback({ isActiveRecording, playbackState }) {
   return isActiveRecording && ["loading", "playing", "paused"].includes(playbackState);
 }
 
-export default function SessionHistory({ sessions }) {
+export default function SessionHistory({ onDeleteSessionRecording, sessions }) {
+  const [historyActionMessage, setHistoryActionMessage] = useState("");
+  const [pendingDeleteSession, setPendingDeleteSession] = useState(null);
+
   const stats = getPracticeHistoryStats(sessions);
   const recentSessions = sessions.slice(0, 8);
 
-  const {
-    activeRecordingId,
-    isLoadingRecording,
-    isPlayingRecording,
-    playbackMessage,
-    playbackMessageRecordingId,
-    playbackState,
-    playRecording,
-    stopPlayback,
-  } = useRecordingPlayback();
+  const { activeRecordingId, isLoadingRecording, isPlayingRecording, playbackMessage, playbackMessageRecordingId, playbackState, playRecording, stopPlayback } =
+    useRecordingPlayback();
+
+  useEffect(() => {
+    if (!historyActionMessage) return undefined;
+
+    const timeoutId = window.setTimeout(() => {
+      setHistoryActionMessage("");
+    }, 5000);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [historyActionMessage]);
+
+  function handleRequestDeleteRecording(session) {
+    setHistoryActionMessage("");
+    setPendingDeleteSession(session);
+  }
+
+  function handleCancelDeleteRecording() {
+    setPendingDeleteSession(null);
+  }
+
+  async function handleConfirmDeleteRecording() {
+    const session = pendingDeleteSession;
+
+    setPendingDeleteSession(null);
+
+    if (!session?.recordingId || !onDeleteSessionRecording) return;
+
+    try {
+      stopPlayback(session.recordingId);
+
+      const didDelete = await onDeleteSessionRecording(session);
+
+      setHistoryActionMessage(didDelete ? "Recording deleted. Session history kept." : "Recording could not be deleted.");
+    } catch {
+      setHistoryActionMessage("Recording could not be deleted.");
+    }
+  }
 
   return (
     <Fragment>
@@ -76,6 +111,8 @@ export default function SessionHistory({ sessions }) {
             <small>Last practiced: {stats.lastPracticedLabel}</small>
           </div>
         </div>
+
+        {historyActionMessage ? <p className="history-action-message">{historyActionMessage}</p> : null}
 
         {recentSessions.length ? (
           <div className="history-list">
@@ -146,6 +183,16 @@ export default function SessionHistory({ sessions }) {
                           >
                             <StopIcon />
                           </button>
+
+                          <button
+                            type="button"
+                            className="history-recording-delete-button"
+                            title="Delete recording"
+                            aria-label={`Delete recording for ${session.songTitle}`}
+                            onClick={() => handleRequestDeleteRecording(session)}
+                          >
+                            <TrashIcon />
+                          </button>
                         </div>
 
                         {hasPlaybackMessage ? <p className="history-playback-message">{playbackMessage}</p> : null}
@@ -163,6 +210,17 @@ export default function SessionHistory({ sessions }) {
           </div>
         )}
       </section>
+
+      <ConfirmDialog
+        isOpen={Boolean(pendingDeleteSession)}
+        title="Delete this recording?"
+        message="This removes the saved audio from this device, but keeps the practice session in your history."
+        confirmLabel="Delete Recording"
+        cancelLabel="Cancel"
+        tone="danger"
+        onCancel={handleCancelDeleteRecording}
+        onConfirm={handleConfirmDeleteRecording}
+      />
     </Fragment>
   );
 }

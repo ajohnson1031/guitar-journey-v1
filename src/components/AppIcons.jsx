@@ -9,6 +9,7 @@ import {
   Settings,
   Square,
   Star,
+  Trash2,
   X,
 } from "lucide-react";
 
@@ -44,6 +45,7 @@ const StarIcon = createIcon(Star);
 const StopIcon = createIcon(Square, {
   fill: "currentColor",
 });
+const TrashIcon = createIcon(Trash2);
 const XIcon = createIcon(X);
 
 export {
@@ -56,5 +58,6 @@ export {
   SettingsIcon,
   StarIcon,
   StopIcon,
+  TrashIcon,
   XIcon,
 };
