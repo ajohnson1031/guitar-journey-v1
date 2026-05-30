@@ -207,7 +207,7 @@ export default function GenreManager({ builtInGenres, customGenres, songs, selec
 
                       <button
                         type="button"
-                        className="ghost-button genre-icon-button"
+                        className="ghost-button genre-icon-button genre-edit-button"
                         title={`Edit ${genre.name}`}
                         aria-label={`Edit ${genre.name}`}
                         onClick={() => handleStartEditGenre(genre)}
@@ -252,7 +252,7 @@ export default function GenreManager({ builtInGenres, customGenres, songs, selec
               <div className="genre-form-actions">
                 <button
                   type="button"
-                  className="danger-button genre-form-action-button"
+                  className="ghost-button genre-form-action-button genre-cancel-edit-button"
                   title="Cancel edit"
                   aria-label={`Cancel editing ${editingGenre.name}`}
                   onClick={closeGenreForm}
@@ -262,7 +262,7 @@ export default function GenreManager({ builtInGenres, customGenres, songs, selec
 
                 <button
                   type="button"
-                  className="danger-button genre-form-action-button"
+                  className="danger-button genre-form-action-button genre-delete-button"
                   title={`Remove ${editingGenre.name}`}
                   aria-label={`Remove ${editingGenre.name}`}
                   onClick={handleRequestRemoveEditingGenre}
@@ -276,7 +276,7 @@ export default function GenreManager({ builtInGenres, customGenres, songs, selec
               </div>
             ) : (
               <button type="submit" className="selected-button genre-add-submit-button">
-                Add
+                Add Genre
               </button>
             )}
 

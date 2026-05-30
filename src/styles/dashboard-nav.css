@@ -45,7 +45,8 @@
   text-decoration: none;
 }
 
-.dashboard-nav-button {
+.dashboard-nav-button,
+.dashboard-settings-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -55,16 +56,31 @@
   width: 44px;
   min-width: 44px;
   height: 44px;
-  padding: 0;
   flex: 0 0 44px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted-strong);
+  padding: 0;
+  transition:
+    background 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.dashboard-settings-button:hover {
+  background: var(--blue-soft);
+  color: var(--blue);
+  transform: rotate(12deg);
+}
+
+.dashboard-settings-button.is-active {
+  background: var(--blue-soft);
+  color: var(--blue);
 }
 
 .dashboard-settings-button svg {
-  width: 20px;
-  height: 20px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
 }
