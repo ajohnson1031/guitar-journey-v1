@@ -1,11 +1,49 @@
 import * as React from "react";
+import { useRecordingPlayback } from "../hooks";
+import { formatRecordingDuration } from "../utils/recordingStorageUtils";
 import { formatPracticeDate, formatSessionActualDuration, getPracticeHistoryStats } from "../utils/practiceStatsUtils";
+import { PauseIcon, PlayIcon, ReplayIcon, StopIcon } from "./AppIcons";
 
 const { Fragment } = React;
+
+function formatPracticeTime(value) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) return "Unknown time";
+
+  return new Intl.DateTimeFormat("en", {
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(date);
+}
+
+function getRecordingActionLabel({ isLoading, isPaused, isPlaying, isReplay }) {
+  if (isLoading) return "Loading...";
+  if (isPlaying) return "Pause Recording";
+  if (isPaused) return "Paused - Resume Playback";
+  if (isReplay) return "Replay Recording";
+
+  return "Play Recording";
+}
+
+function canStopRecordingPlayback({ isActiveRecording, playbackState }) {
+  return isActiveRecording && ["loading", "playing", "paused"].includes(playbackState);
+}
 
 export default function SessionHistory({ sessions }) {
   const stats = getPracticeHistoryStats(sessions);
   const recentSessions = sessions.slice(0, 8);
+
+  const {
+    activeRecordingId,
+    isLoadingRecording,
+    isPlayingRecording,
+    playbackMessage,
+    playbackMessageRecordingId,
+    playbackState,
+    playRecording,
+    stopPlayback,
+  } = useRecordingPlayback();
 
   return (
     <Fragment>
@@ -41,30 +79,82 @@ export default function SessionHistory({ sessions }) {
 
         {recentSessions.length ? (
           <div className="history-list">
-            {recentSessions.map((session) => (
-              <article key={session.id} className="history-card">
-                <div className="history-card-header">
-                  <div>
-                    <strong>{session.songTitle}</strong>
-                    {session.genre ? <small>{session.genre}</small> : null}
+            {recentSessions.map((session) => {
+              const isActiveRecording = activeRecordingId === session.recordingId;
+              const isLoadingThisRecording = isActiveRecording && isLoadingRecording;
+              const isPlayingThisRecording = isActiveRecording && isPlayingRecording;
+              const isPausedThisRecording = isActiveRecording && playbackState === "paused";
+              const isReplayThisRecording = isActiveRecording && playbackState === "finished";
+              const canStopThisRecording = canStopRecordingPlayback({ isActiveRecording, playbackState });
+              const hasPlaybackMessage = playbackMessageRecordingId === session.recordingId && playbackMessage;
+              const recordingActionLabel = getRecordingActionLabel({
+                isLoading: isLoadingThisRecording,
+                isPaused: isPausedThisRecording,
+                isPlaying: isPlayingThisRecording,
+                isReplay: isReplayThisRecording,
+              });
+
+              return (
+                <article key={session.id} className="history-card">
+                  <div className="history-card-header">
+                    <div>
+                      <strong>{session.songTitle}</strong>
+                      {session.genre ? <small>{session.genre}</small> : null}
+                    </div>
+
+                    <div className="history-card-date">
+                      <span>{formatPracticeDate(session.completedAt)}</span>
+                      <small>{formatPracticeTime(session.completedAt)}</small>
+                    </div>
                   </div>
 
-                  <span>{formatPracticeDate(session.completedAt)}</span>
-                </div>
+                  <div className="history-card-footer">
+                    <div className="history-card-metrics">
+                      <span>{formatSessionActualDuration(session.elapsedSeconds, session.minutes)} actual</span>
 
-                <div className="history-card-metrics">
-                  <span>{formatSessionActualDuration(session.elapsedSeconds, session.minutes)} actual</span>
+                      {session.plannedMinutes ? <span>{session.plannedMinutes} min planned</span> : null}
 
-                  {session.plannedMinutes ? <span>{session.plannedMinutes} min planned</span> : null}
+                      <span>
+                        {session.completedStepCount}/{session.totalStepCount} steps
+                      </span>
 
-                  <span>
-                    {session.completedStepCount}/{session.totalStepCount} steps
-                  </span>
+                      <span>{session.rating}</span>
 
-                  <span>{session.rating}</span>
-                </div>
-              </article>
-            ))}
+                      {session.recordingId ? <span>Recording {formatRecordingDuration(session.recordingDurationSeconds)}</span> : null}
+                    </div>
+
+                    {session.recordingId ? (
+                      <div className="history-recording-actions">
+                        <div className="history-recording-controls">
+                          <button
+                            type="button"
+                            className={`history-recording-button ${isPlayingThisRecording ? "is-playing" : ""} ${isReplayThisRecording ? "is-replay" : ""}`}
+                            onClick={() => playRecording(session)}
+                            disabled={isLoadingThisRecording}
+                          >
+                            {isPlayingThisRecording ? <PauseIcon /> : isReplayThisRecording ? <ReplayIcon className="history-replay-icon" /> : <PlayIcon />}
+                            <span>{recordingActionLabel}</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            className="history-recording-stop-button"
+                            title="Stop playback"
+                            aria-label="Stop playback"
+                            onClick={() => stopPlayback(session.recordingId)}
+                            disabled={!canStopThisRecording}
+                          >
+                            <StopIcon />
+                          </button>
+                        </div>
+
+                        {hasPlaybackMessage ? <p className="history-playback-message">{playbackMessage}</p> : null}
+                      </div>
+                    ) : null}
+                  </div>
+                </article>
+              );
+            })}
           </div>
         ) : (
           <div className="history-empty">

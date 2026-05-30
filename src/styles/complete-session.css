@@ -101,16 +101,7 @@
 .session-icon-button svg {
   width: 20px;
   height: 20px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2.35;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.session-record-button svg {
-  fill: currentColor;
-  stroke: currentColor;
+  flex: 0 0 auto;
 }
 
 .session-record-button:hover,
@@ -131,7 +122,6 @@
 }
 
 .session-stop-button svg {
-  fill: currentColor;
   stroke: none;
 }
 

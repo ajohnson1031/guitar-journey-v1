@@ -1,6 +1,7 @@
 import * as React from "react";
 import { SESSION_RATINGS } from "../constants";
 import { formatRecordingDuration } from "../utils/recordingStorageUtils";
+import { PauseIcon, RecordIcon, StopIcon } from "./AppIcons";
 import ConfirmDialog from "./ConfirmDialog";
 
 const { Fragment, useRef, useState } = React;
@@ -247,30 +248,5 @@ export default function TodayPlan({
         onConfirm={handleConfirmStopSession}
       />
     </Fragment>
-  );
-}
-
-function PauseIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path d="M8 5.5v13" />
-      <path d="M16 5.5v13" />
-    </svg>
-  );
-}
-
-function RecordIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <circle cx="12" cy="12" r="5.25" />
-    </svg>
-  );
-}
-
-function StopIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path d="M7.5 7.5h9v9h-9z" />
-    </svg>
   );
 }
