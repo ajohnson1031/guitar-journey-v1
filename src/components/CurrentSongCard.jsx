@@ -2,11 +2,23 @@ import * as React from "react";
 import ConfirmDialog from "./ConfirmDialog";
 import StrummingPatternDisplay from "./StrummingPatternDisplay";
 
-const { Fragment, useState } = React;
+const { Fragment, useMemo, useState } = React;
 
 export default function CurrentSongCard({ filteredSongs, masteredSongs, onDeleteCustomSong, onSelectSong, onStartEditCustomSong, onToggleMastered, selectedSong }) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const isMastered = Boolean(masteredSongs[selectedSong.id]);
+
+  const songSelectOptions = useMemo(() => {
+    const options = filteredSongs.length ? filteredSongs : selectedSong ? [selectedSong] : [];
+    const hasSelectedSongOption = options.some((song) => song.id === selectedSong?.id);
+
+    if (!selectedSong || hasSelectedSongOption) return options;
+
+    return [selectedSong, ...options];
+  }, [filteredSongs, selectedSong]);
+
+  const songSelectValue = songSelectOptions.some((song) => song.id === selectedSong?.id) ? selectedSong.id : "";
+  const isSongSelectDisabled = !songSelectOptions.length;
 
   function handleRequestDeleteCustomSong() {
     setIsDeleteDialogOpen(true);
@@ -27,8 +39,15 @@ export default function CurrentSongCard({ filteredSongs, masteredSongs, onDelete
         <div className="song-card-control-row-wrapper">
           <p className="eyebrow">Choose Song</p>
           <div className="song-card-control-row">
-            <select id="song-select" className="song-select-inline-control" aria-label="Choose song" value={selectedSong.id} onChange={(event) => onSelectSong(event.target.value)}>
-              {filteredSongs.map((song) => (
+            <select
+              id="song-select"
+              className="song-select-inline-control"
+              aria-label="Choose song"
+              value={songSelectValue}
+              onChange={(event) => onSelectSong(event.target.value)}
+              disabled={isSongSelectDisabled}
+            >
+              {songSelectOptions.map((song) => (
                 <option key={song.id} value={song.id}>
                   {song.title} — {song.difficulty}
                   {song.isCustom ? " — custom" : ""}
@@ -49,13 +68,7 @@ export default function CurrentSongCard({ filteredSongs, masteredSongs, onDelete
                     <PencilIcon />
                   </button>
 
-                  <button
-                    type="button"
-                    className="icon-button danger-button"
-                    title="Delete Custom Song"
-                    aria-label="Delete Custom Song"
-                    onClick={handleRequestDeleteCustomSong}
-                  >
+                  <button type="button" className="icon-button danger-button" title="Delete Custom Song" aria-label="Delete Custom Song" onClick={handleRequestDeleteCustomSong}>
                     <XIcon />
                   </button>
                 </Fragment>

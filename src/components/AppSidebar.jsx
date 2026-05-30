@@ -3,6 +3,16 @@ import { GenreManager, Metronome } from "./";
 
 const { Fragment } = React;
 
+const MAX_GENRE_DESCRIPTION_LENGTH = 100;
+
+function getCompactGenreDescription(value) {
+  const description = String(value || "").trim().replace(/\s+/g, " ");
+
+  if (description.length <= MAX_GENRE_DESCRIPTION_LENGTH) return description;
+
+  return `${description.slice(0, MAX_GENRE_DESCRIPTION_LENGTH - 1).trimEnd()}…`;
+}
+
 export default function AppSidebar({
   allSongs,
   builtInGenreNames,
@@ -35,17 +45,23 @@ export default function AppSidebar({
         <section className="panel-card">
           <h2>Genre Path</h2>
           <div className="path-list">
-            {pathCards.map((path) => (
-              <button
-                key={path.name}
-                type="button"
-                onClick={() => onPathChange(path.name)}
-                className={`path-card ${selectedPath === path.name ? "is-active" : ""}`}
-              >
-                <span>{path.name}</span>
-                <small>{path.description}</small>
-              </button>
-            ))}
+            {pathCards.map((path) => {
+              const isActive = selectedPath === path.name;
+              const description = getCompactGenreDescription(path.description);
+
+              return (
+                <button
+                  key={path.name}
+                  type="button"
+                  onClick={() => onPathChange(path.name)}
+                  className={`path-card ${isActive ? "is-active" : ""}`}
+                  aria-current={isActive ? "true" : undefined}
+                >
+                  <span>{path.name}</span>
+                  {description ? <small className="path-card-description">{description}</small> : null}
+                </button>
+              );
+            })}
           </div>
         </section>
 

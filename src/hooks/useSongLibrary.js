@@ -2,7 +2,13 @@ import * as React from "react";
 import { DEFAULT_CUSTOM_GENRE_DESCRIPTION, DEFAULT_PROGRESS, PATHS, SONGS } from "../constants";
 import { normalizeCustomGenre, normalizeCustomGenres } from "../utils/storageUtils";
 
-const { useMemo, useState } = React;
+const { useEffect, useMemo, useState } = React;
+
+function normalizeGenreName(value) {
+  return String(value || "")
+    .trim()
+    .replace(/\s+/g, " ");
+}
 
 export default function useSongLibrary({ initialProgress }) {
   const [selectedPath, setSelectedPath] = useState(initialProgress.selectedPath);
@@ -41,8 +47,27 @@ export default function useSongLibrary({ initialProgress }) {
   const filteredSongs = useMemo(() => allSongs.filter((song) => song.genre === selectedPath), [allSongs, selectedPath]);
 
   const selectedSong = useMemo(() => {
-    return allSongs.find((song) => song.id === selectedSongId) || filteredSongs[0] || allSongs[0];
-  }, [allSongs, selectedSongId, filteredSongs]);
+    const selectedSongInCurrentPath = filteredSongs.find((song) => song.id === selectedSongId);
+    const selectedSongFromLibrary = allSongs.find((song) => song.id === selectedSongId);
+
+    return selectedSongInCurrentPath || filteredSongs[0] || selectedSongFromLibrary || allSongs[0];
+  }, [allSongs, filteredSongs, selectedSongId]);
+
+  useEffect(() => {
+    if (!allSongs.length) return;
+
+    const selectedSongExists = allSongs.some((song) => song.id === selectedSongId);
+    const selectedSongIsInCurrentPath = filteredSongs.some((song) => song.id === selectedSongId);
+
+    if (filteredSongs.length && !selectedSongIsInCurrentPath) {
+      setSelectedSongId(filteredSongs[0].id);
+      return;
+    }
+
+    if (!selectedSongExists) {
+      setSelectedSongId(filteredSongs[0]?.id || allSongs[0].id);
+    }
+  }, [allSongs, filteredSongs, selectedSongId]);
 
   const editingSong = useMemo(() => {
     if (!editingSongId) return null;
@@ -125,20 +150,39 @@ export default function useSongLibrary({ initialProgress }) {
   }
 
   function updateCustomGenre(updatedGenre) {
+    const originalGenreName = normalizeGenreName(updatedGenre.originalName || updatedGenre.name);
     const nextGenre = normalizeCustomGenre(updatedGenre);
 
-    if (!nextGenre.name) return;
+    if (!originalGenreName || !nextGenre.name) return;
+
+    const originalGenreKey = originalGenreName.toLowerCase();
 
     setCustomGenres((current) =>
       current.map((genre) =>
-        genre.name.toLowerCase() === nextGenre.name.toLowerCase()
+        genre.name.toLowerCase() === originalGenreKey
           ? {
               ...genre,
+              name: nextGenre.name,
               description: nextGenre.description,
             }
           : genre,
       ),
     );
+
+    setCustomSongs((current) =>
+      current.map((song) =>
+        song.genre.toLowerCase() === originalGenreKey
+          ? {
+              ...song,
+              genre: nextGenre.name,
+            }
+          : song,
+      ),
+    );
+
+    if (selectedPath.toLowerCase() === originalGenreKey) {
+      setSelectedPath(nextGenre.name);
+    }
   }
 
   function removeCustomGenre(genreName) {

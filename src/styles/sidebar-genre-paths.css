@@ -25,7 +25,11 @@
 
 .path-card {
   display: grid;
-  gap: 6px;
+  gap: 0;
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    padding 180ms ease;
 }
 
 .path-card span,
@@ -34,7 +38,30 @@
   font-weight: 900;
 }
 
+.path-card-description {
+  display: block;
+  max-height: 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+  opacity: 0;
+  transform: translateY(-2px);
+  transition:
+    max-height 220ms ease,
+    margin-top 220ms ease,
+    opacity 180ms ease,
+    transform 220ms ease;
+}
+
 .path-card.is-active {
   border-color: var(--blue);
   background: var(--blue-soft);
+}
+
+.path-card.is-active .path-card-description {
+  max-height: 96px;
+  margin-top: 6px;
+  opacity: 1;
+  transform: translateY(0);
 }

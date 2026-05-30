@@ -7,14 +7,95 @@
   gap: 14px;
 }
 
+.genre-manager-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.genre-manager-header h2 {
+  margin: 0;
+}
+
+.genre-add-toggle-button {
+  display: inline-grid;
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid var(--green);
+  border-radius: 999px;
+  background: var(--green-soft);
+  color: var(--green);
+  padding: 0;
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease;
+}
+
+.genre-add-toggle-button:hover {
+  background: rgba(52, 211, 153, 0.18);
+}
+
+.genre-add-toggle-button.is-open {
+  border-color: var(--danger);
+  background: var(--danger-soft);
+  color: var(--danger-text);
+}
+
+.genre-add-toggle-button.is-open:hover {
+  border-color: var(--danger);
+  background: rgba(248, 113, 113, 0.16);
+  color: var(--danger-text);
+}
+
+.genre-add-toggle-button svg {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+  transition: transform 180ms ease;
+}
+
+.genre-add-toggle-button.is-open svg {
+  transform: rotate(45deg);
+}
+
 .genre-manager-form {
   display: grid;
-  grid-template-columns: 1fr auto;
   gap: 8px;
 }
 
-.genre-manager-form textarea {
-  grid-column: 1 / -1;
+.genre-form-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.genre-add-submit-button,
+.genre-form-action-button {
+  width: 100%;
+  min-height: 40px;
+}
+
+.genre-form-action-button {
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+}
+
+.genre-form-action-button svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+}
+
+.genre-description-count {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1;
+  text-align: right;
 }
 
 .custom-genre-list {
@@ -23,10 +104,16 @@
 }
 
 .custom-genre-row {
+  min-width: 0;
+  overflow: hidden;
   border: 1px solid var(--border);
   border-radius: 16px;
   background: var(--surface);
-  padding: 12px;
+  padding: 10px 12px;
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    padding 180ms ease;
 }
 
 .custom-genre-row.is-active {
@@ -35,25 +122,38 @@
 }
 
 .custom-genre-row.is-editing {
-  padding: 14px;
+  border-color: var(--green);
+  background: var(--green-soft);
 }
 
 .custom-genre-content {
   display: grid;
   min-width: 0;
-  gap: 8px;
+  gap: 10px;
+}
+
+.custom-genre-header {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.custom-genre-title {
+  display: grid;
+  min-width: 0;
+  flex: 1 1 auto;
+  gap: 2px;
 }
 
 .custom-genre-content strong {
   display: block;
+  overflow: hidden;
+  color: var(--text);
   font-size: 13px;
-}
-
-.custom-genre-content p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.45;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .custom-genre-content small {
@@ -67,36 +167,20 @@
   padding: 10px 12px;
 }
 
-.custom-genre-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 2px;
-}
-
-.custom-genre-actions {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-}
-
-.genre-action-button {
-  min-width: 72px;
-  padding: 8px 10px;
-  font-size: 12px;
-}
-
-.genre-remove-button {
+.genre-icon-button {
   display: inline-grid;
   width: 34px;
   min-width: 34px;
   height: 34px;
   place-items: center;
   padding: 0;
-  font-size: 18px;
   line-height: 1;
+}
+
+.genre-icon-button svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
 }
 
 .genre-manager-empty,
