@@ -1,0 +1,82 @@
+/* =========================
+   Settings
+========================= */
+
+.settings-panel {
+  display: grid;
+  gap: 22px;
+}
+
+.settings-hero {
+  display: grid;
+  gap: 10px;
+  max-width: 760px;
+}
+
+.settings-hero h2 {
+  margin: 0;
+  font-size: 42px;
+  line-height: 1;
+  letter-spacing: -0.06em;
+}
+
+.settings-hero p:not(.eyebrow) {
+  margin: 0;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.settings-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.settings-section-card {
+  display: grid;
+  gap: 18px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: rgba(10, 10, 11, 0.42);
+  padding: 18px;
+}
+
+.settings-section-card h3 {
+  margin: 0;
+  font-size: 24px;
+  letter-spacing: -0.04em;
+}
+
+.settings-section-card p:not(.eyebrow) {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.settings-section-content {
+  display: grid;
+  gap: 8px;
+}
+
+.settings-placeholder-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: rgba(10, 10, 11, 0.38);
+  padding: 12px 14px;
+}
+
+.settings-placeholder-row span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.settings-placeholder-row strong {
+  color: var(--muted-strong);
+  font-size: 13px;
+}

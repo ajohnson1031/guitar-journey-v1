@@ -8,6 +8,7 @@ export { default as GenreManager } from "./GenreManager";
 export { default as Metronome } from "./Metronome";
 export { default as RequiredChords } from "./RequiredChords";
 export { default as SessionHistory } from "./SessionHistory";
+export { default as SettingsPanel } from "./SettingsPanel";
 export { default as SongImportAssistant } from "./SongImportAssistant";
 export { default as SongSections } from "./SongSections";
 export { default as StrummingPatternBuilder } from "./StrummingPatternBuilder";
