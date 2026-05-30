@@ -1,6 +1,6 @@
 import * as React from "react";
 import { DOWN_STRUM, UP_STRUM } from "../constants";
-import { REST_STRUM, normalizeStrummingPattern } from "../utils/strummingUtils";
+import { REST_STRUM, normalizeStrummingPatternData } from "../utils/strummingUtils";
 
 const { Fragment } = React;
 
@@ -12,23 +12,29 @@ function getDirectionClass(direction) {
 }
 
 export default function StrummingPatternDisplay({ pattern, compact = false }) {
-  const slots = normalizeStrummingPattern(pattern);
+  const patternData = normalizeStrummingPatternData(pattern);
+  const slots = patternData.slots;
 
   return (
-    <div className={`strumming-pattern-display ${compact ? "is-compact" : ""}`}>
-      <div className="strumming-arrow-row" aria-label="Strumming directions">
-        {slots.map((slot) => (
-          <span key={`direction-${slot.slot}`} className={`strumming-direction ${slot.direction ? "is-active" : ""} ${getDirectionClass(slot.direction)}`}>
-            {slot.direction || REST_STRUM}
-          </span>
-        ))}
-      </div>
+    <Fragment>
+      <div
+        className={`strumming-pattern-display ${compact ? "is-compact" : ""} is-${patternData.subdivision}`}
+        style={{ "--strumming-slot-count": slots.length }}
+      >
+        <div className="strumming-arrow-row" aria-label="Strumming directions">
+          {slots.map((slot) => (
+            <span key={`direction-${slot.slot}`} className={`strumming-direction ${slot.direction ? "is-active" : ""} ${getDirectionClass(slot.direction)}`}>
+              {slot.direction || REST_STRUM}
+            </span>
+          ))}
+        </div>
 
-      <div className="strumming-beat-row" aria-label="Beat counts">
-        {slots.map((slot) => (
-          <span key={`beat-${slot.slot}`}>{slot.beat}</span>
-        ))}
+        <div className="strumming-beat-row" aria-label="Beat counts">
+          {slots.map((slot) => (
+            <span key={`beat-${slot.slot}`}>{slot.beat}</span>
+          ))}
+        </div>
       </div>
-    </div>
+    </Fragment>
   );
 }

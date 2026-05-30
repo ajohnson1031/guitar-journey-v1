@@ -1,6 +1,6 @@
 import * as React from "react";
 import { DOWN_STRUM, UP_STRUM } from "../constants";
-import { normalizeStrummingPattern } from "../utils/strummingUtils";
+import { getStrummingSlotDurationMs, normalizeStrummingPatternData } from "../utils/strummingUtils";
 
 const { useEffect, useMemo, useState } = React;
 
@@ -29,12 +29,13 @@ export function getStrummingDirectionClass(direction) {
 }
 
 export default function useStrummingPlayback({ bpm, isRunning, pattern }) {
-  const slots = useMemo(() => normalizeStrummingPattern(pattern), [pattern]);
+  const patternData = useMemo(() => normalizeStrummingPatternData(pattern), [pattern]);
+  const slots = patternData.slots;
   const [activeSlot, setActiveSlot] = useState(0);
 
   useEffect(() => {
     setActiveSlot(0);
-  }, [slots]);
+  }, [patternData.subdivision, slots.length]);
 
   useEffect(() => {
     if (!isRunning) {
@@ -43,16 +44,16 @@ export default function useStrummingPlayback({ bpm, isRunning, pattern }) {
     }
 
     const safeBpm = normalizeBpm(bpm);
-    const eighthNoteMs = Math.max(90, 60000 / safeBpm / 2);
+    const slotDurationMs = Math.max(45, getStrummingSlotDurationMs(safeBpm, patternData));
 
     const intervalId = window.setInterval(() => {
       setActiveSlot((currentSlot) => (currentSlot + 1) % slots.length);
-    }, eighthNoteMs);
+    }, slotDurationMs);
 
     return () => {
       window.clearInterval(intervalId);
     };
-  }, [bpm, isRunning, slots.length]);
+  }, [bpm, isRunning, patternData, slots.length]);
 
   const activeSlotData = slots[activeSlot] || slots[0];
 
@@ -62,5 +63,6 @@ export default function useStrummingPlayback({ bpm, isRunning, pattern }) {
     directionClass: getStrummingDirectionClass(activeSlotData?.direction),
     directionLabel: getStrummingDirectionLabel(activeSlotData?.direction),
     slots,
+    subdivision: patternData.subdivision,
   };
 }

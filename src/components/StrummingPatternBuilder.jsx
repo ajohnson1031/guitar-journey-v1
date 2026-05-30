@@ -1,19 +1,33 @@
 import * as React from "react";
 import { DOWN_STRUM, UP_STRUM } from "../constants";
-import { STRUMMING_PRESETS, clearStrummingPattern, createPresetStrummingPattern, normalizeStrummingPattern, setStrummingSlotDirection } from "../utils/strummingUtils";
+import {
+  STRUMMING_PRESETS,
+  STRUMMING_SUBDIVISION_OPTIONS,
+  clearStrummingPattern,
+  createPresetStrummingPattern,
+  normalizeStrummingPatternData,
+  setStrummingSlotDirection,
+  setStrummingSubdivision,
+} from "../utils/strummingUtils";
 import StrummingPatternDisplay from "./StrummingPatternDisplay";
 
 const { useMemo } = React;
 
 export default function StrummingPatternBuilder({ value, onChange }) {
-  const pattern = useMemo(() => normalizeStrummingPattern(value), [value]);
+  const patternData = useMemo(() => normalizeStrummingPatternData(value), [value]);
+  const pattern = patternData.slots;
+  const isSixteenth = patternData.subdivision === "sixteenth";
 
   function handleSetDirection(slot, direction) {
-    onChange(setStrummingSlotDirection(pattern, slot, direction));
+    onChange(setStrummingSlotDirection(patternData, slot, direction));
+  }
+
+  function handleSubdivisionChange(subdivision) {
+    onChange(setStrummingSubdivision(patternData, subdivision));
   }
 
   function handleClearPattern() {
-    onChange(clearStrummingPattern());
+    onChange(clearStrummingPattern(patternData));
   }
 
   function handleApplyPreset(preset) {
@@ -21,13 +35,27 @@ export default function StrummingPatternBuilder({ value, onChange }) {
   }
 
   return (
-    <div className="strumming-builder">
+    <div className={`strumming-builder ${isSixteenth ? "is-sixteenth" : "is-eighth"}`}>
       <div>
         <span>Strumming Pattern</span>
-        <p>Place down and up strums on the beat grid. Click a selected direction again to clear that slot.</p>
+        <p>Choose 8th-note or 16th-note timing, then place down and up strums on the beat grid. Click a selected direction again to clear that slot.</p>
       </div>
 
-      <StrummingPatternDisplay pattern={pattern} />
+      <div className="strumming-subdivision-toggle" aria-label="Strumming subdivision">
+        {STRUMMING_SUBDIVISION_OPTIONS.map((option) => (
+          <button
+            key={option.id}
+            type="button"
+            className={patternData.subdivision === option.id ? "selected-button" : "ghost-button"}
+            title={option.description}
+            onClick={() => handleSubdivisionChange(option.id)}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+
+      <StrummingPatternDisplay pattern={patternData} />
 
       <div className="custom-song-preview">
         <span>Presets</span>

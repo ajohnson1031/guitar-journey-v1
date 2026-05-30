@@ -1,7 +1,7 @@
 import * as React from "react";
 import { DEFAULT_CUSTOM_SONG_FORM, KEY_OPTIONS } from "../constants";
 import { parseCommaList, parseSections, parseUltimateGuitarUrl, slugify } from "../utils/songFormUtils";
-import { hasStrummingPattern, normalizeStrummingPattern, serializeStrummingPattern } from "../utils/strummingUtils";
+import { hasStrummingPattern, normalizeStrummingPatternData, serializeStrummingPattern } from "../utils/strummingUtils";
 import { SongImportAssistant, StrummingPatternBuilder, TransitionInput } from "./";
 
 const { useEffect, useMemo, useState } = React;
@@ -18,8 +18,15 @@ function sectionsToText(sections) {
   return sections.map((section) => `${section.name || "Section"}: ${section.progression || "X - X - X - X"}`).join("\n");
 }
 
+function getDefaultForm() {
+  return {
+    ...DEFAULT_CUSTOM_SONG_FORM,
+    strummingPattern: normalizeStrummingPatternData(DEFAULT_CUSTOM_SONG_FORM.strummingPattern),
+  };
+}
+
 function songToForm(song) {
-  if (!song) return DEFAULT_CUSTOM_SONG_FORM;
+  if (!song) return getDefaultForm();
 
   return {
     sourceUrl: song.sourceUrl || "",
@@ -35,7 +42,7 @@ function songToForm(song) {
     chords: Array.isArray(song.chords) ? song.chords.join(", ") : "",
     transitions: Array.isArray(song.transitions) ? song.transitions.join(", ") : "",
     sections: sectionsToText(song.sections),
-    strummingPattern: normalizeStrummingPattern(song.strummingPattern || song.strumming),
+    strummingPattern: normalizeStrummingPatternData(song.strummingPattern || song.strumming),
     goal: song.goal || DEFAULT_CUSTOM_SONG_FORM.goal,
   };
 }
@@ -53,16 +60,13 @@ export default function CustomSongForm({
 }) {
   const isEditing = Boolean(editingSong);
 
-  const [form, setForm] = useState(() => ({
-    ...DEFAULT_CUSTOM_SONG_FORM,
-    strummingPattern: normalizeStrummingPattern(DEFAULT_CUSTOM_SONG_FORM.strummingPattern),
-  }));
+  const [form, setForm] = useState(() => getDefaultForm());
   const [isOpen, setIsOpen] = useState(defaultOpen);
   const [message, setMessage] = useState("");
   const [messageTone, setMessageTone] = useState("error");
 
   const previewChords = useMemo(() => parseCommaList(form.chords), [form.chords]);
-  const strummingPattern = useMemo(() => normalizeStrummingPattern(form.strummingPattern), [form.strummingPattern]);
+  const strummingPattern = useMemo(() => normalizeStrummingPatternData(form.strummingPattern), [form.strummingPattern]);
   const strummingPatternText = serializeStrummingPattern(strummingPattern);
 
   useEffect(() => {
