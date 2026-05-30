@@ -59,13 +59,15 @@
   gap: 8px;
 }
 
-.settings-option-grid {
+.settings-option-grid,
+.settings-status-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
 }
 
-.settings-option-card {
+.settings-option-card,
+.settings-status-card {
   display: grid;
   gap: 6px;
   min-height: 104px;
@@ -86,9 +88,21 @@
   background: var(--blue-soft);
 }
 
-.settings-option-card span {
-  font-size: 15px;
+.settings-option-card span,
+.settings-status-card span {
+  color: var(--muted);
+  font-size: 12px;
   font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1.35;
+  text-transform: uppercase;
+}
+
+.settings-option-card span {
+  color: var(--text);
+  font-size: 15px;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .settings-option-card small {
@@ -97,7 +111,37 @@
   line-height: 1.4;
 }
 
-.settings-placeholder-row {
+.settings-status-card {
+  min-height: 86px;
+}
+
+.settings-status-card strong {
+  color: var(--muted-strong);
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.settings-status-card--success {
+  border-color: var(--green);
+  background: var(--green-soft);
+}
+
+.settings-status-card--success strong {
+  color: var(--green);
+}
+
+.settings-status-card--danger {
+  border-color: var(--danger);
+  background: var(--danger-soft);
+}
+
+.settings-status-card--danger strong {
+  color: var(--danger-text);
+}
+
+.settings-placeholder-row,
+.settings-action-panel,
+.settings-note-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -119,8 +163,56 @@
   font-size: 13px;
 }
 
+.settings-action-panel {
+  align-items: flex-start;
+}
+
+.settings-action-panel strong,
+.settings-note-card strong {
+  color: var(--text);
+  font-size: 14px;
+}
+
+.settings-action-panel p,
+.settings-note-card p {
+  margin: 6px 0 0 !important;
+  color: var(--muted);
+  font-size: 13px !important;
+  line-height: 1.45 !important;
+}
+
+.settings-action-panel button {
+  flex: 0 0 auto;
+}
+
+.settings-note-card {
+  display: grid;
+  justify-content: stretch;
+}
+
+.settings-inline-message {
+  margin: 0 !important;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-soft);
+  color: var(--muted-strong) !important;
+  padding: 8px 10px;
+  text-align: center;
+  font-size: 12px !important;
+  font-weight: 900;
+}
+
 @media (max-width: 760px) {
-  .settings-option-grid {
+  .settings-option-grid,
+  .settings-status-grid {
     grid-template-columns: 1fr;
+  }
+
+  .settings-action-panel {
+    display: grid;
+  }
+
+  .settings-action-panel button {
+    width: 100%;
   }
 }

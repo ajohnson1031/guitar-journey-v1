@@ -30,6 +30,12 @@ function formatRecordingDuration(totalSeconds) {
   return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
+function formatRecordingCount(count) {
+  const safeCount = Math.max(0, Math.round(Number(count) || 0));
+
+  return `${safeCount} ${safeCount === 1 ? "recording" : "recordings"}`;
+}
+
 function createRecordingRecord(recordingId, blob, metadata = {}) {
   const normalizedRecordingId = String(recordingId || "").trim();
 
@@ -136,6 +142,32 @@ async function getRecording(recordingId) {
   return withRecordingStore("readonly", (store) => requestToPromise(store.get(normalizedRecordingId)));
 }
 
+async function countRecordings() {
+  if (!isRecordingStorageSupported()) return 0;
+
+  return withRecordingStore("readonly", (store) => requestToPromise(store.count()));
+}
+
+async function getRecordingStorageSummary() {
+  const isSupported = isRecordingStorageSupported();
+
+  if (!isSupported) {
+    return {
+      count: 0,
+      isSupported,
+      label: "IndexedDB unavailable",
+    };
+  }
+
+  const count = await countRecordings();
+
+  return {
+    count,
+    isSupported,
+    label: formatRecordingCount(count),
+  };
+}
+
 async function deleteRecording(recordingId) {
   const normalizedRecordingId = String(recordingId || "").trim();
 
@@ -157,10 +189,13 @@ export {
   RECORDINGS_DB_VERSION,
   RECORDINGS_STORE_NAME,
   clearRecordings,
+  countRecordings,
   createRecordingRecord,
   deleteRecording,
+  formatRecordingCount,
   formatRecordingDuration,
   getRecording,
+  getRecordingStorageSummary,
   isRecordingStorageSupported,
   normalizeRecordingDurationSeconds,
   normalizeRecordingMetadata,
