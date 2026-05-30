@@ -57,7 +57,7 @@ export default function useGuitarJourneyApp() {
   const storedProgress = useMemo(() => loadStoredProgress(), []);
 
   const [sessionMinutes, setSessionMinutes] = useState(storedProgress.sessionMinutes);
-  const [sessionRating, setSessionRating] = useState("Okay");
+  const [sessionRating, setSessionRating] = useState("");
   const [sessionMessage, setSessionMessage] = useState("");
 
   const {
@@ -122,6 +122,9 @@ export default function useGuitarJourneyApp() {
     plan,
   });
 
+  const hasSelectedSessionRating = Boolean(sessionRating);
+  const canSaveCompletedSession = canCompleteSession && hasSelectedSessionRating;
+
   useEffect(() => {
     saveStoredProgress({
       selectedPath,
@@ -148,6 +151,7 @@ export default function useGuitarJourneyApp() {
 
   useEffect(() => {
     setSessionMessage("");
+    setSessionRating("");
   }, [selectedSong.id, sessionMinutes]);
 
   function goToDashboard() {
@@ -235,12 +239,23 @@ export default function useGuitarJourneyApp() {
 
   function handleResetSessionTimer() {
     setSessionMessage("");
+    setSessionRating("");
     resetSessionTimer();
+  }
+
+  function handleSessionRatingChange(rating) {
+    setSessionRating(rating);
+    setSessionMessage("");
   }
 
   function completeSession() {
     if (!canCompleteSession) {
       setSessionMessage("Start the session timer before saving practice history.");
+      return;
+    }
+
+    if (!hasSelectedSessionRating) {
+      setSessionMessage("Rate this session before saving practice history.");
       return;
     }
 
@@ -263,6 +278,7 @@ export default function useGuitarJourneyApp() {
     setIsSessionTimerRunning(false);
     setElapsedSessionSeconds(0);
     setSessionMessage(`Session saved: ${selectedSong.title} • ${actualPracticeMinutes} min actual • ${sessionRating}`);
+    setSessionRating("");
   }
 
   function resetLocalProgress() {
@@ -272,7 +288,7 @@ export default function useGuitarJourneyApp() {
     resetSongLibrary();
 
     setSessionMinutes(DEFAULT_PROGRESS.sessionMinutes);
-    setSessionRating("Okay");
+    setSessionRating("");
     setSessionMessage("");
     setIsSessionTimerRunning(false);
     setElapsedSessionSeconds(0);
@@ -282,7 +298,7 @@ export default function useGuitarJourneyApp() {
   return {
     dashboardRouteProps: {
       actualPracticeMinutes,
-      canCompleteSession,
+      canCompleteSession: canSaveCompletedSession,
       completedSteps,
       elapsedSessionSeconds,
       filteredSongs,
@@ -293,7 +309,7 @@ export default function useGuitarJourneyApp() {
       onResetSessionTimer: handleResetSessionTimer,
       onSelectSong: handleSelectSong,
       onSessionMinutesChange: setSessionMinutes,
-      onSessionRatingChange: setSessionRating,
+      onSessionRatingChange: handleSessionRatingChange,
       onStartEditCustomSong: handleStartEditCustomSong,
       onToggleMastered: handleToggleMasteredSong,
       onToggleSessionTimer: handleToggleSessionTimer,
