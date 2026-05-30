@@ -150,6 +150,22 @@
   font-size: 13px;
 }
 
+.history-card-date {
+  justify-items: end;
+  text-align: right;
+}
+
+.history-card-date small {
+  font-size: 12px;
+}
+
+.history-card-footer {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .history-card-metrics {
   display: flex;
   flex-wrap: wrap;
@@ -164,6 +180,105 @@
   padding: 6px 10px;
   font-size: 12px;
   font-weight: 800;
+}
+
+.history-recording-actions {
+  display: grid;
+  flex: 0 0 auto;
+  justify-items: end;
+  gap: 6px;
+}
+
+.history-recording-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.history-recording-button {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--blue);
+  border-radius: 999px;
+  background: var(--blue-soft);
+  color: var(--blue);
+  padding: 7px 11px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.history-recording-button:hover {
+  background: rgba(27, 130, 230, 0.18);
+}
+
+.history-recording-button:disabled,
+.history-recording-stop-button:disabled {
+  border-color: var(--border);
+  background: var(--surface-soft);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.history-recording-button:disabled {
+  cursor: wait;
+}
+
+.history-recording-button.is-playing {
+  border-color: var(--green);
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.history-recording-button.is-replay {
+  border-color: var(--mango);
+  background: var(--mango-soft);
+  color: var(--mango);
+}
+
+.history-recording-stop-button {
+  display: inline-grid;
+  width: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  place-items: center;
+  border: 1px solid var(--danger);
+  border-radius: 999px;
+  background: var(--danger-soft);
+  color: var(--danger);
+  padding: 0;
+}
+
+.history-recording-stop-button:not(:disabled):hover {
+  background: var(--danger-hover);
+}
+
+.history-recording-button svg,
+.history-recording-stop-button svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+}
+
+.history-recording-button svg.history-replay-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.history-recording-stop-button svg {
+  stroke: none;
+}
+
+.history-playback-message {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.35;
+  text-align: right;
 }
 
 .history-empty {
@@ -201,6 +316,26 @@
   .history-streak-meta {
     text-align: left;
   }
+
+  .history-card-footer {
+    display: grid;
+  }
+
+  .history-recording-actions {
+    justify-items: stretch;
+  }
+
+  .history-recording-controls {
+    justify-content: stretch;
+  }
+
+  .history-recording-button {
+    width: 100%;
+  }
+
+  .history-playback-message {
+    text-align: left;
+  }
 }
 
 @media (max-width: 560px) {
@@ -210,5 +345,10 @@
 
   .history-card-header {
     display: grid;
+  }
+
+  .history-card-date {
+    justify-items: start;
+    text-align: left;
   }
 }
