@@ -6,9 +6,11 @@ import {
   getCurrentStreak,
   getDateKey,
   getLongestStreak,
+  getPracticeDayGroups,
   getPracticeHistoryStats,
   getSessionActualMinutes,
   getThisWeekMinutes,
+  getTodayPracticeSummary,
 } from "../practiceStatsUtils";
 
 function createSession(overrides = {}) {
@@ -63,6 +65,9 @@ describe("practiceStatsUtils", () => {
     expect(stats.longestStreak).toBe(0);
     expect(stats.lastPracticedLabel).toBe("No sessions yet");
     expect(stats.thisWeekMinutes).toBe(0);
+    expect(stats.todaySessionCount).toBe(0);
+    expect(stats.todayMinutes).toBe(0);
+    expect(stats.todayPracticeLabel).toBe("0m");
   });
 
   it("calculates total, average, this week, and last practiced stats", () => {
@@ -100,6 +105,9 @@ describe("practiceStatsUtils", () => {
     expect(stats.averagePracticeLabel).toBe("47m");
     expect(stats.thisWeekMinutes).toBe(90);
     expect(stats.thisWeekPracticeLabel).toBe("1h 30m");
+    expect(stats.todaySessionCount).toBe(1);
+    expect(stats.todayMinutes).toBe(15);
+    expect(stats.todayPracticeLabel).toBe("15m");
     expect(getDateKey(stats.lastPracticedDate)).toBe("2026-05-30");
   });
 
@@ -119,6 +127,23 @@ describe("practiceStatsUtils", () => {
     const dateKeys = ["2026-05-25", "2026-05-26", "2026-05-27"];
 
     expect(getCurrentStreak(dateKeys, new Date("2026-05-30T12:00:00"))).toBe(0);
+  });
+
+  it("counts multiple sessions on the same day as one streak day", () => {
+    const sessions = [
+      createSession({ id: "day-1-first", completedAt: "2026-05-28T09:00:00" }),
+      createSession({ id: "day-1-second", completedAt: "2026-05-28T18:00:00" }),
+      createSession({ id: "day-2", completedAt: "2026-05-29T18:00:00" }),
+      createSession({ id: "day-3", completedAt: "2026-05-30T18:00:00" }),
+    ];
+
+    const stats = getPracticeHistoryStats(sessions, {
+      referenceDate: new Date("2026-05-30T20:00:00"),
+    });
+
+    expect(stats.totalSessions).toBe(4);
+    expect(stats.currentStreak).toBe(3);
+    expect(stats.longestStreak).toBe(3);
   });
 
   it("calculates longest streak across broken date ranges", () => {
@@ -146,6 +171,66 @@ describe("practiceStatsUtils", () => {
     ];
 
     expect(getThisWeekMinutes(sessions, new Date("2026-05-30T12:00:00"))).toBe(70);
+  });
+
+  it("summarizes today's practice sessions", () => {
+    const sessions = [
+      createSession({
+        id: "today-early",
+        minutes: 15,
+        completedAt: "2026-05-30T09:00:00",
+      }),
+      createSession({
+        id: "today-late",
+        minutes: 25,
+        completedAt: "2026-05-30T19:00:00",
+      }),
+      createSession({
+        id: "yesterday",
+        minutes: 45,
+        completedAt: "2026-05-29T19:00:00",
+      }),
+    ];
+
+    const summary = getTodayPracticeSummary(sessions, {
+      referenceDate: new Date("2026-05-30T21:00:00"),
+    });
+
+    expect(summary.hasPracticedToday).toBe(true);
+    expect(summary.sessionCount).toBe(2);
+    expect(summary.totalMinutes).toBe(40);
+    expect(summary.practiceLabel).toBe("40m");
+    expect(summary.sessions.map((session) => session.id)).toEqual(["today-late", "today-early"]);
+  });
+
+  it("groups practice sessions by day with daily totals", () => {
+    const sessions = [
+      createSession({
+        id: "first",
+        minutes: 10,
+        completedAt: "2026-05-29T09:00:00",
+      }),
+      createSession({
+        id: "second",
+        minutes: 20,
+        completedAt: "2026-05-30T10:00:00",
+      }),
+      createSession({
+        id: "third",
+        minutes: 30,
+        completedAt: "2026-05-30T20:00:00",
+      }),
+    ];
+
+    const groups = getPracticeDayGroups(sessions);
+
+    expect(groups).toHaveLength(2);
+    expect(groups[0].dateKey).toBe("2026-05-30");
+    expect(groups[0].sessionCount).toBe(2);
+    expect(groups[0].totalMinutes).toBe(50);
+    expect(groups[0].totalPracticeLabel).toBe("50m");
+    expect(groups[0].sessions.map((session) => session.id)).toEqual(["third", "second"]);
+    expect(groups[1].dateKey).toBe("2026-05-29");
   });
 
   it("averages rating labels", () => {

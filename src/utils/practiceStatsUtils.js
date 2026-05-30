@@ -210,6 +210,72 @@ function getThisWeekMinutes(sessions, referenceDate = new Date()) {
   }, 0);
 }
 
+function getSortedSessionsByCompletedAt(sessions = []) {
+  const safeSessions = Array.isArray(sessions) ? sessions : [];
+
+  return [...safeSessions].sort((leftSession, rightSession) => {
+    const leftDate = parseSessionDate(leftSession.completedAt);
+    const rightDate = parseSessionDate(rightSession.completedAt);
+
+    return (rightDate?.getTime() || 0) - (leftDate?.getTime() || 0);
+  });
+}
+
+function getPracticeSessionsForDate(sessions = [], date = new Date()) {
+  const dateKey = getDateKey(date);
+
+  if (!dateKey) return [];
+
+  return getSortedSessionsByCompletedAt(sessions).filter((session) => getDateKey(session.completedAt) === dateKey);
+}
+
+function getPracticeDayGroups(sessions = []) {
+  const groupsByDateKey = getSortedSessionsByCompletedAt(sessions).reduce((groups, session) => {
+    const sessionDate = parseSessionDate(session.completedAt);
+    const dateKey = getDateKey(sessionDate);
+
+    if (!sessionDate || !dateKey) return groups;
+
+    if (!groups[dateKey]) {
+      groups[dateKey] = {
+        date: startOfLocalDay(sessionDate),
+        dateKey,
+        sessions: [],
+        sessionCount: 0,
+        totalMinutes: 0,
+        totalPracticeLabel: "0m",
+        dateLabel: formatPracticeDate(sessionDate),
+      };
+    }
+
+    groups[dateKey].sessions.push(session);
+    groups[dateKey].sessionCount += 1;
+    groups[dateKey].totalMinutes += getSessionActualMinutes(session);
+    groups[dateKey].totalPracticeLabel = formatPracticeMinutes(groups[dateKey].totalMinutes);
+
+    return groups;
+  }, {});
+
+  return Object.values(groupsByDateKey).sort((leftGroup, rightGroup) => {
+    return (rightGroup.date?.getTime() || 0) - (leftGroup.date?.getTime() || 0);
+  });
+}
+
+function getTodayPracticeSummary(sessions = [], options = {}) {
+  const referenceDate = options.referenceDate || new Date();
+  const todaySessions = getPracticeSessionsForDate(sessions, referenceDate);
+  const totalMinutes = todaySessions.reduce((sum, session) => sum + getSessionActualMinutes(session), 0);
+
+  return {
+    dateKey: getDateKey(referenceDate),
+    hasPracticedToday: todaySessions.length > 0,
+    sessions: todaySessions,
+    sessionCount: todaySessions.length,
+    totalMinutes,
+    practiceLabel: formatPracticeMinutes(totalMinutes),
+  };
+}
+
 function formatPracticeMinutes(minutes) {
   const safeMinutes = Math.max(0, Math.round(Number(minutes) || 0));
 
@@ -269,6 +335,8 @@ function getPracticeHistoryStats(sessions = [], options = {}) {
   const practiceDateKeys = getPracticeDateKeys(safeSessions);
   const lastPracticeDateKey = practiceDateKeys.at(-1) || "";
   const lastPracticeDate = lastPracticeDateKey ? getDateFromKey(lastPracticeDateKey) : null;
+  const thisWeekMinutes = getThisWeekMinutes(safeSessions, referenceDate);
+  const todaySummary = getTodayPracticeSummary(safeSessions, { referenceDate });
 
   return {
     totalSessions,
@@ -281,8 +349,11 @@ function getPracticeHistoryStats(sessions = [], options = {}) {
     longestStreak: getLongestStreak(practiceDateKeys),
     lastPracticedDate: lastPracticeDate,
     lastPracticedLabel: lastPracticeDate ? formatPracticeDate(lastPracticeDate) : "No sessions yet",
-    thisWeekMinutes: getThisWeekMinutes(safeSessions, referenceDate),
-    thisWeekPracticeLabel: formatPracticeMinutes(getThisWeekMinutes(safeSessions, referenceDate)),
+    thisWeekMinutes,
+    thisWeekPracticeLabel: formatPracticeMinutes(thisWeekMinutes),
+    todaySessionCount: todaySummary.sessionCount,
+    todayMinutes: todaySummary.totalMinutes,
+    todayPracticeLabel: todaySummary.practiceLabel,
   };
 }
 
@@ -298,9 +369,12 @@ export {
   getDayDifference,
   getLongestStreak,
   getPracticeDateKeys,
+  getPracticeDayGroups,
   getPracticeHistoryStats,
+  getPracticeSessionsForDate,
   getSessionActualMinutes,
   getThisWeekMinutes,
+  getTodayPracticeSummary,
   parseSessionDate,
   startOfLocalDay,
   startOfWeek,
