@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  getActiveLevelBarCount,
   getLevelBarStates,
+  getLevelMeterTone,
   getMicrophoneLevelFromTimeDomainData,
   getTimeDomainRmsLevel,
   isUninitializedTimeDomainData,
@@ -53,5 +55,20 @@ describe("microphoneTestUtils", () => {
 
   it("falls back to at least one bar", () => {
     expect(getLevelBarStates(1, 0)).toEqual([true]);
+  });
+
+  it("returns active bar counts for level thresholds", () => {
+    expect(getActiveLevelBarCount(0, 10)).toBe(0);
+    expect(getActiveLevelBarCount(0.01, 10)).toBe(1);
+    expect(getActiveLevelBarCount(0.2, 10)).toBe(2);
+    expect(getActiveLevelBarCount(0.31, 10)).toBe(4);
+  });
+
+  it("maps audio meter tone from active segments", () => {
+    expect(getLevelMeterTone(0, 10)).toBe("idle");
+    expect(getLevelMeterTone(0.01, 10)).toBe("low");
+    expect(getLevelMeterTone(0.2, 10)).toBe("medium");
+    expect(getLevelMeterTone(0.3, 10)).toBe("medium");
+    expect(getLevelMeterTone(0.31, 10)).toBe("high");
   });
 });

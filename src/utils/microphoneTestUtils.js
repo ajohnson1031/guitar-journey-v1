@@ -66,12 +66,33 @@ function getMicrophoneLevelFromTimeDomainData(dataArray) {
   return normalizeMicrophoneLevel(adjustedLevel);
 }
 
-function getLevelBarStates(level, barCount = DEFAULT_MICROPHONE_LEVEL_BAR_COUNT) {
+function getSafeLevelBarCount(barCount = DEFAULT_MICROPHONE_LEVEL_BAR_COUNT) {
   const parsedBarCount = Number(barCount);
   const fallbackBarCount = Number.isFinite(parsedBarCount) ? parsedBarCount : DEFAULT_MICROPHONE_LEVEL_BAR_COUNT;
-  const safeBarCount = Math.max(1, Math.round(fallbackBarCount));
+
+  return Math.max(1, Math.round(fallbackBarCount));
+}
+
+function getActiveLevelBarCount(level, barCount = DEFAULT_MICROPHONE_LEVEL_BAR_COUNT) {
+  const safeBarCount = getSafeLevelBarCount(barCount);
   const normalizedLevel = normalizeMicrophoneLevel(level);
-  const activeBarCount = normalizedLevel > 0 ? Math.max(1, Math.ceil(normalizedLevel * safeBarCount)) : 0;
+
+  return normalizedLevel > 0 ? Math.max(1, Math.ceil(normalizedLevel * safeBarCount)) : 0;
+}
+
+function getLevelMeterTone(level, barCount = DEFAULT_MICROPHONE_LEVEL_BAR_COUNT) {
+  const activeBarCount = getActiveLevelBarCount(level, barCount);
+
+  if (activeBarCount <= 0) return "idle";
+  if (activeBarCount === 1) return "low";
+  if (activeBarCount <= 3) return "medium";
+
+  return "high";
+}
+
+function getLevelBarStates(level, barCount = DEFAULT_MICROPHONE_LEVEL_BAR_COUNT) {
+  const safeBarCount = getSafeLevelBarCount(barCount);
+  const activeBarCount = getActiveLevelBarCount(level, safeBarCount);
 
   return Array.from({ length: safeBarCount }, (_, index) => index < activeBarCount);
 }
@@ -135,9 +156,12 @@ export {
   createMicrophoneTestSession,
   DEFAULT_MICROPHONE_LEVEL_BAR_COUNT,
   DEFAULT_MICROPHONE_TEST_DURATION_MS,
+  getActiveLevelBarCount,
   getAudioContextConstructor,
   getLevelBarStates,
+  getLevelMeterTone,
   getMicrophoneLevelFromTimeDomainData,
+  getSafeLevelBarCount,
   getTimeDomainRmsLevel,
   isUninitializedTimeDomainData,
   MICROPHONE_NOISE_FLOOR,

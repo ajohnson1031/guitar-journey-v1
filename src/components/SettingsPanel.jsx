@@ -1,38 +1,36 @@
 import * as React from "react";
 import { useMicrophoneTest } from "../hooks";
 import { getAudioRecordingSupportDetails } from "../utils/audioRecordingUtils";
-import { getLevelBarStates } from "../utils/microphoneTestUtils";
+import { getLevelBarStates, getLevelMeterTone } from "../utils/microphoneTestUtils";
 import { applyProgressBackup, createProgressBackup, getProgressBackupSummary, parseProgressBackup } from "../utils/progressBackupUtils";
 import { getRecordingStorageSummary } from "../utils/recordingStorageUtils";
-import { THEME_MODE_OPTIONS, loadAppSettings } from "../utils/settingsStorageUtils";
+import {
+  AUDIO_INPUT_MODE_ADVANCED,
+  AUDIO_INPUT_MODE_OPTIONS,
+  createAudioInputSettings,
+  getResolvedAudioInputSettings,
+  THEME_MODE_OPTIONS,
+  loadAppSettings,
+} from "../utils/settingsStorageUtils";
 import { loadStoredProgress } from "../utils/storageUtils";
 import ConfirmDialog from "./ConfirmDialog";
 
 const { Fragment, useEffect, useMemo, useRef, useState } = React;
 
-const AUDIO_SETTING_ROWS = [
+const AUDIO_PROCESSING_SETTINGS = [
   {
-    label: "Input mode",
-    value: "Standard",
-    status: "Active",
-    description: "Best for normal practice recording.",
-  },
-  {
+    key: "echoCancellation",
     label: "Echo cancellation",
-    value: "On by default",
-    status: "Browser managed",
     description: "Helps reduce speaker feedback during recording.",
   },
   {
+    key: "noiseSuppression",
     label: "Noise suppression",
-    value: "On by default",
-    status: "Browser managed",
     description: "Helps reduce room noise for cleaner practice takes.",
   },
   {
+    key: "autoGainControl",
     label: "Auto gain control",
-    value: "On by default",
-    status: "Browser managed",
     description: "Helps balance quiet and loud input automatically.",
   },
 ];
@@ -58,9 +56,12 @@ function downloadJsonFile(filename, data) {
   window.URL.revokeObjectURL(url);
 }
 
-export default function SettingsPanel({ appSettings, onThemeModeChange }) {
+export default function SettingsPanel({ appSettings, onAudioInputModeChange, onAudioInputSettingChange, onThemeModeChange }) {
+  const audioInputSettings = createAudioInputSettings(appSettings.audioInputSettings);
+  const resolvedAudioInputSettings = getResolvedAudioInputSettings(audioInputSettings);
+  const isAdvancedAudioMode = audioInputSettings.inputMode === AUDIO_INPUT_MODE_ADVANCED;
   const audioSupport = useMemo(() => getAudioRecordingSupportDetails(), []);
-  const { isTestingMicrophone, microphoneLevel, microphoneTestMessage, startMicrophoneTest, stopMicrophoneTest } = useMicrophoneTest();
+  const { isTestingMicrophone, microphoneLevel, microphoneTestMessage, startMicrophoneTest, stopMicrophoneTest } = useMicrophoneTest(audioInputSettings);
 
   const importInputRef = useRef(null);
   const reloadTimeoutRef = useRef(null);
@@ -179,6 +180,16 @@ export default function SettingsPanel({ appSettings, onThemeModeChange }) {
     }
   }
 
+  function handleAudioModeChange(inputMode) {
+    onAudioInputModeChange(inputMode);
+  }
+
+  function handleAudioSettingToggle(settingKey) {
+    if (!isAdvancedAudioMode) return;
+
+    onAudioInputSettingChange(settingKey, !audioInputSettings[settingKey]);
+  }
+
   return (
     <Fragment>
       <section className="panel-card settings-panel">
@@ -262,17 +273,44 @@ export default function SettingsPanel({ appSettings, onThemeModeChange }) {
                 <div>
                   <strong>Audio settings</strong>
                   <p>
-                    Standard mode is tuned for normal practice recording. Advanced/raw input mode is planned for chord recognition experiments, but the current defaults stay safer
-                    for everyday recording.
+                    Standard mode is tuned for normal practice recording. Advanced/raw input mode can adjust browser audio processing for testing and chord-recognition
+                    experiments.
                   </p>
                 </div>
 
-                <span>Informational</span>
+                <span>{isAdvancedAudioMode ? "Advanced" : "Standard"}</span>
+              </div>
+
+              <div className="settings-audio-mode-grid" role="group" aria-label="Audio input mode">
+                {AUDIO_INPUT_MODE_OPTIONS.map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    className={`settings-option-card settings-audio-mode-card ${audioInputSettings.inputMode === option.id ? "is-selected" : ""}`}
+                    onClick={() => handleAudioModeChange(option.id)}
+                  >
+                    <div className="settings-option-header">
+                      <span>{option.label}</span>
+
+                      {audioInputSettings.inputMode === option.id ? <strong className="settings-active-badge">Active</strong> : null}
+                    </div>
+
+                    <small>{option.description}</small>
+                  </button>
+                ))}
               </div>
 
               <div className="settings-audio-setting-grid">
-                {AUDIO_SETTING_ROWS.map((setting) => (
-                  <AudioSettingCard key={setting.label} {...setting} />
+                {AUDIO_PROCESSING_SETTINGS.map((setting) => (
+                  <AudioSettingCard
+                    key={setting.key}
+                    description={setting.description}
+                    isAdvancedAudioMode={isAdvancedAudioMode}
+                    isEnabled={Boolean(resolvedAudioInputSettings[setting.key])}
+                    label={setting.label}
+                    onToggle={() => handleAudioSettingToggle(setting.key)}
+                    settingKey={setting.key}
+                  />
                 ))}
               </div>
             </div>
@@ -363,25 +401,44 @@ function StatusCard({ label, tone = "neutral", value }) {
   );
 }
 
-function AudioSettingCard({ description, label, status, value }) {
+function AudioSettingCard({ description, isAdvancedAudioMode, isEnabled, label, onToggle, settingKey }) {
+  const valueLabel = isAdvancedAudioMode ? (isEnabled ? "On" : "Off") : "On by default";
+  const statusLabel = isAdvancedAudioMode ? "Editable in Advanced" : "Locked in Standard";
+
   return (
     <div className="settings-audio-setting-card">
       <div className="settings-audio-setting-header">
         <span>{label}</span>
-        <strong>{value}</strong>
+        <strong>{valueLabel}</strong>
       </div>
 
       <p>{description}</p>
-      <small>{status}</small>
+
+      <div className="settings-audio-setting-footer">
+        <small>{statusLabel}</small>
+
+        <button
+          type="button"
+          className={`settings-audio-toggle ${isEnabled ? "is-enabled" : ""}`}
+          aria-label={`Toggle ${label}`}
+          aria-pressed={isEnabled}
+          disabled={!isAdvancedAudioMode}
+          onClick={onToggle}
+          data-setting-key={settingKey}
+        >
+          {isAdvancedAudioMode ? (isEnabled ? "On" : "Off") : "Locked"}
+        </button>
+      </div>
     </div>
   );
 }
 
 function MicrophoneLevelMeter({ isActive, level }) {
   const levelBars = getLevelBarStates(level, 10);
+  const tone = getLevelMeterTone(level, 10);
 
   return (
-    <div className={`microphone-level-meter ${isActive ? "is-active" : ""}`} aria-label="Microphone input level" aria-live="polite">
+    <div className={`microphone-level-meter ${isActive ? "is-active" : ""} is-level-${tone}`} aria-label="Microphone input level" aria-live="polite">
       {levelBars.map((isLevelActive, index) => (
         <span key={index} className={`microphone-level-bar ${isLevelActive ? "is-level-active" : ""}`} />
       ))}

@@ -57,6 +57,7 @@ function createProps(overrides = {}) {
     plan: BASE_PLAN,
     progressPercent: 0,
     recordingDurationSeconds: 0,
+    recordingInputLevel: 0,
     recordingMessage: "",
     sessionHistory: [],
     sessionMessage: "",
@@ -139,5 +140,34 @@ describe("TodayPlan", () => {
     expect(screen.getByRole("button", { name: "Hard" }).disabled).toBe(true);
     expect(screen.getByRole("button", { name: "Okay" }).disabled).toBe(true);
     expect(screen.getByRole("button", { name: "Easy" }).disabled).toBe(true);
+  });
+
+  it("renders a miniature recording input meter while recording", () => {
+    renderTodayPlan({
+      elapsedSessionSeconds: 5,
+      isSessionRecording: true,
+      isSessionTimerRunning: true,
+      recordingDurationSeconds: 4,
+      recordingInputLevel: 0.7,
+    });
+
+    expect(screen.getByText("Live input")).toBeTruthy();
+    expect(screen.getByText("Meter shows sound reaching the recorder")).toBeTruthy();
+    expect(screen.getByLabelText("Session recording input level").className).toContain("is-level-high");
+  });
+
+  it("renders the miniature recording input meter as paused when recording is paused", () => {
+    renderTodayPlan({
+      elapsedSessionSeconds: 5,
+      isSessionRecording: true,
+      isSessionRecordingPaused: true,
+      isSessionTimerRunning: false,
+      recordingDurationSeconds: 4,
+      recordingInputLevel: 0.7,
+    });
+
+    expect(screen.getByText("Input paused")).toBeTruthy();
+    expect(screen.getByText("Resume to monitor audio")).toBeTruthy();
+    expect(screen.getByLabelText("Session recording input level").className).toContain("is-level-idle");
   });
 });

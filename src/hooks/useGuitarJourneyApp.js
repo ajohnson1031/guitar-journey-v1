@@ -54,7 +54,7 @@ function createSessionId() {
   return `session-${Date.now()}`;
 }
 
-export default function useGuitarJourneyApp() {
+export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
   const navigate = useNavigate();
   const storedProgress = useMemo(() => loadStoredProgress(), []);
 
@@ -108,11 +108,14 @@ export default function useGuitarJourneyApp() {
     pendingRecording,
     pauseRecording,
     recordingDurationSeconds,
+    recordingInputLevel,
     recordingMessage,
     resumeRecording,
     startRecording,
     stopRecording,
-  } = useSessionRecorder();
+  } = useSessionRecorder({
+    audioInputSettings,
+  });
 
   const plan = useMemo(() => createPracticePlan(selectedSong, sessionMinutes), [selectedSong, sessionMinutes]);
 
@@ -418,6 +421,7 @@ export default function useGuitarJourneyApp() {
       plan,
       progressPercent,
       recordingDurationSeconds,
+      recordingInputLevel,
       recordingMessage,
       selectedSong,
       sessionHistory,
