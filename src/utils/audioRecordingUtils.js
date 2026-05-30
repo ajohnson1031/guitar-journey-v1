@@ -28,6 +28,21 @@ function isAudioRecordingSupported() {
   );
 }
 
+function getAudioRecordingSupportDetails() {
+  const hasMediaRecorder = Boolean(getMediaRecorderConstructor());
+  const hasGetUserMedia = Boolean(typeof navigator !== "undefined" && navigator?.mediaDevices?.getUserMedia);
+  const supportedMimeType = getSupportedRecordingMimeType();
+  const isSupported = hasMediaRecorder && hasGetUserMedia;
+
+  return {
+    hasGetUserMedia,
+    hasMediaRecorder,
+    isSupported,
+    supportedMimeType,
+    supportedMimeTypeLabel: supportedMimeType || "Browser default",
+  };
+}
+
 async function requestAudioRecordingStream(audioConstraints = true) {
   if (!isAudioRecordingSupported()) {
     throw new Error("Audio recording is not supported in this browser.");
@@ -36,6 +51,28 @@ async function requestAudioRecordingStream(audioConstraints = true) {
   return navigator.mediaDevices.getUserMedia({
     audio: audioConstraints,
   });
+}
+
+async function testAudioRecordingAccess(audioConstraints = true) {
+  try {
+    const stream = await requestAudioRecordingStream(audioConstraints);
+    const audioTrack = stream.getAudioTracks?.()[0] || null;
+    const inputLabel = audioTrack?.label || "Default microphone";
+
+    stopMediaStreamTracks(stream);
+
+    return {
+      inputLabel,
+      isAllowed: true,
+      message: `Microphone ready: ${inputLabel}`,
+    };
+  } catch {
+    return {
+      inputLabel: "",
+      isAllowed: false,
+      message: "Microphone access was unavailable or denied.",
+    };
+  }
 }
 
 function createAudioRecorder(stream, options = {}) {
@@ -96,6 +133,7 @@ export {
   canPauseMediaRecorder,
   createAudioRecorder,
   createRecordingId,
+  getAudioRecordingSupportDetails,
   getMediaRecorderConstructor,
   getSupportedRecordingMimeType,
   isAudioRecordingSupported,
@@ -103,4 +141,5 @@ export {
   requestAudioRecordingStream,
   resumeMediaRecorder,
   stopMediaStreamTracks,
+  testAudioRecordingAccess,
 };

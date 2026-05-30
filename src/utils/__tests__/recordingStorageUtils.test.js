@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   createRecordingRecord,
+  formatRecordingCount,
   formatRecordingDuration,
   normalizeRecordingDurationSeconds,
   normalizeRecordingMetadata,
@@ -20,6 +21,13 @@ describe("recordingStorageUtils", () => {
     expect(formatRecordingDuration(9)).toBe("0:09");
     expect(formatRecordingDuration(65)).toBe("1:05");
     expect(formatRecordingDuration(600)).toBe("10:00");
+  });
+
+  it("formats recording count", () => {
+    expect(formatRecordingCount(0)).toBe("0 recordings");
+    expect(formatRecordingCount(1)).toBe("1 recording");
+    expect(formatRecordingCount(12)).toBe("12 recordings");
+    expect(formatRecordingCount("bad")).toBe("0 recordings");
   });
 
   it("normalizes recording metadata", () => {
