@@ -4,6 +4,7 @@ const DEFAULT_MICROPHONE_TEST_DURATION_MS = 5000;
 const DEFAULT_MICROPHONE_LEVEL_BAR_COUNT = 10;
 const MICROPHONE_NOISE_FLOOR = 0.012;
 const MICROPHONE_SIGNAL_RANGE = 0.18;
+const MIN_ACTIVE_MICROPHONE_LEVEL = 0.08;
 
 function getAudioContextConstructor() {
   if (typeof window === "undefined") return null;
@@ -77,7 +78,11 @@ function getActiveLevelBarCount(level, barCount = DEFAULT_MICROPHONE_LEVEL_BAR_C
   const safeBarCount = getSafeLevelBarCount(barCount);
   const normalizedLevel = normalizeMicrophoneLevel(level);
 
-  return normalizedLevel > 0 ? Math.max(1, Math.ceil(normalizedLevel * safeBarCount)) : 0;
+  if (normalizedLevel < MIN_ACTIVE_MICROPHONE_LEVEL) {
+    return 0;
+  }
+
+  return Math.max(1, Math.ceil(normalizedLevel * safeBarCount));
 }
 
 function getLevelMeterTone(level, barCount = DEFAULT_MICROPHONE_LEVEL_BAR_COUNT) {
@@ -166,5 +171,6 @@ export {
   isUninitializedTimeDomainData,
   MICROPHONE_NOISE_FLOOR,
   MICROPHONE_SIGNAL_RANGE,
+  MIN_ACTIVE_MICROPHONE_LEVEL,
   normalizeMicrophoneLevel,
 };

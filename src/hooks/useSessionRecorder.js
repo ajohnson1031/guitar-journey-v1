@@ -40,10 +40,11 @@ export default function useSessionRecorder({ audioInputSettings } = {}) {
   const accumulatedMillisecondsRef = useRef(0);
   const durationTimerRef = useRef(null);
 
-  const recordingAudioContextRef = useRef(null);
-  const recordingLevelFrameRef = useRef(null);
-  const recordingLevelSourceRef = useRef(null);
-  const displayedRecordingLevelRef = useRef(0);
+  const inputMonitorAudioContextRef = useRef(null);
+  const inputMonitorFrameRef = useRef(null);
+  const inputMonitorSourceRef = useRef(null);
+  const inputMonitorStreamRef = useRef(null);
+  const displayedInputLevelRef = useRef(0);
 
   const clearDurationTimer = useCallback(() => {
     if (durationTimerRef.current) {
@@ -52,53 +53,48 @@ export default function useSessionRecorder({ audioInputSettings } = {}) {
     }
   }, []);
 
-  const clearRecordingLevelFrame = useCallback(() => {
-    if (recordingLevelFrameRef.current) {
-      window.cancelAnimationFrame(recordingLevelFrameRef.current);
-      recordingLevelFrameRef.current = null;
+  const clearInputMonitorFrame = useCallback(() => {
+    if (inputMonitorFrameRef.current) {
+      window.cancelAnimationFrame(inputMonitorFrameRef.current);
+      inputMonitorFrameRef.current = null;
     }
   }, []);
 
-  const cleanupRecordingInputMonitor = useCallback(() => {
-    clearRecordingLevelFrame();
+  const cleanupInputMonitorGraph = useCallback(() => {
+    clearInputMonitorFrame();
 
-    if (recordingLevelSourceRef.current) {
+    if (inputMonitorSourceRef.current) {
       try {
-        recordingLevelSourceRef.current.disconnect();
+        inputMonitorSourceRef.current.disconnect();
       } catch {
         // Source may already be disconnected.
       }
 
-      recordingLevelSourceRef.current = null;
+      inputMonitorSourceRef.current = null;
     }
 
-    if (recordingAudioContextRef.current && recordingAudioContextRef.current.state !== "closed") {
-      void recordingAudioContextRef.current.close();
+    if (inputMonitorAudioContextRef.current && inputMonitorAudioContextRef.current.state !== "closed") {
+      void inputMonitorAudioContextRef.current.close();
     }
 
-    recordingAudioContextRef.current = null;
-    displayedRecordingLevelRef.current = 0;
+    inputMonitorAudioContextRef.current = null;
+    displayedInputLevelRef.current = 0;
     setRecordingInputLevel(0);
-  }, [clearRecordingLevelFrame]);
+  }, [clearInputMonitorFrame]);
 
-  const updateDuration = useCallback(() => {
-    setRecordingDurationSeconds(getRecordingElapsedSeconds(accumulatedMillisecondsRef.current, activeStartedAtRef.current));
-  }, []);
+  const stopInputMonitoring = useCallback(() => {
+    cleanupInputMonitorGraph();
+    stopMediaStreamTracks(inputMonitorStreamRef.current);
+    inputMonitorStreamRef.current = null;
+  }, [cleanupInputMonitorGraph]);
 
-  const startDurationTimer = useCallback(() => {
-    clearDurationTimer();
-    updateDuration();
-
-    durationTimerRef.current = window.setInterval(updateDuration, 500);
-  }, [clearDurationTimer, updateDuration]);
-
-  const startRecordingInputMonitor = useCallback(
+  const connectInputMonitor = useCallback(
     async (stream) => {
-      cleanupRecordingInputMonitor();
+      cleanupInputMonitorGraph();
 
       const AudioContextConstructor = getAudioContextConstructor();
 
-      if (!stream || !AudioContextConstructor) return;
+      if (!stream || !AudioContextConstructor) return false;
 
       try {
         const audioContext = new AudioContextConstructor();
@@ -118,34 +114,70 @@ export default function useSessionRecorder({ audioInputSettings } = {}) {
         dataArray.fill(128);
         source.connect(analyser);
 
-        recordingAudioContextRef.current = audioContext;
-        recordingLevelSourceRef.current = source;
-        displayedRecordingLevelRef.current = 0;
+        inputMonitorAudioContextRef.current = audioContext;
+        inputMonitorSourceRef.current = source;
+        displayedInputLevelRef.current = 0;
 
-        function readRecordingInputLevel() {
+        function readInputLevel() {
           analyser.getByteTimeDomainData(dataArray);
 
           const rawLevel = getMicrophoneLevelFromTimeDomainData(dataArray);
-          const decayedLevel = displayedRecordingLevelRef.current * RECORDING_LEVEL_DECAY;
+          const decayedLevel = displayedInputLevelRef.current * RECORDING_LEVEL_DECAY;
           const nextLevel = normalizeMicrophoneLevel(Math.max(rawLevel, decayedLevel));
 
-          displayedRecordingLevelRef.current = nextLevel;
+          displayedInputLevelRef.current = nextLevel;
           setRecordingInputLevel(nextLevel);
 
-          recordingLevelFrameRef.current = window.requestAnimationFrame(readRecordingInputLevel);
+          inputMonitorFrameRef.current = window.requestAnimationFrame(readInputLevel);
         }
 
-        readRecordingInputLevel();
+        readInputLevel();
+
+        return true;
       } catch {
-        cleanupRecordingInputMonitor();
+        cleanupInputMonitorGraph();
+
+        return false;
       }
     },
-    [cleanupRecordingInputMonitor],
+    [cleanupInputMonitorGraph],
   );
+
+  const startInputMonitoring = useCallback(async () => {
+    if (inputMonitorStreamRef.current) return true;
+
+    try {
+      const stream = await requestAudioRecordingStream(getAudioInputConstraints(audioInputSettings));
+
+      inputMonitorStreamRef.current = stream;
+
+      const didConnect = await connectInputMonitor(stream);
+
+      if (!didConnect) {
+        stopInputMonitoring();
+      }
+
+      return didConnect;
+    } catch {
+      stopInputMonitoring();
+
+      return false;
+    }
+  }, [audioInputSettings, connectInputMonitor, stopInputMonitoring]);
+
+  const updateDuration = useCallback(() => {
+    setRecordingDurationSeconds(getRecordingElapsedSeconds(accumulatedMillisecondsRef.current, activeStartedAtRef.current));
+  }, []);
+
+  const startDurationTimer = useCallback(() => {
+    clearDurationTimer();
+    updateDuration();
+
+    durationTimerRef.current = window.setInterval(updateDuration, 500);
+  }, [clearDurationTimer, updateDuration]);
 
   const cleanupRecorderRefs = useCallback(() => {
     clearDurationTimer();
-    cleanupRecordingInputMonitor();
     stopMediaStreamTracks(mediaStreamRef.current);
 
     mediaRecorderRef.current = null;
@@ -153,7 +185,7 @@ export default function useSessionRecorder({ audioInputSettings } = {}) {
     chunksRef.current = [];
     activeStartedAtRef.current = null;
     accumulatedMillisecondsRef.current = 0;
-  }, [cleanupRecordingInputMonitor, clearDurationTimer]);
+  }, [clearDurationTimer]);
 
   const discardRecording = useCallback(async () => {
     const mediaRecorder = mediaRecorderRef.current;
@@ -169,13 +201,14 @@ export default function useSessionRecorder({ audioInputSettings } = {}) {
     }
 
     cleanupRecorderRefs();
+    stopInputMonitoring();
     setIsSessionRecording(false);
     setIsSessionRecordingPaused(false);
     setRecordingDurationSeconds(0);
     setRecordingInputLevel(0);
     setPendingRecording(null);
     setRecordingMessage("");
-  }, [cleanupRecorderRefs]);
+  }, [cleanupRecorderRefs, stopInputMonitoring]);
 
   const startRecording = useCallback(async () => {
     if (isSessionRecording) return true;
@@ -188,7 +221,6 @@ export default function useSessionRecorder({ audioInputSettings } = {}) {
     try {
       setPendingRecording(null);
       setRecordingDurationSeconds(0);
-      setRecordingInputLevel(0);
       setRecordingMessage("Requesting microphone access...");
 
       const stream = await requestAudioRecordingStream(getAudioInputConstraints(audioInputSettings));
@@ -216,7 +248,11 @@ export default function useSessionRecorder({ audioInputSettings } = {}) {
       setIsSessionRecording(true);
       setIsSessionRecordingPaused(false);
       setRecordingMessage("Recording session audio...");
-      await startRecordingInputMonitor(stream);
+
+      if (!inputMonitorStreamRef.current) {
+        void startInputMonitoring();
+      }
+
       startDurationTimer();
 
       return true;
@@ -225,12 +261,11 @@ export default function useSessionRecorder({ audioInputSettings } = {}) {
       setIsSessionRecording(false);
       setIsSessionRecordingPaused(false);
       setRecordingDurationSeconds(0);
-      setRecordingInputLevel(0);
       setRecordingMessage("Microphone access was unavailable or denied.");
 
       return false;
     }
-  }, [audioInputSettings, cleanupRecorderRefs, isSessionRecording, startDurationTimer, startRecordingInputMonitor]);
+  }, [audioInputSettings, cleanupRecorderRefs, isSessionRecording, startDurationTimer, startInputMonitoring]);
 
   const pauseRecording = useCallback(async () => {
     const mediaRecorder = mediaRecorderRef.current;
@@ -250,14 +285,13 @@ export default function useSessionRecorder({ audioInputSettings } = {}) {
     }
 
     clearDurationTimer();
-    cleanupRecordingInputMonitor();
     updateDuration();
 
     setIsSessionRecordingPaused(true);
     setRecordingMessage("Recording paused.");
 
     return true;
-  }, [clearDurationTimer, cleanupRecordingInputMonitor, isSessionRecording, isSessionRecordingPaused, updateDuration]);
+  }, [clearDurationTimer, isSessionRecording, isSessionRecordingPaused, updateDuration]);
 
   const resumeRecording = useCallback(async () => {
     const mediaRecorder = mediaRecorderRef.current;
@@ -275,11 +309,10 @@ export default function useSessionRecorder({ audioInputSettings } = {}) {
 
     setIsSessionRecordingPaused(false);
     setRecordingMessage("Recording session audio...");
-    await startRecordingInputMonitor(mediaStreamRef.current);
     startDurationTimer();
 
     return true;
-  }, [isSessionRecording, isSessionRecordingPaused, startDurationTimer, startRecordingInputMonitor]);
+  }, [isSessionRecording, isSessionRecordingPaused, startDurationTimer]);
 
   const stopRecording = useCallback(async () => {
     const mediaRecorder = mediaRecorderRef.current;
@@ -313,7 +346,6 @@ export default function useSessionRecorder({ audioInputSettings } = {}) {
         setIsSessionRecording(false);
         setIsSessionRecordingPaused(false);
         setRecordingDurationSeconds(durationSeconds);
-        setRecordingInputLevel(0);
         setPendingRecording(recording);
         setRecordingMessage(recording ? `Recording ready (${formatRecordingDuration(durationSeconds)}).` : "No recording audio was captured.");
 
@@ -345,7 +377,9 @@ export default function useSessionRecorder({ audioInputSettings } = {}) {
     recordingInputLevel,
     recordingMessage,
     resumeRecording,
+    startInputMonitoring,
     startRecording,
+    stopInputMonitoring,
     stopRecording,
   };
 }

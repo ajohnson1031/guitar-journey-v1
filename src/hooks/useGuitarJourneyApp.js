@@ -111,7 +111,9 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
     recordingInputLevel,
     recordingMessage,
     resumeRecording,
+    startInputMonitoring,
     startRecording,
+    stopInputMonitoring,
     stopRecording,
   } = useSessionRecorder({
     audioInputSettings,
@@ -254,14 +256,21 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
   }
 
   function handleToggleSessionTimer() {
+    const willStartOrResumeSession = !isSessionTimerRunning;
+
     setSessionMessage("");
     toggleSessionTimer();
+
+    if (willStartOrResumeSession) {
+      void startInputMonitoring();
+    }
   }
 
   async function handleResetSessionTimer() {
     setSessionMessage("");
     setSessionRating("");
     await discardRecording();
+    stopInputMonitoring();
     resetSessionTimer();
   }
 
@@ -360,6 +369,7 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
 
     addSession(session);
 
+    stopInputMonitoring();
     setIsSessionTimerRunning(false);
     setElapsedSessionSeconds(0);
     setSessionMessage(`Session saved: ${selectedSong.title} • ${actualPracticeMinutes} min actual • ${sessionRating}`);
@@ -390,6 +400,7 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
     setIsSessionTimerRunning(false);
     setElapsedSessionSeconds(0);
     void discardRecording();
+    stopInputMonitoring();
     goToDashboard();
   }
 

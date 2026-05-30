@@ -153,9 +153,7 @@
 
 .session-recording-level-card {
   display: grid;
-  grid-template-columns: minmax(0, auto) minmax(120px, 1fr);
-  align-items: center;
-  gap: 10px;
+  gap: 8px;
   margin-top: -4px;
   border: 1px solid var(--border);
   border-radius: 16px;
@@ -163,22 +161,31 @@
   padding: 10px 12px;
 }
 
-.session-recording-level-copy {
-  display: grid;
-  gap: 2px;
-  min-width: 0;
+.session-recording-level-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
 
-.session-recording-level-copy span {
+.session-recording-level-header span {
   color: var(--text);
   font-size: 12px;
   font-weight: 900;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
-.session-recording-level-copy small {
-  color: var(--muted);
-  font-size: 11px;
-  line-height: 1.25;
+.session-recording-level-header small {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted-strong);
+  padding: 4px 8px;
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
 .session-recording-mini-meter {
@@ -194,8 +201,8 @@
 }
 
 .session-recording-mini-bar {
-  background: var(--surface-subtle);
-  opacity: 0.72;
+  background: rgba(209, 213, 219, 0.46);
+  opacity: 1;
   transition:
     background 80ms ease,
     opacity 80ms ease,
@@ -214,19 +221,16 @@
 
 .session-recording-mini-meter.is-level-low .session-recording-mini-bar.is-level-active {
   background: var(--danger);
-  opacity: 1;
   transform: scaleY(1.03);
 }
 
 .session-recording-mini-meter.is-level-medium .session-recording-mini-bar.is-level-active {
   background: var(--mango);
-  opacity: 1;
   transform: scaleY(1.03);
 }
 
 .session-recording-mini-meter.is-level-high .session-recording-mini-bar.is-level-active {
   background: var(--green);
-  opacity: 1;
   transform: scaleY(1.03);
 }
 
@@ -301,11 +305,5 @@
 
   50% {
     box-shadow: 0 0 0 6px rgba(248, 113, 113, 0.12);
-  }
-}
-
-@media (max-width: 560px) {
-  .session-recording-level-card {
-    grid-template-columns: 1fr;
   }
 }

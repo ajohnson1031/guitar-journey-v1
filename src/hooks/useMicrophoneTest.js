@@ -5,6 +5,7 @@ import { createMicrophoneTestSession, normalizeMicrophoneLevel } from "../utils/
 const { useCallback, useEffect, useRef, useState } = React;
 
 const MICROPHONE_LEVEL_DECAY = 0.68;
+const MICROPHONE_TEST_MESSAGE_TIMEOUT_MS = 5000;
 
 export default function useMicrophoneTest(audioInputSettings) {
   const animationFrameRef = useRef(null);
@@ -81,6 +82,18 @@ export default function useMicrophoneTest(audioInputSettings) {
       setMicrophoneTestMessage("Microphone access was unavailable or denied.");
     }
   }, [audioInputSettings, cleanupSession, isTestingMicrophone, readMicrophoneLevel]);
+
+  useEffect(() => {
+    if (!microphoneTestMessage) return undefined;
+
+    const timeoutId = window.setTimeout(() => {
+      setMicrophoneTestMessage("");
+    }, MICROPHONE_TEST_MESSAGE_TIMEOUT_MS);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [microphoneTestMessage]);
 
   useEffect(() => {
     return () => {

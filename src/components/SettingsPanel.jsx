@@ -17,6 +17,9 @@ import ConfirmDialog from "./ConfirmDialog";
 
 const { Fragment, useEffect, useMemo, useRef, useState } = React;
 
+const BACKUP_MESSAGE_TIMEOUT_MS = 5000;
+const IMPORT_SUCCESS_FLASH_KEY = "guitar-journey:import-success-flash";
+
 const AUDIO_PROCESSING_SETTINGS = [
   {
     key: "echoCancellation",
@@ -56,7 +59,40 @@ function downloadJsonFile(filename, data) {
   window.URL.revokeObjectURL(url);
 }
 
-export default function SettingsPanel({ appSettings, onAudioInputModeChange, onAudioInputSettingChange, onThemeModeChange }) {
+function saveImportSuccessFlash() {
+  try {
+    window.sessionStorage.setItem(
+      IMPORT_SUCCESS_FLASH_KEY,
+      JSON.stringify({
+        message: "Progress imported successfully.",
+        tone: "success",
+      }),
+    );
+  } catch {
+    // Import still succeeds if the browser blocks sessionStorage.
+  }
+}
+
+function readImportSuccessFlash() {
+  try {
+    const rawFlash = window.sessionStorage.getItem(IMPORT_SUCCESS_FLASH_KEY);
+
+    if (!rawFlash) return null;
+
+    window.sessionStorage.removeItem(IMPORT_SUCCESS_FLASH_KEY);
+
+    const flash = JSON.parse(rawFlash);
+
+    return {
+      message: String(flash.message || "Progress imported successfully."),
+      tone: flash.tone === "danger" ? "danger" : "success",
+    };
+  } catch {
+    return null;
+  }
+}
+
+export default function SettingsPanel({ appSettings, onAudioInputModeChange, onAudioInputSettingChange, onProgressImported = () => {}, onThemeModeChange }) {
   const audioInputSettings = createAudioInputSettings(appSettings.audioInputSettings);
   const resolvedAudioInputSettings = getResolvedAudioInputSettings(audioInputSettings);
   const isAdvancedAudioMode = audioInputSettings.inputMode === AUDIO_INPUT_MODE_ADVANCED;
@@ -64,8 +100,8 @@ export default function SettingsPanel({ appSettings, onAudioInputModeChange, onA
   const { isTestingMicrophone, microphoneLevel, microphoneTestMessage, startMicrophoneTest, stopMicrophoneTest } = useMicrophoneTest(audioInputSettings);
 
   const importInputRef = useRef(null);
-  const reloadTimeoutRef = useRef(null);
   const [backupMessage, setBackupMessage] = useState("");
+  const [backupMessageTone, setBackupMessageTone] = useState("success");
   const [pendingImportBackup, setPendingImportBackup] = useState(null);
   const [pendingImportSummary, setPendingImportSummary] = useState(null);
   const [recordingStorageSummary, setRecordingStorageSummary] = useState({
@@ -99,12 +135,30 @@ export default function SettingsPanel({ appSettings, onAudioInputModeChange, onA
   }, []);
 
   useEffect(() => {
-    return () => {
-      if (reloadTimeoutRef.current) {
-        window.clearTimeout(reloadTimeoutRef.current);
-      }
-    };
+    const importSuccessFlash = readImportSuccessFlash();
+
+    if (importSuccessFlash) {
+      showBackupMessage(importSuccessFlash.message, importSuccessFlash.tone);
+    }
   }, []);
+
+  useEffect(() => {
+    if (!backupMessage) return undefined;
+
+    const timeoutId = window.setTimeout(() => {
+      setBackupMessage("");
+    }, BACKUP_MESSAGE_TIMEOUT_MS);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [backupMessage]);
+
+
+  function showBackupMessage(message, tone = "success") {
+    setBackupMessage(message);
+    setBackupMessageTone(tone);
+  }
 
   function handleMicrophoneTestClick() {
     if (!audioSupport.isSupported) return;
@@ -125,9 +179,9 @@ export default function SettingsPanel({ appSettings, onAudioInputModeChange, onA
       });
 
       downloadJsonFile(getProgressBackupFilename(), backup);
-      setBackupMessage("Progress backup exported. Recordings are not included yet.");
+      showBackupMessage("Progress backup exported. Recordings are not included yet.", "success");
     } catch {
-      setBackupMessage("Progress backup could not be exported.");
+      showBackupMessage("Progress backup could not be exported.", "danger");
     }
   }
 
@@ -154,7 +208,7 @@ export default function SettingsPanel({ appSettings, onAudioInputModeChange, onA
     } catch (error) {
       setPendingImportBackup(null);
       setPendingImportSummary(null);
-      setBackupMessage(error instanceof Error ? error.message : "Progress backup could not be imported.");
+      showBackupMessage(error instanceof Error ? error.message : "Progress backup could not be imported.", "danger");
     }
   }
 
@@ -168,15 +222,12 @@ export default function SettingsPanel({ appSettings, onAudioInputModeChange, onA
 
     try {
       applyProgressBackup(pendingImportBackup);
+      saveImportSuccessFlash();
       setPendingImportBackup(null);
       setPendingImportSummary(null);
-      setBackupMessage("Progress imported. Reloading Guitar Journey...");
-
-      reloadTimeoutRef.current = window.setTimeout(() => {
-        window.location.reload();
-      }, 800);
+      onProgressImported();
     } catch (error) {
-      setBackupMessage(error instanceof Error ? error.message : "Progress backup could not be imported.");
+      showBackupMessage(error instanceof Error ? error.message : "Progress backup could not be imported.", "danger");
     }
   }
 
@@ -257,7 +308,7 @@ export default function SettingsPanel({ appSettings, onAudioInputModeChange, onA
 
               <input ref={importInputRef} type="file" accept="application/json,.json" className="settings-file-input" onChange={handleImportFileChange} />
 
-              {backupMessage ? <p className="settings-backup-message">{backupMessage}</p> : null}
+              {backupMessage ? <p className={`settings-backup-message settings-backup-message--${backupMessageTone}`}>{backupMessage}</p> : null}
             </div>
           </SettingsSection>
 
@@ -338,11 +389,11 @@ export default function SettingsPanel({ appSettings, onAudioInputModeChange, onA
               <MicrophoneLevelMeter isActive={isTestingMicrophone} level={microphoneLevel} />
             </div>
 
-            <div className="settings-note-card">
+            <div className="settings-local-audio-note">
               <strong>Local audio note</strong>
               <p>
-                Practice recordings are stored locally in this browser with IndexedDB. They are not synced across devices yet, and they can be removed if browser site data is
-                cleared.
+                Practice recordings are stored locally in this browser with IndexedDB. They are not synced across devices yet, and they{" "}
+                <span className="settings-danger-text">can be removed</span> if browser site data is cleared.
               </p>
             </div>
           </SettingsSection>
@@ -434,8 +485,9 @@ function AudioSettingCard({ description, isAdvancedAudioMode, isEnabled, label, 
 }
 
 function MicrophoneLevelMeter({ isActive, level }) {
-  const levelBars = getLevelBarStates(level, 10);
-  const tone = getLevelMeterTone(level, 10);
+  const meterLevel = isActive ? level : 0;
+  const levelBars = getLevelBarStates(meterLevel, 10);
+  const tone = getLevelMeterTone(meterLevel, 10);
 
   return (
     <div className={`microphone-level-meter ${isActive ? "is-active" : ""} is-level-${tone}`} aria-label="Microphone input level" aria-live="polite">
