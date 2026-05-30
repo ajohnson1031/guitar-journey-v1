@@ -9,20 +9,28 @@ export default function DashboardRoute({
   completedSteps,
   elapsedSessionSeconds,
   filteredSongs,
+  hasPendingRecording,
+  isSessionRecording,
+  isSessionRecordingPaused,
   isSessionTimerRunning,
   masteredSongs,
   onCompleteSession,
   onDeleteCustomSong,
+  onPauseSessionRecording,
   onResetSessionTimer,
+  onResumeSessionRecording,
   onSelectSong,
   onSessionMinutesChange,
   onSessionRatingChange,
   onStartEditCustomSong,
   onToggleMastered,
+  onToggleSessionRecording,
   onToggleSessionTimer,
   onToggleStep,
   plan,
   progressPercent,
+  recordingDurationSeconds,
+  recordingMessage,
   selectedSong,
   sessionMessage,
   sessionMinutes,
@@ -50,15 +58,23 @@ export default function DashboardRoute({
           canCompleteSession={canCompleteSession}
           completedSteps={completedSteps}
           elapsedSessionSeconds={elapsedSessionSeconds}
+          hasPendingRecording={hasPendingRecording}
+          isSessionRecording={isSessionRecording}
+          isSessionRecordingPaused={isSessionRecordingPaused}
           isSessionTimerRunning={isSessionTimerRunning}
           onCompleteSession={onCompleteSession}
+          onPauseSessionRecording={onPauseSessionRecording}
           onResetSessionTimer={onResetSessionTimer}
+          onResumeSessionRecording={onResumeSessionRecording}
           onSessionMinutesChange={onSessionMinutesChange}
           onSessionRatingChange={onSessionRatingChange}
+          onToggleSessionRecording={onToggleSessionRecording}
           onToggleSessionTimer={onToggleSessionTimer}
           onToggleStep={onToggleStep}
           plan={plan}
           progressPercent={progressPercent}
+          recordingDurationSeconds={recordingDurationSeconds}
+          recordingMessage={recordingMessage}
           sessionMessage={sessionMessage}
           sessionMinutes={sessionMinutes}
           sessionRating={sessionRating}

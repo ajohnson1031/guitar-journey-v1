@@ -1,8 +1,10 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { DEFAULT_PROGRESS } from "../constants";
+import { saveRecording } from "../utils/recordingStorageUtils";
 import { clearStoredProgress, loadStoredProgress, saveStoredProgress } from "../utils/storageUtils";
 import usePracticeProgress from "./usePracticeProgress";
+import useSessionRecorder from "./useSessionRecorder";
 import useSessionTimer from "./useSessionTimer";
 import useSongLibrary from "./useSongLibrary";
 
@@ -98,6 +100,20 @@ export default function useGuitarJourneyApp() {
     resetKeys: [selectedSong.id, sessionMinutes],
   });
 
+  const {
+    discardRecording,
+    hasPendingRecording,
+    isSessionRecording,
+    isSessionRecordingPaused,
+    pendingRecording,
+    pauseRecording,
+    recordingDurationSeconds,
+    recordingMessage,
+    resumeRecording,
+    startRecording,
+    stopRecording,
+  } = useSessionRecorder();
+
   const plan = useMemo(() => createPracticePlan(selectedSong, sessionMinutes), [selectedSong, sessionMinutes]);
 
   const {
@@ -152,7 +168,8 @@ export default function useGuitarJourneyApp() {
   useEffect(() => {
     setSessionMessage("");
     setSessionRating("");
-  }, [selectedSong.id, sessionMinutes]);
+    void discardRecording();
+  }, [discardRecording, selectedSong.id, sessionMinutes]);
 
   function goToDashboard() {
     navigate("/");
@@ -237,9 +254,10 @@ export default function useGuitarJourneyApp() {
     toggleSessionTimer();
   }
 
-  function handleResetSessionTimer() {
+  async function handleResetSessionTimer() {
     setSessionMessage("");
     setSessionRating("");
+    await discardRecording();
     resetSessionTimer();
   }
 
@@ -248,7 +266,59 @@ export default function useGuitarJourneyApp() {
     setSessionMessage("");
   }
 
-  function completeSession() {
+  async function handleToggleSessionRecording() {
+    setSessionMessage("");
+
+    if (isSessionRecording) {
+      await stopRecording();
+      return;
+    }
+
+    if (!isSessionTimerRunning) {
+      setSessionMessage("Start the session before recording practice audio.");
+      return;
+    }
+
+    await startRecording();
+  }
+
+  async function handlePauseSessionRecording() {
+    await pauseRecording();
+  }
+
+  async function handleResumeSessionRecording() {
+    await resumeRecording();
+  }
+
+  async function getRecordingSessionFields(sessionId) {
+    let recording = pendingRecording;
+
+    if (isSessionRecording) {
+      recording = await stopRecording();
+    }
+
+    if (!recording) return {};
+
+    const recordingId = `recording-${sessionId}`;
+
+    const savedRecording = await saveRecording(recordingId, recording.blob, {
+      durationSeconds: recording.durationSeconds,
+      mimeType: recording.mimeType,
+      sessionId,
+      songId: selectedSong.id,
+      songTitle: selectedSong.title,
+    });
+
+    await discardRecording();
+
+    return {
+      recordingDurationSeconds: savedRecording.durationSeconds,
+      recordingId: savedRecording.recordingId,
+      recordingMimeType: savedRecording.mimeType,
+    };
+  }
+
+  async function completeSession() {
     if (!canCompleteSession) {
       setSessionMessage("Start the session timer before saving practice history.");
       return;
@@ -259,8 +329,18 @@ export default function useGuitarJourneyApp() {
       return;
     }
 
+    const sessionId = createSessionId();
+    let recordingFields = {};
+
+    try {
+      recordingFields = await getRecordingSessionFields(sessionId);
+    } catch {
+      setSessionMessage("The session recording could not be saved. Try saving again, or stop recording and retry.");
+      return;
+    }
+
     const session = {
-      id: createSessionId(),
+      id: sessionId,
       songId: selectedSong.id,
       songTitle: selectedSong.title,
       genre: selectedSong.genre,
@@ -271,6 +351,7 @@ export default function useGuitarJourneyApp() {
       completedStepCount: completedCount,
       totalStepCount: plan.length,
       completedAt: new Date().toISOString(),
+      ...recordingFields,
     };
 
     addSession(session);
@@ -292,6 +373,7 @@ export default function useGuitarJourneyApp() {
     setSessionMessage("");
     setIsSessionTimerRunning(false);
     setElapsedSessionSeconds(0);
+    void discardRecording();
     goToDashboard();
   }
 
@@ -302,20 +384,28 @@ export default function useGuitarJourneyApp() {
       completedSteps,
       elapsedSessionSeconds,
       filteredSongs,
+      hasPendingRecording,
+      isSessionRecording,
+      isSessionRecordingPaused,
       isSessionTimerRunning,
       masteredSongs,
       onCompleteSession: completeSession,
       onDeleteCustomSong: handleDeleteCustomSong,
+      onPauseSessionRecording: handlePauseSessionRecording,
       onResetSessionTimer: handleResetSessionTimer,
+      onResumeSessionRecording: handleResumeSessionRecording,
       onSelectSong: handleSelectSong,
       onSessionMinutesChange: setSessionMinutes,
       onSessionRatingChange: handleSessionRatingChange,
       onStartEditCustomSong: handleStartEditCustomSong,
       onToggleMastered: handleToggleMasteredSong,
+      onToggleSessionRecording: handleToggleSessionRecording,
       onToggleSessionTimer: handleToggleSessionTimer,
       onToggleStep: handleToggleStep,
       plan,
       progressPercent,
+      recordingDurationSeconds,
+      recordingMessage,
       selectedSong,
       sessionMessage,
       sessionMinutes,

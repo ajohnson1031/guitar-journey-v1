@@ -25,6 +25,10 @@
   font-size: 26px;
 }
 
+.chord-card p.chord-detail {
+  margin: 4px 0;
+}
+
 .chord-card-header {
   display: flex;
   align-items: center;
