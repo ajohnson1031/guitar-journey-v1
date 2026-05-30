@@ -2,6 +2,16 @@ import * as React from "react";
 
 const { useMemo, useState } = React;
 
+function removeRecordingFields(session) {
+  const nextSession = { ...session };
+
+  delete nextSession.recordingDurationSeconds;
+  delete nextSession.recordingId;
+  delete nextSession.recordingMimeType;
+
+  return nextSession;
+}
+
 export default function usePracticeProgress({ initialProgress, selectedSong, plan }) {
   const [completedStepsBySong, setCompletedStepsBySong] = useState(initialProgress.completedStepsBySong);
   const [masteredSongs, setMasteredSongs] = useState(initialProgress.masteredSongs);
@@ -61,6 +71,16 @@ export default function usePracticeProgress({ initialProgress, selectedSong, pla
     }));
   }
 
+  function removeSessionRecording(sessionId) {
+    setSessionHistory((current) =>
+      current.map((session) => {
+        if (session.id !== sessionId) return session;
+
+        return removeRecordingFields(session);
+      }),
+    );
+  }
+
   function removeSongProgress(songId) {
     setCompletedStepsBySong((current) => {
       const next = { ...current };
@@ -102,6 +122,7 @@ export default function usePracticeProgress({ initialProgress, selectedSong, pla
     masteredCount,
     masteredSongs,
     progressPercent,
+    removeSessionRecording,
     removeSongProgress,
     resetPracticeProgress,
     sessionHistory,

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { DEFAULT_PROGRESS } from "../constants";
-import { saveRecording } from "../utils/recordingStorageUtils";
+import { deleteRecording, saveRecording } from "../utils/recordingStorageUtils";
 import { clearStoredProgress, loadStoredProgress, saveStoredProgress } from "../utils/storageUtils";
 import usePracticeProgress from "./usePracticeProgress";
 import useSessionRecorder from "./useSessionRecorder";
@@ -124,6 +124,7 @@ export default function useGuitarJourneyApp() {
     masteredCount,
     masteredSongs,
     progressPercent,
+    removeSessionRecording,
     removeSongProgress,
     resetPracticeProgress,
     sessionHistory,
@@ -362,6 +363,18 @@ export default function useGuitarJourneyApp() {
     setSessionRating("");
   }
 
+  async function handleDeleteSessionRecording(session) {
+    const sessionId = String(session?.id || "").trim();
+    const recordingId = String(session?.recordingId || "").trim();
+
+    if (!sessionId || !recordingId) return false;
+
+    await deleteRecording(recordingId);
+    removeSessionRecording(sessionId);
+
+    return true;
+  }
+
   function resetLocalProgress() {
     clearStoredProgress();
 
@@ -419,6 +432,7 @@ export default function useGuitarJourneyApp() {
       onUpdateSong: handleUpdateCustomSong,
     },
     historyRouteProps: {
+      onDeleteSessionRecording: handleDeleteSessionRecording,
       sessions: sessionHistory,
     },
     newSongRouteProps: {

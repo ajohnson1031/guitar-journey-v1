@@ -3,10 +3,10 @@ import { SessionHistory } from "../components";
 
 const { Fragment } = React;
 
-export default function HistoryRoute({ sessions }) {
+export default function HistoryRoute({ onDeleteSessionRecording, sessions }) {
   return (
     <Fragment>
-      <SessionHistory sessions={sessions} />
+      <SessionHistory onDeleteSessionRecording={onDeleteSessionRecording} sessions={sessions} />
     </Fragment>
   );
 }

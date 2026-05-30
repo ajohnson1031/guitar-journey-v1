@@ -113,6 +113,18 @@
   font-size: 12px;
 }
 
+.history-action-message {
+  margin: 0;
+  border: 1px solid var(--green);
+  border-radius: 999px;
+  background: var(--green-soft);
+  color: var(--green);
+  padding: 9px 12px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 900;
+}
+
 .history-list {
   display: grid;
   gap: 10px;
@@ -239,7 +251,8 @@
   color: var(--mango);
 }
 
-.history-recording-stop-button {
+.history-recording-stop-button,
+.history-recording-delete-button {
   display: inline-grid;
   width: 36px;
   min-width: 36px;
@@ -252,12 +265,14 @@
   padding: 0;
 }
 
-.history-recording-stop-button:not(:disabled):hover {
+.history-recording-stop-button:not(:disabled):hover,
+.history-recording-delete-button:hover {
   background: var(--danger-hover);
 }
 
 .history-recording-button svg,
-.history-recording-stop-button svg {
+.history-recording-stop-button svg,
+.history-recording-delete-button svg {
   width: 15px;
   height: 15px;
   flex: 0 0 auto;
