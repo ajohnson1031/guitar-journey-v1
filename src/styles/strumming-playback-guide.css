@@ -65,6 +65,10 @@
   gap: 8px;
 }
 
+.strumming-playback-guide.is-sixteenth .strumming-playback-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 .strumming-playback-slot {
   display: grid;
   grid-template-rows: auto auto;

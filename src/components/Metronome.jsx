@@ -109,9 +109,9 @@ export default function Metronome({ songBpm, songTitle, strummingPattern }) {
         {isRunning ? "Stop" : "Start"}
       </button>
 
-      <StrummingPlaybackGuide activeSlot={playback.activeSlot} isRunning={isRunning} slots={playback.slots} />
+      <StrummingPlaybackGuide activeSlot={playback.activeSlot} isRunning={isRunning} slots={playback.slots} subdivision={playback.subdivision} />
 
-      <p className="metronome-note">Beat 1 is accented. The strumming guide advances through eighth-note slots while the metronome runs.</p>
+      <p className="metronome-note">Beat 1 is accented. The strumming guide advances through the selected rhythm subdivision while the metronome runs.</p>
     </section>
   );
 }

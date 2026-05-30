@@ -1,5 +1,5 @@
 import { DEFAULT_CUSTOM_GENRE_DESCRIPTION, DEFAULT_PROGRESS, STORAGE_KEY, STORAGE_VERSION } from "../constants";
-import { normalizeStrummingPattern, serializeStrummingPattern } from "./strummingUtils";
+import { normalizeStrummingPatternData, serializeStrummingPattern } from "./strummingUtils";
 
 function isPlainObject(value) {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -53,7 +53,7 @@ export function normalizeCustomGenres(customGenres) {
 function normalizeCustomSong(song) {
   if (!isPlainObject(song) || !song.id || !song.title) return null;
 
-  const strummingPattern = normalizeStrummingPattern(song.strummingPattern || song.strumming);
+  const strummingPattern = normalizeStrummingPatternData(song.strummingPattern || song.strumming);
   const strumming = serializeStrummingPattern(strummingPattern);
 
   return {

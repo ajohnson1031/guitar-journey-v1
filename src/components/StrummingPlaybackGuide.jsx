@@ -4,7 +4,7 @@ import { REST_STRUM } from "../utils/strummingUtils";
 
 const { Fragment } = React;
 
-export default function StrummingPlaybackGuide({ activeSlot = 0, isRunning = false, slots = [] }) {
+export default function StrummingPlaybackGuide({ activeSlot = 0, isRunning = false, slots = [], subdivision = "eighth" }) {
   const displaySlots = slots.length ? slots : [];
   const active = displaySlots[activeSlot] || displaySlots[0];
   const activeDirectionClass = getStrummingDirectionClass(active?.direction);
@@ -13,7 +13,7 @@ export default function StrummingPlaybackGuide({ activeSlot = 0, isRunning = fal
 
   return (
     <Fragment>
-      <div className={`strumming-playback-guide ${isRunning ? "is-running" : "is-idle"}`}>
+      <div className={`strumming-playback-guide ${isRunning ? "is-running" : "is-idle"} is-${subdivision}`}>
         <div className="strumming-playback-header">
           <span>Strumming Guide</span>
 
