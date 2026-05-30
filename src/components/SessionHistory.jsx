@@ -1,61 +1,41 @@
 import * as React from "react";
+import { formatPracticeDate, formatSessionActualDuration, getPracticeHistoryStats } from "../utils/practiceStatsUtils";
 
 const { Fragment } = React;
 
-function formatSessionDate(value) {
-  try {
-    return new Intl.DateTimeFormat("en", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    }).format(new Date(value));
-  } catch {
-    return "Unknown date";
-  }
-}
-
-function formatDuration(totalSeconds, fallbackMinutes) {
-  if (!totalSeconds) {
-    return `${fallbackMinutes} min`;
-  }
-
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-
-  if (minutes <= 0) {
-    return `${seconds}s`;
-  }
-
-  if (seconds === 0) {
-    return `${minutes} min`;
-  }
-
-  return `${minutes}m ${seconds}s`;
-}
-
 export default function SessionHistory({ sessions }) {
-  const totalSessions = sessions.length;
-  const totalMinutes = sessions.reduce((sum, session) => sum + session.minutes, 0);
-  const recentSessions = sessions.slice(0, 5);
+  const stats = getPracticeHistoryStats(sessions);
+  const recentSessions = sessions.slice(0, 8);
 
   return (
     <Fragment>
       <section className="panel-card session-history-card">
         <div className="section-heading-row">
           <div>
-            <h2>Practice History</h2>
+            <p className="eyebrow">Practice History</p>
+            <h2>Your practice summary</h2>
             <p className="section-copy">Completed sessions are saved locally on this device.</p>
           </div>
         </div>
 
-        <div className="history-stat-grid">
+        <div className="history-summary-grid">
+          <HistorySummaryCard value={stats.currentStreak} label="current streak" helper="days" accent={stats.currentStreak > 0 ? "green" : "muted"} />
+          <HistorySummaryCard value={stats.longestStreak} label="longest streak" helper="days" />
+          <HistorySummaryCard value={stats.thisWeekPracticeLabel} label="this week" helper="practice time" />
+          <HistorySummaryCard value={stats.averageRating} label="average feel" helper="saved rating" />
+        </div>
+
+        <div className="history-streak-card">
           <div>
-            <span>{totalSessions}</span>
-            <small>sessions</small>
+            <p className="eyebrow">Momentum</p>
+            <h3>{stats.currentStreak > 0 ? `${stats.currentStreak}-day streak` : "No active streak yet"}</h3>
+            <p>{stats.currentStreak > 0 ? "Keep it going with one completed session today." : "Complete a session today to start a new streak."}</p>
           </div>
-          <div>
-            <span>{totalMinutes}</span>
-            <small>actual minutes</small>
+
+          <div className="history-streak-meta">
+            <span>Total practice</span>
+            <strong>{stats.totalPracticeLabel}</strong>
+            <small>Last practiced: {stats.lastPracticedLabel}</small>
           </div>
         </div>
 
@@ -63,24 +43,46 @@ export default function SessionHistory({ sessions }) {
           <div className="history-list">
             {recentSessions.map((session) => (
               <article key={session.id} className="history-card">
-                <div>
-                  <strong>{session.songTitle}</strong>
-                  <span>{formatSessionDate(session.completedAt)}</span>
+                <div className="history-card-header">
+                  <div>
+                    <strong>{session.songTitle}</strong>
+                    {session.genre ? <small>{session.genre}</small> : null}
+                  </div>
+
+                  <span>{formatPracticeDate(session.completedAt)}</span>
                 </div>
 
-                <p>
-                  {formatDuration(session.elapsedSeconds, session.minutes)} actual
-                  {session.plannedMinutes ? ` • ${session.plannedMinutes} min planned` : ""} • {session.completedStepCount}/{session.totalStepCount} steps • {session.rating}
-                </p>
+                <div className="history-card-metrics">
+                  <span>{formatSessionActualDuration(session.elapsedSeconds, session.minutes)} actual</span>
+
+                  {session.plannedMinutes ? <span>{session.plannedMinutes} min planned</span> : null}
+
+                  <span>
+                    {session.completedStepCount}/{session.totalStepCount} steps
+                  </span>
+
+                  <span>{session.rating}</span>
+                </div>
               </article>
             ))}
           </div>
         ) : (
           <div className="history-empty">
-            <p>No completed sessions yet. Finish today’s plan to start building history.</p>
+            <h3>No completed sessions yet</h3>
+            <p>Finish today’s plan to start building streaks, weekly totals, and a real practice log.</p>
           </div>
         )}
       </section>
     </Fragment>
+  );
+}
+
+function HistorySummaryCard({ accent = "blue", helper, label, value }) {
+  return (
+    <article className={`history-summary-card history-summary-card--${accent}`}>
+      <strong>{value}</strong>
+      <span>{label}</span>
+      <small>{helper}</small>
+    </article>
   );
 }
