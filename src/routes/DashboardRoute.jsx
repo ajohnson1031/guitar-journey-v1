@@ -30,6 +30,7 @@ export default function DashboardRoute({
   plan,
   progressPercent,
   recordingDurationSeconds,
+  recordingInputLevel,
   recordingMessage,
   selectedSong,
   sessionHistory,
@@ -75,6 +76,7 @@ export default function DashboardRoute({
           plan={plan}
           progressPercent={progressPercent}
           recordingDurationSeconds={recordingDurationSeconds}
+          recordingInputLevel={recordingInputLevel}
           recordingMessage={recordingMessage}
           sessionHistory={sessionHistory}
           sessionMessage={sessionMessage}

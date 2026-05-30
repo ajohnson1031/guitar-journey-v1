@@ -151,6 +151,85 @@
   color: var(--green) !important;
 }
 
+.session-recording-level-card {
+  display: grid;
+  grid-template-columns: minmax(0, auto) minmax(120px, 1fr);
+  align-items: center;
+  gap: 10px;
+  margin-top: -4px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface-soft);
+  padding: 10px 12px;
+}
+
+.session-recording-level-copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.session-recording-level-copy span {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.session-recording-level-copy small {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+.session-recording-mini-meter {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 2px;
+  min-height: 24px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  padding: 3px;
+}
+
+.session-recording-mini-bar {
+  background: var(--surface-subtle);
+  opacity: 0.72;
+  transition:
+    background 80ms ease,
+    opacity 80ms ease,
+    transform 80ms ease;
+}
+
+.session-recording-mini-bar:first-of-type {
+  border-top-left-radius: 999px;
+  border-bottom-left-radius: 999px;
+}
+
+.session-recording-mini-bar:last-of-type {
+  border-top-right-radius: 999px;
+  border-bottom-right-radius: 999px;
+}
+
+.session-recording-mini-meter.is-level-low .session-recording-mini-bar.is-level-active {
+  background: var(--danger);
+  opacity: 1;
+  transform: scaleY(1.03);
+}
+
+.session-recording-mini-meter.is-level-medium .session-recording-mini-bar.is-level-active {
+  background: var(--mango);
+  opacity: 1;
+  transform: scaleY(1.03);
+}
+
+.session-recording-mini-meter.is-level-high .session-recording-mini-bar.is-level-active {
+  background: var(--green);
+  opacity: 1;
+  transform: scaleY(1.03);
+}
+
 .session-rating-block {
   display: grid;
   gap: 8px;
@@ -222,5 +301,11 @@
 
   50% {
     box-shadow: 0 0 0 6px rgba(248, 113, 113, 0.12);
+  }
+}
+
+@media (max-width: 560px) {
+  .session-recording-level-card {
+    grid-template-columns: 1fr;
   }
 }

@@ -96,12 +96,25 @@ function createFileWithText({ filename = "guitar-journey-progress.json", text })
   return file;
 }
 
+function createAppSettings(overrides = {}) {
+  return {
+    themeMode: "light",
+    audioInputSettings: {
+      inputMode: "standard",
+      echoCancellation: true,
+      noiseSuppression: true,
+      autoGainControl: true,
+    },
+    ...overrides,
+  };
+}
+
 function renderSettingsPanel(props = {}) {
   return render(
     <SettingsPanel
-      appSettings={{
-        themeMode: "light",
-      }}
+      appSettings={createAppSettings()}
+      onAudioInputModeChange={vi.fn()}
+      onAudioInputSettingChange={vi.fn()}
       onThemeModeChange={vi.fn()}
       {...props}
     />,
@@ -212,19 +225,48 @@ describe("SettingsPanel", () => {
     });
   });
 
-  it("renders informational audio settings defaults", () => {
+  it("renders standard audio settings locked to safe defaults", () => {
     renderSettingsPanel();
 
     expect(screen.getByLabelText("Audio input settings")).toBeTruthy();
     expect(screen.getByText("Audio settings")).toBeTruthy();
     expect(screen.getByText("Input mode")).toBeTruthy();
-    expect(screen.getByText("Standard")).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Standard/ }).className).toContain("is-selected");
     expect(screen.getByText("Echo cancellation")).toBeTruthy();
     expect(screen.getByText("Noise suppression")).toBeTruthy();
     expect(screen.getByText("Auto gain control")).toBeTruthy();
     expect(screen.getAllByText("On by default")).toHaveLength(3);
-    expect(screen.getAllByText("Browser managed")).toHaveLength(3);
-    expect(screen.getByText(/Advanced\/raw input mode is planned for chord recognition experiments/)).toBeTruthy();
+    expect(screen.getAllByText("Locked in Standard")).toHaveLength(3);
+    expect(screen.getByRole("button", { name: "Toggle Echo cancellation" }).disabled).toBe(true);
+    expect(screen.getByText(/Advanced\/raw input mode can adjust browser audio processing/)).toBeTruthy();
+  });
+
+  it("allows audio mode changes and advanced audio setting toggles", () => {
+    const onAudioInputModeChange = vi.fn();
+    const onAudioInputSettingChange = vi.fn();
+
+    renderSettingsPanel({
+      appSettings: createAppSettings({
+        audioInputSettings: {
+          inputMode: "advanced",
+          echoCancellation: true,
+          noiseSuppression: false,
+          autoGainControl: true,
+        },
+      }),
+      onAudioInputModeChange,
+      onAudioInputSettingChange,
+    });
+
+    expect(screen.getByRole("button", { name: /Advanced/ }).className).toContain("is-selected");
+    expect(screen.getByRole("button", { name: "Toggle Noise suppression" }).disabled).toBe(false);
+    expect(screen.getAllByText("Editable in Advanced")).toHaveLength(3);
+
+    fireEvent.click(screen.getByRole("button", { name: /Standard/ }));
+    expect(onAudioInputModeChange).toHaveBeenCalledWith("standard");
+
+    fireEvent.click(screen.getByRole("button", { name: "Toggle Noise suppression" }));
+    expect(onAudioInputSettingChange).toHaveBeenCalledWith("noiseSuppression", true);
   });
 
   it("starts and stops the microphone test from Settings", () => {

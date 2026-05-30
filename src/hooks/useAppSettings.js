@@ -3,7 +3,9 @@ import {
   THEME_MODE_DARK,
   THEME_MODE_LIGHT,
   THEME_MODE_SYSTEM,
+  createAudioInputSettings,
   loadAppSettings,
+  normalizeAudioInputMode,
   saveAppSettings,
 } from "../utils/settingsStorageUtils";
 
@@ -76,9 +78,43 @@ export default function useAppSettings() {
     }));
   }
 
+  function updateAudioInputMode(inputMode) {
+    setSettings((currentSettings) => {
+      const currentAudioInputSettings = createAudioInputSettings(currentSettings.audioInputSettings);
+
+      return {
+        ...currentSettings,
+        audioInputSettings: {
+          ...currentAudioInputSettings,
+          inputMode: normalizeAudioInputMode(inputMode),
+        },
+      };
+    });
+  }
+
+  function updateAudioInputSetting(settingName, value) {
+    setSettings((currentSettings) => {
+      const currentAudioInputSettings = createAudioInputSettings(currentSettings.audioInputSettings);
+
+      if (!(settingName in currentAudioInputSettings) || settingName === "inputMode") {
+        return currentSettings;
+      }
+
+      return {
+        ...currentSettings,
+        audioInputSettings: {
+          ...currentAudioInputSettings,
+          [settingName]: Boolean(value),
+        },
+      };
+    });
+  }
+
   return {
     settings,
     resolvedThemeMode,
+    updateAudioInputMode,
+    updateAudioInputSetting,
     updateThemeMode,
   };
 }

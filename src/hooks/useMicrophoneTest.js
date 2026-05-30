@@ -1,14 +1,12 @@
 import * as React from "react";
-import {
-  createMicrophoneTestSession,
-  normalizeMicrophoneLevel,
-} from "../utils/microphoneTestUtils";
+import { getAudioInputConstraints } from "../utils/settingsStorageUtils";
+import { createMicrophoneTestSession, normalizeMicrophoneLevel } from "../utils/microphoneTestUtils";
 
 const { useCallback, useEffect, useRef, useState } = React;
 
 const MICROPHONE_LEVEL_DECAY = 0.68;
 
-export default function useMicrophoneTest() {
+export default function useMicrophoneTest(audioInputSettings) {
   const animationFrameRef = useRef(null);
   const displayedLevelRef = useRef(0);
   const peakLevelRef = useRef(0);
@@ -74,7 +72,7 @@ export default function useMicrophoneTest() {
     setIsTestingMicrophone(true);
 
     try {
-      const session = await createMicrophoneTestSession();
+      const session = await createMicrophoneTestSession(getAudioInputConstraints(audioInputSettings));
 
       sessionRef.current = session;
       readMicrophoneLevel();
@@ -82,7 +80,7 @@ export default function useMicrophoneTest() {
       await cleanupSession();
       setMicrophoneTestMessage("Microphone access was unavailable or denied.");
     }
-  }, [cleanupSession, isTestingMicrophone, readMicrophoneLevel]);
+  }, [audioInputSettings, cleanupSession, isTestingMicrophone, readMicrophoneLevel]);
 
   useEffect(() => {
     return () => {

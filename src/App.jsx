@@ -21,6 +21,8 @@ export default function App() {
   const {
     settings: appSettings,
     resolvedThemeMode,
+    updateAudioInputMode,
+    updateAudioInputSetting,
     updateThemeMode,
   } = useAppSettings();
 
@@ -33,7 +35,9 @@ export default function App() {
     songSectionsRouteProps,
     transitionsRouteProps,
     weeklyPlanRouteProps,
-  } = useGuitarJourneyApp();
+  } = useGuitarJourneyApp({
+    audioInputSettings: appSettings.audioInputSettings,
+  });
 
   return (
     <Fragment>
@@ -59,7 +63,18 @@ export default function App() {
 
               <Route path="songs/edit/:songId" element={<EditSongRoute {...editSongRouteProps} />} />
 
-              <Route path="settings" element={<SettingsRoute appSettings={appSettings} onThemeModeChange={updateThemeMode} resolvedThemeMode={resolvedThemeMode} />} />
+              <Route
+                path="settings"
+                element={
+                  <SettingsRoute
+                    appSettings={appSettings}
+                    onAudioInputModeChange={updateAudioInputMode}
+                    onAudioInputSettingChange={updateAudioInputSetting}
+                    onThemeModeChange={updateThemeMode}
+                    resolvedThemeMode={resolvedThemeMode}
+                  />
+                }
+              />
 
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

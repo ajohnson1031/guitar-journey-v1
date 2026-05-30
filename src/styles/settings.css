@@ -273,16 +273,26 @@
   font-weight: 900;
 }
 
+.settings-audio-mode-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.settings-audio-mode-card {
+  min-height: 86px;
+}
+
 .settings-audio-setting-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
 
 .settings-audio-setting-card {
   display: grid;
   gap: 8px;
-  min-height: 132px;
+  min-height: 156px;
   border: 1px solid var(--border);
   border-radius: 16px;
   background: var(--surface);
@@ -316,8 +326,13 @@
   line-height: 1.4 !important;
 }
 
-.settings-audio-setting-card small {
+.settings-audio-setting-footer {
+  display: grid;
   align-self: end;
+  gap: 8px;
+}
+
+.settings-audio-setting-footer small {
   border: 1px solid var(--border);
   border-radius: 999px;
   background: var(--surface-soft);
@@ -327,6 +342,34 @@
   font-weight: 900;
   line-height: 1;
   text-align: center;
+}
+
+.settings-audio-toggle {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-soft);
+  color: var(--muted-strong);
+  padding: 8px 10px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.settings-audio-toggle:not(:disabled):hover {
+  border-color: var(--blue);
+  background: var(--blue-soft);
+  color: var(--blue);
+}
+
+.settings-audio-toggle.is-enabled:not(:disabled) {
+  border-color: var(--green);
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.settings-audio-toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
 }
 
 .microphone-level-meter {
@@ -361,7 +404,19 @@
   border-bottom-right-radius: 8px;
 }
 
-.microphone-level-meter.is-active .microphone-level-bar.is-level-active {
+.microphone-level-meter.is-active.is-level-low .microphone-level-bar.is-level-active {
+  background: var(--danger);
+  opacity: 1;
+  transform: scaleY(1.02);
+}
+
+.microphone-level-meter.is-active.is-level-medium .microphone-level-bar.is-level-active {
+  background: var(--mango);
+  opacity: 1;
+  transform: scaleY(1.02);
+}
+
+.microphone-level-meter.is-active.is-level-high .microphone-level-bar.is-level-active {
   background: var(--green);
   opacity: 1;
   transform: scaleY(1.02);
@@ -414,6 +469,7 @@ html[data-theme="light"] .microphone-test-button.is-testing:hover {
 @media (max-width: 760px) {
   .settings-option-grid,
   .settings-status-grid,
+  .settings-audio-mode-grid,
   .settings-audio-setting-grid {
     grid-template-columns: 1fr;
   }

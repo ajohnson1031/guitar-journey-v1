@@ -3,10 +3,16 @@ import { SettingsPanel } from "../components";
 
 const { Fragment } = React;
 
-export default function SettingsRoute({ appSettings, onThemeModeChange, resolvedThemeMode }) {
+export default function SettingsRoute({ appSettings, onAudioInputModeChange, onAudioInputSettingChange, onThemeModeChange, resolvedThemeMode }) {
   return (
     <Fragment>
-      <SettingsPanel appSettings={appSettings} onThemeModeChange={onThemeModeChange} resolvedThemeMode={resolvedThemeMode} />
+      <SettingsPanel
+        appSettings={appSettings}
+        onAudioInputModeChange={onAudioInputModeChange}
+        onAudioInputSettingChange={onAudioInputSettingChange}
+        onThemeModeChange={onThemeModeChange}
+        resolvedThemeMode={resolvedThemeMode}
+      />
     </Fragment>
   );
 }

@@ -1,77 +1,113 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  APP_SETTINGS_KEY,
+  AUDIO_INPUT_MODE_ADVANCED,
+  AUDIO_INPUT_MODE_STANDARD,
   DEFAULT_APP_SETTINGS,
-  THEME_MODE_DARK,
-  THEME_MODE_LIGHT,
-  THEME_MODE_SYSTEM,
-  clearAppSettings,
   createAppSettings,
-  loadAppSettings,
+  createAudioInputSettings,
+  getAudioInputConstraints,
+  getResolvedAudioInputSettings,
   migrateAppSettings,
+  normalizeAudioInputMode,
   normalizeThemeMode,
-  saveAppSettings,
 } from "../settingsStorageUtils";
 
 describe("settingsStorageUtils", () => {
-  beforeEach(() => {
-    window.localStorage.clear();
-  });
-
-  it("returns default app settings when localStorage is empty", () => {
-    expect(loadAppSettings()).toEqual(DEFAULT_APP_SETTINGS);
-  });
-
-  it("returns default app settings when stored JSON is invalid", () => {
-    window.localStorage.setItem(APP_SETTINGS_KEY, "{bad json");
-
-    expect(loadAppSettings()).toEqual(DEFAULT_APP_SETTINGS);
-  });
-
-  it("normalizes supported theme modes", () => {
-    expect(normalizeThemeMode("system")).toBe(THEME_MODE_SYSTEM);
-    expect(normalizeThemeMode("dark")).toBe(THEME_MODE_DARK);
-    expect(normalizeThemeMode("light")).toBe(THEME_MODE_LIGHT);
-    expect(normalizeThemeMode("LIGHT")).toBe(THEME_MODE_LIGHT);
-    expect(normalizeThemeMode("bad")).toBe(DEFAULT_APP_SETTINGS.themeMode);
-  });
-
-  it("migrates app settings into the current shape", () => {
-    expect(migrateAppSettings({ themeMode: "light", extra: true })).toEqual({
-      themeMode: THEME_MODE_LIGHT,
-      extra: true,
+  it("migrates legacy settings with default audio settings", () => {
+    const settings = migrateAppSettings({
+      themeMode: "light",
     });
 
-    expect(migrateAppSettings(null)).toEqual(DEFAULT_APP_SETTINGS);
+    expect(settings.themeMode).toBe("light");
+    expect(settings.audioInputSettings).toEqual(DEFAULT_APP_SETTINGS.audioInputSettings);
   });
 
-  it("creates app settings in the current shape", () => {
-    expect(createAppSettings({ themeMode: "system" })).toEqual({
-      themeMode: THEME_MODE_SYSTEM,
+  it("normalizes invalid theme and audio input modes", () => {
+    expect(normalizeThemeMode("bad-mode")).toBe(DEFAULT_APP_SETTINGS.themeMode);
+    expect(normalizeAudioInputMode("raw")).toBe(AUDIO_INPUT_MODE_STANDARD);
+  });
+
+  it("creates audio input settings with boolean fallbacks", () => {
+    const settings = createAudioInputSettings({
+      inputMode: AUDIO_INPUT_MODE_ADVANCED,
+      echoCancellation: false,
+      noiseSuppression: "nope",
+      autoGainControl: false,
+    });
+
+    expect(settings).toEqual({
+      inputMode: AUDIO_INPUT_MODE_ADVANCED,
+      echoCancellation: false,
+      noiseSuppression: true,
+      autoGainControl: false,
     });
   });
 
-  it("saves app settings to localStorage", () => {
-    saveAppSettings({ themeMode: "light" });
+  it("resolves standard mode to safe defaults even when saved advanced values are off", () => {
+    const settings = getResolvedAudioInputSettings({
+      inputMode: AUDIO_INPUT_MODE_STANDARD,
+      echoCancellation: false,
+      noiseSuppression: false,
+      autoGainControl: false,
+    });
 
-    expect(JSON.parse(window.localStorage.getItem(APP_SETTINGS_KEY))).toEqual({
-      themeMode: THEME_MODE_LIGHT,
+    expect(settings).toEqual({
+      inputMode: AUDIO_INPUT_MODE_STANDARD,
+      echoCancellation: true,
+      noiseSuppression: true,
+      autoGainControl: true,
     });
   });
 
-  it("loads saved app settings from localStorage", () => {
-    window.localStorage.setItem(APP_SETTINGS_KEY, JSON.stringify({ themeMode: "system" }));
-
-    expect(loadAppSettings()).toEqual({
-      themeMode: THEME_MODE_SYSTEM,
+  it("builds safe standard mode getUserMedia constraints", () => {
+    expect(
+      getAudioInputConstraints({
+        inputMode: AUDIO_INPUT_MODE_STANDARD,
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false,
+      }),
+    ).toEqual({
+      echoCancellation: true,
+      noiseSuppression: true,
+      autoGainControl: true,
     });
   });
 
-  it("clears app settings from localStorage", () => {
-    window.localStorage.setItem(APP_SETTINGS_KEY, JSON.stringify({ themeMode: "light" }));
+  it("builds advanced mode getUserMedia constraints from saved toggles", () => {
+    expect(
+      getAudioInputConstraints({
+        inputMode: AUDIO_INPUT_MODE_ADVANCED,
+        echoCancellation: false,
+        noiseSuppression: true,
+        autoGainControl: false,
+      }),
+    ).toEqual({
+      echoCancellation: false,
+      noiseSuppression: true,
+      autoGainControl: false,
+    });
+  });
 
-    clearAppSettings();
+  it("includes audio settings when creating app settings", () => {
+    const settings = createAppSettings({
+      themeMode: "system",
+      audioInputSettings: {
+        inputMode: AUDIO_INPUT_MODE_ADVANCED,
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: true,
+      },
+    });
 
-    expect(window.localStorage.getItem(APP_SETTINGS_KEY)).toBeNull();
+    expect(settings).toEqual({
+      themeMode: "system",
+      audioInputSettings: {
+        inputMode: AUDIO_INPUT_MODE_ADVANCED,
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: true,
+      },
+    });
   });
 });

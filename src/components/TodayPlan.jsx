@@ -1,11 +1,14 @@
 import * as React from "react";
 import { SESSION_RATINGS } from "../constants";
+import { getLevelBarStates, getLevelMeterTone } from "../utils/microphoneTestUtils";
 import { getPracticeHistoryStats, getTodayPracticeSummary } from "../utils/practiceStatsUtils";
 import { formatRecordingDuration } from "../utils/recordingStorageUtils";
 import { PauseIcon, RecordIcon, StopIcon } from "./AppIcons";
 import ConfirmDialog from "./ConfirmDialog";
 
 const { Fragment, useMemo, useRef, useState } = React;
+
+const SESSION_RECORDING_LEVEL_BAR_COUNT = 6;
 
 function formatElapsedTime(totalSeconds) {
   const safeSeconds = Math.max(0, Number(totalSeconds) || 0);
@@ -43,6 +46,7 @@ export default function TodayPlan({
   plan,
   progressPercent,
   recordingDurationSeconds = 0,
+  recordingInputLevel = 0,
   recordingMessage = "",
   sessionHistory = [],
   sessionMessage,
@@ -217,6 +221,8 @@ export default function TodayPlan({
             </p>
           ) : null}
 
+          {isSessionRecording ? <SessionRecordingLevelMeter isPaused={isSessionRecordingPaused} level={recordingInputLevel} /> : null}
+
           <div className="session-rating-block">
             <p className={`session-rating-label ${hasStartedSession ? "" : "is-muted"}`}>Rate this session</p>
 
@@ -287,6 +293,27 @@ function PracticeSummaryStat({ label, value }) {
     <div className="practice-summary-stat">
       <span>{label}</span>
       <strong>{value}</strong>
+    </div>
+  );
+}
+
+function SessionRecordingLevelMeter({ isPaused, level }) {
+  const meterLevel = isPaused ? 0 : level;
+  const levelBars = getLevelBarStates(meterLevel, SESSION_RECORDING_LEVEL_BAR_COUNT);
+  const tone = getLevelMeterTone(meterLevel, SESSION_RECORDING_LEVEL_BAR_COUNT);
+
+  return (
+    <div className="session-recording-level-card">
+      <div className="session-recording-level-copy">
+        <span>{isPaused ? "Input paused" : "Live input"}</span>
+        <small>{isPaused ? "Resume to monitor audio" : "Meter shows sound reaching the recorder"}</small>
+      </div>
+
+      <div className={`session-recording-mini-meter is-level-${tone}`} aria-label="Session recording input level" aria-live="polite">
+        {levelBars.map((isLevelActive, index) => (
+          <span key={index} className={`session-recording-mini-bar ${isLevelActive ? "is-level-active" : ""}`} />
+        ))}
+      </div>
     </div>
   );
 }
