@@ -8,6 +8,7 @@
 .genre-manager-form input,
 .genre-manager-form textarea,
 .custom-genre-content textarea,
+.custom-genre-name-input,
 .bpm-input-wrap input {
   width: 100%;
   border: 1px solid var(--border);
@@ -16,6 +17,10 @@
   color: var(--text);
   padding: 11px 12px;
   outline: none;
+}
+
+.genre-manager-form textarea {
+  min-height: 100px;
 }
 
 select,
@@ -59,6 +64,7 @@ select:focus,
 .genre-manager-form input:focus,
 .genre-manager-form textarea:focus,
 .custom-genre-content textarea:focus,
+.custom-genre-name-input:focus,
 .bpm-input-wrap input:focus {
   border-color: var(--blue);
 }

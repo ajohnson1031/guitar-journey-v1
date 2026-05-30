@@ -11,12 +11,27 @@
   padding: 24px;
 }
 
+.app-grid > * {
+  min-width: 0;
+}
+
 .sidebar,
 .main-content,
 .song-column {
   display: grid;
+  min-width: 0;
   align-content: start;
   gap: 18px;
+}
+
+.sidebar {
+  position: relative;
+  z-index: 2;
+}
+
+.main-content {
+  position: relative;
+  z-index: 1;
 }
 
 .top-grid {

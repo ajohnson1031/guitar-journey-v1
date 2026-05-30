@@ -4,8 +4,11 @@ import {
   Circle,
   Edit3,
   Pause,
+  PencilOff,
   Play,
+  Plus,
   RefreshCcw,
+  Save,
   Settings,
   Square,
   Star,
@@ -33,13 +36,16 @@ function createIcon(Component, defaultProps = {}) {
 const CheckIcon = createIcon(Check);
 const EditIcon = createIcon(Edit3);
 const PauseIcon = createIcon(Pause);
+const PencilOffIcon = createIcon(PencilOff);
 const PlayIcon = createIcon(Play, {
   fill: "currentColor",
 });
+const PlusIcon = createIcon(Plus);
 const RecordIcon = createIcon(Circle, {
   fill: "currentColor",
 });
 const ReplayIcon = createIcon(RefreshCcw);
+const SaveIcon = createIcon(Save);
 const SettingsIcon = createIcon(Settings);
 const StarIcon = createIcon(Star);
 const StopIcon = createIcon(Square, {
@@ -52,9 +58,12 @@ export {
   CheckIcon,
   EditIcon,
   PauseIcon,
+  PencilOffIcon,
   PlayIcon,
+  PlusIcon,
   RecordIcon,
   ReplayIcon,
+  SaveIcon,
   SettingsIcon,
   StarIcon,
   StopIcon,

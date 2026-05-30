@@ -1,7 +1,11 @@
 import * as React from "react";
+import { EditIcon, PencilOffIcon, PlusIcon, SaveIcon, TrashIcon } from "./AppIcons";
 import ConfirmDialog from "./ConfirmDialog";
 
 const { Fragment, useMemo, useState } = React;
+
+const MAX_GENRE_NAME_LENGTH = 32;
+const MAX_GENRE_DESCRIPTION_LENGTH = 100;
 
 function normalizeGenreName(value) {
   return String(value || "")
@@ -9,11 +13,22 @@ function normalizeGenreName(value) {
     .replace(/\s+/g, " ");
 }
 
+function normalizeGenreDescription(value) {
+  return String(value || "")
+    .trim()
+    .replace(/\s+/g, " ")
+    .slice(0, MAX_GENRE_DESCRIPTION_LENGTH);
+}
+
+function getLimitedInputValue(value, maxLength) {
+  return String(value || "").slice(0, maxLength);
+}
+
 export default function GenreManager({ builtInGenres, customGenres, songs, selectedPath, onAddGenre, onRemoveGenre, onUpdateGenre }) {
   const [genreName, setGenreName] = useState("");
   const [genreDescription, setGenreDescription] = useState("");
-  const [editingGenreName, setEditingGenreName] = useState("");
-  const [editingDescription, setEditingDescription] = useState("");
+  const [editingGenreOriginalName, setEditingGenreOriginalName] = useState("");
+  const [isGenreFormOpen, setIsGenreFormOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [pendingDeleteGenre, setPendingDeleteGenre] = useState(null);
 
@@ -21,8 +36,68 @@ export default function GenreManager({ builtInGenres, customGenres, songs, selec
     return new Set([...builtInGenres.map((genre) => genre.toLowerCase()), ...customGenres.map((genre) => genre.name.toLowerCase())]);
   }, [builtInGenres, customGenres]);
 
+  const editingGenre = useMemo(() => {
+    if (!editingGenreOriginalName) return null;
+
+    return customGenres.find((genre) => genre.name === editingGenreOriginalName) || null;
+  }, [customGenres, editingGenreOriginalName]);
+
+  const isEditingGenre = Boolean(editingGenre);
+
   function getSongCountForGenre(genre) {
     return songs.filter((song) => song.genre === genre).length;
+  }
+
+  function resetGenreForm() {
+    setGenreName("");
+    setGenreDescription("");
+    setEditingGenreOriginalName("");
+    setMessage("");
+  }
+
+  function closeGenreForm() {
+    setIsGenreFormOpen(false);
+    resetGenreForm();
+  }
+
+  function handleToggleAddGenreForm() {
+    if (isGenreFormOpen) {
+      closeGenreForm();
+      return;
+    }
+
+    resetGenreForm();
+    setIsGenreFormOpen(true);
+  }
+
+  function handleStartEditGenre(genre) {
+    setGenreName(getLimitedInputValue(genre.name, MAX_GENRE_NAME_LENGTH));
+    setGenreDescription(getLimitedInputValue(genre.description, MAX_GENRE_DESCRIPTION_LENGTH));
+    setEditingGenreOriginalName(genre.name);
+    setIsGenreFormOpen(true);
+    setMessage("");
+  }
+
+  function validateGenreName(nextGenreName, originalGenreName = "") {
+    const nextGenreKey = nextGenreName.toLowerCase();
+    const originalGenreKey = originalGenreName.toLowerCase();
+
+    if (!nextGenreName) {
+      setMessage("Enter a genre name.");
+      return false;
+    }
+
+    if (nextGenreName.length > MAX_GENRE_NAME_LENGTH) {
+      setMessage(`Genre names must be ${MAX_GENRE_NAME_LENGTH} characters or fewer.`);
+      return false;
+    }
+
+    if (nextGenreKey !== originalGenreKey && allGenreNames.has(nextGenreKey)) {
+      setMessage("That genre already exists.");
+      return false;
+    }
+
+    return true;
   }
 
   function handleAddGenre(event) {
@@ -30,47 +105,32 @@ export default function GenreManager({ builtInGenres, customGenres, songs, selec
 
     const nextGenreName = normalizeGenreName(genreName);
 
-    if (!nextGenreName) {
-      setMessage("Enter a genre name.");
-      return;
-    }
-
-    if (allGenreNames.has(nextGenreName.toLowerCase())) {
-      setMessage("That genre already exists.");
-      return;
-    }
+    if (!validateGenreName(nextGenreName)) return;
 
     onAddGenre({
       name: nextGenreName,
-      description: genreDescription.trim(),
+      description: normalizeGenreDescription(genreDescription),
     });
 
-    setGenreName("");
-    setGenreDescription("");
-    setMessage("");
+    closeGenreForm();
   }
 
-  function handleStartEditGenre(genre) {
-    setEditingGenreName(genre.name);
-    setEditingDescription(genre.description || "");
-    setMessage("");
-  }
+  function handleSaveGenre(event) {
+    event.preventDefault();
 
-  function handleCancelEditGenre() {
-    setEditingGenreName("");
-    setEditingDescription("");
-    setMessage("");
-  }
+    if (!editingGenre) return;
 
-  function handleSaveGenreDescription(genre) {
+    const nextGenreName = normalizeGenreName(genreName);
+
+    if (!validateGenreName(nextGenreName, editingGenre.name)) return;
+
     onUpdateGenre({
-      name: genre.name,
-      description: editingDescription.trim(),
+      originalName: editingGenre.name,
+      name: nextGenreName,
+      description: normalizeGenreDescription(genreDescription),
     });
 
-    setEditingGenreName("");
-    setEditingDescription("");
-    setMessage("");
+    closeGenreForm();
   }
 
   function handleRequestRemoveGenre(genre) {
@@ -85,6 +145,12 @@ export default function GenreManager({ builtInGenres, customGenres, songs, selec
     setMessage("");
   }
 
+  function handleRequestRemoveEditingGenre() {
+    if (!editingGenre) return;
+
+    handleRequestRemoveGenre(editingGenre);
+  }
+
   function handleCancelRemoveGenre() {
     setPendingDeleteGenre(null);
   }
@@ -94,90 +160,60 @@ export default function GenreManager({ builtInGenres, customGenres, songs, selec
 
     onRemoveGenre(pendingDeleteGenre.name);
     setPendingDeleteGenre(null);
+
+    if (editingGenreOriginalName === pendingDeleteGenre.name) {
+      closeGenreForm();
+      return;
+    }
+
     setMessage("");
   }
 
   return (
     <Fragment>
       <section className="panel-card genre-manager-card">
-        <h2>Manage Genres</h2>
+        <div className="genre-manager-header">
+          <h2>Manage Genres</h2>
 
-        <form className="genre-manager-form" onSubmit={handleAddGenre}>
-          <input
-            type="text"
-            value={genreName}
-            placeholder="Add genre..."
-            onChange={(event) => {
-              setGenreName(event.target.value);
-              setMessage("");
-            }}
-          />
-
-          <textarea
-            value={genreDescription}
-            placeholder="Genre description..."
-            rows="3"
-            onChange={(event) => {
-              setGenreDescription(event.target.value);
-              setMessage("");
-            }}
-          />
-
-          <button type="submit" className="selected-button">
-            Add
+          <button
+            type="button"
+            className={`genre-add-toggle-button ${isGenreFormOpen ? "is-open" : ""}`}
+            title={isGenreFormOpen ? "Hide Genre Form" : "Add Genre"}
+            aria-label={isGenreFormOpen ? "Hide Genre Form" : "Add Genre"}
+            aria-expanded={isGenreFormOpen}
+            onClick={handleToggleAddGenreForm}
+          >
+            <PlusIcon />
           </button>
-        </form>
+        </div>
 
         {customGenres.length ? (
           <div className="custom-genre-list">
             {customGenres.map((genre) => {
               const songCount = getSongCountForGenre(genre.name);
               const isSelected = selectedPath === genre.name;
-              const isEditing = editingGenreName === genre.name;
+              const isBeingEdited = editingGenreOriginalName === genre.name;
 
               return (
-                <div key={genre.name} className={`custom-genre-row ${isSelected ? "is-active" : ""} ${isEditing ? "is-editing" : ""}`}>
+                <div key={genre.name} className={`custom-genre-row ${isSelected ? "is-active" : ""} ${isBeingEdited ? "is-editing" : ""}`}>
                   <div className="custom-genre-content">
-                    <strong>{genre.name}</strong>
-
-                    {isEditing ? (
-                      <textarea value={editingDescription} rows="3" placeholder="Genre description..." onChange={(event) => setEditingDescription(event.target.value)} />
-                    ) : (
-                      <p>{genre.description}</p>
-                    )}
-
-                    <div className="custom-genre-footer">
-                      <small>
-                        {songCount} song{songCount === 1 ? "" : "s"}
-                      </small>
-
-                      <div className="custom-genre-actions">
-                        {isEditing ? (
-                          <Fragment>
-                            <button type="button" className="ghost-button genre-action-button" onClick={handleCancelEditGenre}>
-                              Cancel
-                            </button>
-
-                            <button type="button" className="selected-button genre-action-button" onClick={() => handleSaveGenreDescription(genre)}>
-                              Save
-                            </button>
-                          </Fragment>
-                        ) : (
-                          <button type="button" className="ghost-button genre-action-button" onClick={() => handleStartEditGenre(genre)}>
-                            Edit
-                          </button>
-                        )}
-
-                        <button
-                          type="button"
-                          className="danger-button genre-remove-button"
-                          title={`Remove ${genre.name}`}
-                          aria-label={`Remove ${genre.name}`}
-                          onClick={() => handleRequestRemoveGenre(genre)}
-                        >
-                          ×
-                        </button>
+                    <div className="custom-genre-header">
+                      <div className="custom-genre-title">
+                        <strong>{genre.name}</strong>
+                        <small>
+                          {songCount} song{songCount === 1 ? "" : "s"}
+                        </small>
                       </div>
+
+                      <button
+                        type="button"
+                        className="ghost-button genre-icon-button"
+                        title={`Edit ${genre.name}`}
+                        aria-label={`Edit ${genre.name}`}
+                        onClick={() => handleStartEditGenre(genre)}
+                      >
+                        <EditIcon />
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -187,6 +223,68 @@ export default function GenreManager({ builtInGenres, customGenres, songs, selec
         ) : (
           <p className="genre-manager-empty">No custom genres yet.</p>
         )}
+
+        {isGenreFormOpen ? (
+          <form className="genre-manager-form" onSubmit={isEditingGenre ? handleSaveGenre : handleAddGenre}>
+            <input
+              type="text"
+              value={genreName}
+              maxLength={MAX_GENRE_NAME_LENGTH}
+              placeholder="Genre name..."
+              onChange={(event) => {
+                setGenreName(getLimitedInputValue(event.target.value, MAX_GENRE_NAME_LENGTH));
+                setMessage("");
+              }}
+            />
+
+            <textarea
+              value={genreDescription}
+              maxLength={MAX_GENRE_DESCRIPTION_LENGTH}
+              placeholder={`Genre description (${MAX_GENRE_DESCRIPTION_LENGTH} chars max)...`}
+              rows="3"
+              onChange={(event) => {
+                setGenreDescription(getLimitedInputValue(event.target.value, MAX_GENRE_DESCRIPTION_LENGTH));
+                setMessage("");
+              }}
+            />
+
+            {isEditingGenre ? (
+              <div className="genre-form-actions">
+                <button
+                  type="button"
+                  className="danger-button genre-form-action-button"
+                  title="Cancel edit"
+                  aria-label={`Cancel editing ${editingGenre.name}`}
+                  onClick={closeGenreForm}
+                >
+                  <PencilOffIcon />
+                </button>
+
+                <button
+                  type="button"
+                  className="danger-button genre-form-action-button"
+                  title={`Remove ${editingGenre.name}`}
+                  aria-label={`Remove ${editingGenre.name}`}
+                  onClick={handleRequestRemoveEditingGenre}
+                >
+                  <TrashIcon />
+                </button>
+
+                <button type="submit" className="selected-button genre-form-action-button" title="Save genre" aria-label={`Save ${editingGenre.name}`}>
+                  <SaveIcon />
+                </button>
+              </div>
+            ) : (
+              <button type="submit" className="selected-button genre-add-submit-button">
+                Add
+              </button>
+            )}
+
+            <small className="genre-description-count">
+              {genreDescription.length}/{MAX_GENRE_DESCRIPTION_LENGTH}
+            </small>
+          </form>
+        ) : null}
 
         {message ? <p className="genre-manager-message">{message}</p> : null}
       </section>
