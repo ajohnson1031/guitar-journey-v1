@@ -14,6 +14,24 @@
   font-weight: 900;
 }
 
+.progress-badge.is-empty {
+  border-color: rgba(248, 113, 113, 0.45);
+  background: rgba(248, 113, 113, 0.1);
+  color: #fca5a5;
+}
+
+.progress-badge.is-active {
+  border-color: var(--blue);
+  background: var(--blue-soft);
+  color: #7dd3fc;
+}
+
+.progress-badge.is-complete {
+  border-color: var(--green);
+  background: var(--green-soft);
+  color: var(--green);
+}
+
 .session-length-card {
   display: grid;
   gap: 10px;
@@ -48,7 +66,21 @@
   height: 100%;
   border-radius: inherit;
   background: var(--blue);
-  transition: width 180ms ease;
+  transition:
+    width 180ms ease,
+    background 180ms ease;
+}
+
+.progress-fill.is-empty {
+  background: #f87171;
+}
+
+.progress-fill.is-active {
+  background: var(--blue);
+}
+
+.progress-fill.is-complete {
+  background: var(--green);
 }
 
 .step-card span,

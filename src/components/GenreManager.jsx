@@ -1,6 +1,7 @@
 import * as React from "react";
+import ConfirmDialog from "./ConfirmDialog";
 
-const { useMemo, useState } = React;
+const { Fragment, useMemo, useState } = React;
 
 function normalizeGenreName(value) {
   return String(value || "")
@@ -14,6 +15,7 @@ export default function GenreManager({ builtInGenres, customGenres, songs, selec
   const [editingGenreName, setEditingGenreName] = useState("");
   const [editingDescription, setEditingDescription] = useState("");
   const [message, setMessage] = useState("");
+  const [pendingDeleteGenre, setPendingDeleteGenre] = useState(null);
 
   const allGenreNames = useMemo(() => {
     return new Set([...builtInGenres.map((genre) => genre.toLowerCase()), ...customGenres.map((genre) => genre.name.toLowerCase())]);
@@ -71,7 +73,7 @@ export default function GenreManager({ builtInGenres, customGenres, songs, selec
     setMessage("");
   }
 
-  function handleRemoveGenre(genre) {
+  function handleRequestRemoveGenre(genre) {
     const songCount = getSongCountForGenre(genre.name);
 
     if (songCount > 0) {
@@ -79,101 +81,126 @@ export default function GenreManager({ builtInGenres, customGenres, songs, selec
       return;
     }
 
-    onRemoveGenre(genre.name);
+    setPendingDeleteGenre(genre);
+    setMessage("");
+  }
+
+  function handleCancelRemoveGenre() {
+    setPendingDeleteGenre(null);
+  }
+
+  function handleConfirmRemoveGenre() {
+    if (!pendingDeleteGenre) return;
+
+    onRemoveGenre(pendingDeleteGenre.name);
+    setPendingDeleteGenre(null);
     setMessage("");
   }
 
   return (
-    <section className="panel-card genre-manager-card">
-      <h2>Manage Genres</h2>
+    <Fragment>
+      <section className="panel-card genre-manager-card">
+        <h2>Manage Genres</h2>
 
-      <form className="genre-manager-form" onSubmit={handleAddGenre}>
-        <input
-          type="text"
-          value={genreName}
-          placeholder="Add genre..."
-          onChange={(event) => {
-            setGenreName(event.target.value);
-            setMessage("");
-          }}
-        />
+        <form className="genre-manager-form" onSubmit={handleAddGenre}>
+          <input
+            type="text"
+            value={genreName}
+            placeholder="Add genre..."
+            onChange={(event) => {
+              setGenreName(event.target.value);
+              setMessage("");
+            }}
+          />
 
-        <textarea
-          value={genreDescription}
-          placeholder="Genre description..."
-          rows="3"
-          onChange={(event) => {
-            setGenreDescription(event.target.value);
-            setMessage("");
-          }}
-        />
+          <textarea
+            value={genreDescription}
+            placeholder="Genre description..."
+            rows="3"
+            onChange={(event) => {
+              setGenreDescription(event.target.value);
+              setMessage("");
+            }}
+          />
 
-        <button type="submit" className="selected-button">
-          Add
-        </button>
-      </form>
+          <button type="submit" className="selected-button">
+            Add
+          </button>
+        </form>
 
-      {customGenres.length ? (
-        <div className="custom-genre-list">
-          {customGenres.map((genre) => {
-            const songCount = getSongCountForGenre(genre.name);
-            const isSelected = selectedPath === genre.name;
-            const isEditing = editingGenreName === genre.name;
+        {customGenres.length ? (
+          <div className="custom-genre-list">
+            {customGenres.map((genre) => {
+              const songCount = getSongCountForGenre(genre.name);
+              const isSelected = selectedPath === genre.name;
+              const isEditing = editingGenreName === genre.name;
 
-            return (
-              <div key={genre.name} className={`custom-genre-row ${isSelected ? "is-active" : ""} ${isEditing ? "is-editing" : ""}`}>
-                <div className="custom-genre-content">
-                  <strong>{genre.name}</strong>
+              return (
+                <div key={genre.name} className={`custom-genre-row ${isSelected ? "is-active" : ""} ${isEditing ? "is-editing" : ""}`}>
+                  <div className="custom-genre-content">
+                    <strong>{genre.name}</strong>
 
-                  {isEditing ? (
-                    <textarea value={editingDescription} rows="3" placeholder="Genre description..." onChange={(event) => setEditingDescription(event.target.value)} />
-                  ) : (
-                    <p>{genre.description}</p>
-                  )}
+                    {isEditing ? (
+                      <textarea value={editingDescription} rows="3" placeholder="Genre description..." onChange={(event) => setEditingDescription(event.target.value)} />
+                    ) : (
+                      <p>{genre.description}</p>
+                    )}
 
-                  <div className="custom-genre-footer">
-                    <small>
-                      {songCount} song{songCount === 1 ? "" : "s"}
-                    </small>
+                    <div className="custom-genre-footer">
+                      <small>
+                        {songCount} song{songCount === 1 ? "" : "s"}
+                      </small>
 
-                    <div className="custom-genre-actions">
-                      {isEditing ? (
-                        <>
-                          <button type="button" className="ghost-button genre-action-button" onClick={handleCancelEditGenre}>
-                            Cancel
+                      <div className="custom-genre-actions">
+                        {isEditing ? (
+                          <Fragment>
+                            <button type="button" className="ghost-button genre-action-button" onClick={handleCancelEditGenre}>
+                              Cancel
+                            </button>
+
+                            <button type="button" className="selected-button genre-action-button" onClick={() => handleSaveGenreDescription(genre)}>
+                              Save
+                            </button>
+                          </Fragment>
+                        ) : (
+                          <button type="button" className="ghost-button genre-action-button" onClick={() => handleStartEditGenre(genre)}>
+                            Edit
                           </button>
+                        )}
 
-                          <button type="button" className="selected-button genre-action-button" onClick={() => handleSaveGenreDescription(genre)}>
-                            Save
-                          </button>
-                        </>
-                      ) : (
-                        <button type="button" className="ghost-button genre-action-button" onClick={() => handleStartEditGenre(genre)}>
-                          Edit
+                        <button
+                          type="button"
+                          className="danger-button genre-remove-button"
+                          title={`Remove ${genre.name}`}
+                          aria-label={`Remove ${genre.name}`}
+                          onClick={() => handleRequestRemoveGenre(genre)}
+                        >
+                          ×
                         </button>
-                      )}
-
-                      <button
-                        type="button"
-                        className="danger-button genre-remove-button"
-                        title={`Remove ${genre.name}`}
-                        aria-label={`Remove ${genre.name}`}
-                        onClick={() => handleRemoveGenre(genre)}
-                      >
-                        ×
-                      </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <p className="genre-manager-empty">No custom genres yet.</p>
-      )}
+              );
+            })}
+          </div>
+        ) : (
+          <p className="genre-manager-empty">No custom genres yet.</p>
+        )}
 
-      {message ? <p className="genre-manager-message">{message}</p> : null}
-    </section>
+        {message ? <p className="genre-manager-message">{message}</p> : null}
+      </section>
+
+      <ConfirmDialog
+        isOpen={Boolean(pendingDeleteGenre)}
+        title="Delete custom genre?"
+        message={pendingDeleteGenre ? `Delete “${pendingDeleteGenre.name}”? This removes the custom genre from this device.` : ""}
+        confirmLabel="Delete Genre"
+        cancelLabel="Keep Genre"
+        tone="danger"
+        onCancel={handleCancelRemoveGenre}
+        onConfirm={handleConfirmRemoveGenre}
+      />
+    </Fragment>
   );
 }

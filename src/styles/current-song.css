@@ -182,14 +182,29 @@
 }
 
 .mastered-icon-button {
-  color: var(--green);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(10, 10, 11, 0.5);
+  color: var(--muted);
+}
+
+.mastered-icon-button svg {
+  fill: none;
 }
 
 .mastered-icon-button:hover {
-  border-color: var(--green);
-  background: var(--green-soft);
+  border-color: var(--mango);
+  background: rgba(255, 179, 71, 0.12);
+  color: var(--mango);
 }
 
-.mastered-icon-button.mastered-button {
-  color: var(--green);
+.mastered-icon-button.is-mastered {
+  border-color: var(--mango);
+  border-radius: 999px;
+  background: rgba(255, 179, 71, 0.14);
+  color: var(--mango);
+}
+
+.mastered-icon-button.is-mastered svg {
+  fill: currentColor;
 }

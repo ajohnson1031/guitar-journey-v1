@@ -11,6 +11,13 @@ function formatElapsedTime(totalSeconds) {
   return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
+function getProgressState(progressPercent) {
+  if (progressPercent >= 100) return "is-complete";
+  if (progressPercent > 0) return "is-active";
+
+  return "is-empty";
+}
+
 export default function TodayPlan({
   actualPracticeMinutes,
   canCompleteSession,
@@ -29,6 +36,8 @@ export default function TodayPlan({
   sessionMinutes,
   sessionRating,
 }) {
+  const progressState = getProgressState(progressPercent);
+
   return (
     <Fragment>
       <section className="session-card">
@@ -37,7 +46,7 @@ export default function TodayPlan({
             <p className="eyebrow">Session</p>
             <h2>Today’s Plan</h2>
           </div>
-          <div className="progress-badge">{progressPercent}%</div>
+          <div className={`progress-badge ${progressState}`}>{progressPercent}%</div>
         </div>
 
         <div className="session-length-card">
@@ -56,7 +65,7 @@ export default function TodayPlan({
         </div>
 
         <div className="progress-track">
-          <div className="progress-fill" style={{ width: `${progressPercent}%` }} />
+          <div className={`progress-fill ${progressState}`} style={{ width: `${progressPercent}%` }} />
         </div>
 
         <div className="step-list">
