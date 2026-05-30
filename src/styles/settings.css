@@ -234,6 +234,101 @@
   font-weight: 900;
 }
 
+.settings-audio-options-panel {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface-soft);
+  padding: 12px 14px;
+}
+
+.settings-audio-options-copy {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.settings-audio-options-copy strong {
+  color: var(--text);
+  font-size: 14px;
+}
+
+.settings-audio-options-copy p {
+  margin: 6px 0 0 !important;
+  color: var(--muted);
+  font-size: 13px !important;
+  line-height: 1.45 !important;
+}
+
+.settings-audio-options-copy > span {
+  flex: 0 0 auto;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted-strong);
+  padding: 5px 9px;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.settings-audio-setting-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.settings-audio-setting-card {
+  display: grid;
+  gap: 8px;
+  min-height: 132px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  padding: 12px;
+}
+
+.settings-audio-setting-header {
+  display: grid;
+  gap: 4px;
+}
+
+.settings-audio-setting-header span {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.settings-audio-setting-header strong {
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+.settings-audio-setting-card p {
+  margin: 0 !important;
+  color: var(--muted);
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+}
+
+.settings-audio-setting-card small {
+  align-self: end;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-soft);
+  color: var(--muted-strong);
+  padding: 5px 8px;
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1;
+  text-align: center;
+}
+
 .microphone-level-meter {
   display: grid;
   grid-column: 1 / -1;
@@ -310,15 +405,23 @@ html[data-theme="light"] .microphone-test-button.is-testing:hover {
   color: var(--danger);
 }
 
+@media (max-width: 980px) {
+  .settings-audio-setting-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 760px) {
   .settings-option-grid,
-  .settings-status-grid {
+  .settings-status-grid,
+  .settings-audio-setting-grid {
     grid-template-columns: 1fr;
   }
 
   .settings-action-panel,
   .settings-audio-test-panel,
-  .settings-backup-panel {
+  .settings-backup-panel,
+  .settings-audio-options-copy {
     display: grid;
     grid-template-columns: 1fr;
   }
@@ -331,5 +434,9 @@ html[data-theme="light"] .microphone-test-button.is-testing:hover {
 
   .settings-backup-actions {
     display: grid;
+  }
+
+  .settings-audio-options-copy > span {
+    justify-self: start;
   }
 }

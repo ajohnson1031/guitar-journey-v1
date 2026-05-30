@@ -212,6 +212,21 @@ describe("SettingsPanel", () => {
     });
   });
 
+  it("renders informational audio settings defaults", () => {
+    renderSettingsPanel();
+
+    expect(screen.getByLabelText("Audio input settings")).toBeTruthy();
+    expect(screen.getByText("Audio settings")).toBeTruthy();
+    expect(screen.getByText("Input mode")).toBeTruthy();
+    expect(screen.getByText("Standard")).toBeTruthy();
+    expect(screen.getByText("Echo cancellation")).toBeTruthy();
+    expect(screen.getByText("Noise suppression")).toBeTruthy();
+    expect(screen.getByText("Auto gain control")).toBeTruthy();
+    expect(screen.getAllByText("On by default")).toHaveLength(3);
+    expect(screen.getAllByText("Browser managed")).toHaveLength(3);
+    expect(screen.getByText(/Advanced\/raw input mode is planned for chord recognition experiments/)).toBeTruthy();
+  });
+
   it("starts and stops the microphone test from Settings", () => {
     renderSettingsPanel();
 
