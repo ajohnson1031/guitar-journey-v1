@@ -53,20 +53,27 @@ describe("microphoneTestUtils", () => {
     expect(getLevelBarStates(1, 5)).toEqual([true, true, true, true, true]);
   });
 
+  it("does not highlight bars for near-silence", () => {
+    expect(getLevelBarStates(0.01, 10)).toEqual([false, false, false, false, false, false, false, false, false, false]);
+    expect(getLevelMeterTone(0.01, 10)).toBe("idle");
+  });
+
   it("falls back to at least one bar", () => {
     expect(getLevelBarStates(1, 0)).toEqual([true]);
   });
 
   it("returns active bar counts for level thresholds", () => {
     expect(getActiveLevelBarCount(0, 10)).toBe(0);
-    expect(getActiveLevelBarCount(0.01, 10)).toBe(1);
+    expect(getActiveLevelBarCount(0.01, 10)).toBe(0);
+    expect(getActiveLevelBarCount(0.08, 10)).toBe(1);
     expect(getActiveLevelBarCount(0.2, 10)).toBe(2);
     expect(getActiveLevelBarCount(0.31, 10)).toBe(4);
   });
 
   it("maps audio meter tone from active segments", () => {
     expect(getLevelMeterTone(0, 10)).toBe("idle");
-    expect(getLevelMeterTone(0.01, 10)).toBe("low");
+    expect(getLevelMeterTone(0.01, 10)).toBe("idle");
+    expect(getLevelMeterTone(0.08, 10)).toBe("low");
     expect(getLevelMeterTone(0.2, 10)).toBe("medium");
     expect(getLevelMeterTone(0.3, 10)).toBe("medium");
     expect(getLevelMeterTone(0.31, 10)).toBe("high");

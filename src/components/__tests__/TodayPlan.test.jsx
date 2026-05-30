@@ -142,7 +142,26 @@ describe("TodayPlan", () => {
     expect(screen.getByRole("button", { name: "Easy" }).disabled).toBe(true);
   });
 
-  it("renders a miniature recording input meter while recording", () => {
+  it("hides the live input meter until a session is active", () => {
+    renderTodayPlan();
+
+    expect(screen.queryByText("Live input")).toBeNull();
+    expect(screen.queryByLabelText("Session recording input level")).toBeNull();
+  });
+
+  it("renders a live input meter during an active session before recording starts", () => {
+    renderTodayPlan({
+      elapsedSessionSeconds: 5,
+      isSessionTimerRunning: true,
+      recordingInputLevel: 0.7,
+    });
+
+    expect(screen.getByText("Live input")).toBeTruthy();
+    expect(screen.getByText("Monitoring")).toBeTruthy();
+    expect(screen.getByLabelText("Session recording input level").className).toContain("is-level-high");
+  });
+
+  it("renders the miniature recording input meter while recording", () => {
     renderTodayPlan({
       elapsedSessionSeconds: 5,
       isSessionRecording: true,
@@ -152,22 +171,7 @@ describe("TodayPlan", () => {
     });
 
     expect(screen.getByText("Live input")).toBeTruthy();
-    expect(screen.getByText("Meter shows sound reaching the recorder")).toBeTruthy();
+    expect(screen.getByText("Recording")).toBeTruthy();
     expect(screen.getByLabelText("Session recording input level").className).toContain("is-level-high");
-  });
-
-  it("renders the miniature recording input meter as paused when recording is paused", () => {
-    renderTodayPlan({
-      elapsedSessionSeconds: 5,
-      isSessionRecording: true,
-      isSessionRecordingPaused: true,
-      isSessionTimerRunning: false,
-      recordingDurationSeconds: 4,
-      recordingInputLevel: 0.7,
-    });
-
-    expect(screen.getByText("Input paused")).toBeTruthy();
-    expect(screen.getByText("Resume to monitor audio")).toBeTruthy();
-    expect(screen.getByLabelText("Session recording input level").className).toContain("is-level-idle");
   });
 });

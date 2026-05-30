@@ -156,8 +156,7 @@
 }
 
 .settings-placeholder-row,
-.settings-action-panel,
-.settings-note-card {
+.settings-action-panel {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -188,14 +187,12 @@
   grid-template-columns: minmax(0, 1fr) auto;
 }
 
-.settings-action-panel strong,
-.settings-note-card strong {
+.settings-action-panel strong {
   color: var(--text);
   font-size: 14px;
 }
 
-.settings-action-panel p,
-.settings-note-card p {
+.settings-action-panel p {
   margin: 6px 0 0 !important;
   color: var(--muted);
   font-size: 13px !important;
@@ -224,14 +221,23 @@
 .settings-backup-message {
   grid-column: 1 / -1;
   margin: 0 !important;
-  border: 1px solid var(--border);
   border-radius: 999px;
-  background: var(--surface);
-  color: var(--muted-strong) !important;
   padding: 8px 10px;
   text-align: center;
   font-size: 12px !important;
   font-weight: 900;
+}
+
+.settings-backup-message--success {
+  border: 1px solid rgba(52, 211, 153, 0.32);
+  background: var(--green-soft);
+  color: var(--green) !important;
+}
+
+.settings-backup-message--danger {
+  border: 1px solid var(--danger);
+  background: var(--danger-soft);
+  color: var(--danger-text) !important;
 }
 
 .settings-audio-options-panel {
@@ -386,8 +392,8 @@
 }
 
 .microphone-level-bar {
-  background: var(--surface-subtle);
-  opacity: 0.72;
+  background: rgba(209, 213, 219, 0.46);
+  opacity: 1;
   transition:
     background 80ms ease,
     opacity 80ms ease,
@@ -406,19 +412,16 @@
 
 .microphone-level-meter.is-active.is-level-low .microphone-level-bar.is-level-active {
   background: var(--danger);
-  opacity: 1;
   transform: scaleY(1.02);
 }
 
 .microphone-level-meter.is-active.is-level-medium .microphone-level-bar.is-level-active {
   background: var(--mango);
-  opacity: 1;
   transform: scaleY(1.02);
 }
 
 .microphone-level-meter.is-active.is-level-high .microphone-level-bar.is-level-active {
   background: var(--green);
-  opacity: 1;
   transform: scaleY(1.02);
 }
 
@@ -447,9 +450,35 @@ html[data-theme="light"] .microphone-test-button.is-testing:hover {
   filter: brightness(0.92);
 }
 
-.settings-note-card {
+.settings-local-audio-note {
   display: grid;
-  justify-content: stretch;
+  margin-top: 4px;
+  grid-template-columns: max-content minmax(0, 1fr);
+  column-gap: 0.35rem;
+  align-items: start;
+}
+
+.settings-local-audio-note strong {
+  color: var(--text);
+  font-size: 14px;
+}
+
+.settings-local-audio-note strong::before {
+  content: "*";
+  margin-right: 1px;
+  color: var(--danger-text);
+}
+
+.settings-local-audio-note p {
+  margin: 0 !important;
+  color: var(--muted);
+  font-size: 13px !important;
+  line-height: 1.45 !important;
+}
+
+.settings-danger-text {
+  color: var(--danger-text);
+  font-weight: 900;
 }
 
 .settings-inline-message {
@@ -463,6 +492,11 @@ html[data-theme="light"] .microphone-test-button.is-testing:hover {
 @media (max-width: 980px) {
   .settings-audio-setting-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .settings-local-audio-note {
+    grid-template-columns: 1fr;
+    row-gap: 4px;
   }
 }
 

@@ -15,9 +15,19 @@ import {
 
 import "./App.css";
 
-const { Fragment } = React;
+const { Fragment, useState } = React;
 
 export default function App() {
+  const [appRuntimeKey, setAppRuntimeKey] = useState(0);
+
+  function handleProgressImported() {
+    setAppRuntimeKey((currentKey) => currentKey + 1);
+  }
+
+  return <AppRuntime key={appRuntimeKey} onProgressImported={handleProgressImported} />;
+}
+
+function AppRuntime({ onProgressImported }) {
   const {
     settings: appSettings,
     resolvedThemeMode,
@@ -70,6 +80,7 @@ export default function App() {
                     appSettings={appSettings}
                     onAudioInputModeChange={updateAudioInputMode}
                     onAudioInputSettingChange={updateAudioInputSetting}
+                    onProgressImported={onProgressImported}
                     onThemeModeChange={updateThemeMode}
                     resolvedThemeMode={resolvedThemeMode}
                   />
