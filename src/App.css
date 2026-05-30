@@ -7,6 +7,7 @@
 @import "./styles/typography.css";
 @import "./styles/buttons.css";
 @import "./styles/forms.css";
+@import "./styles/confirm-dialog.css";
 @import "./styles/sidebar-genre-paths.css";
 @import "./styles/genre-manager.css";
 @import "./styles/local-progress.css";

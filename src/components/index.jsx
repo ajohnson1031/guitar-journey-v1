@@ -1,5 +1,6 @@
 export { default as AppSidebar } from "./AppSidebar";
 export { default as ChordDiagram } from "./ChordDiagram";
+export { default as ConfirmDialog } from "./ConfirmDialog";
 export { default as CurrentSongCard } from "./CurrentSongCard";
 export { default as CustomSongForm } from "./CustomSongForm";
 export { default as DashboardNav } from "./DashboardNav";
