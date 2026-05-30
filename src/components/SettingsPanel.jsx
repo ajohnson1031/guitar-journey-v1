@@ -1,8 +1,9 @@
 import * as React from "react";
+import { THEME_MODE_OPTIONS } from "../utils/settingsStorageUtils";
 
 const { Fragment } = React;
 
-export default function SettingsPanel() {
+export default function SettingsPanel({ appSettings, onThemeModeChange, resolvedThemeMode }) {
   return (
     <Fragment>
       <section className="panel-card settings-panel">
@@ -18,11 +19,25 @@ export default function SettingsPanel() {
           <SettingsSection
             title="Appearance"
             eyebrow="Theme"
-            description="Light and dark mode will live here next, including a system preference option."
+            description="Choose how the app should look. System follows this device’s light or dark preference."
           >
+            <div className="settings-option-grid" role="group" aria-label="Theme mode">
+              {THEME_MODE_OPTIONS.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  className={`settings-option-card ${appSettings.themeMode === option.id ? "is-selected" : ""}`}
+                  onClick={() => onThemeModeChange(option.id)}
+                >
+                  <span>{option.label}</span>
+                  <small>{option.description}</small>
+                </button>
+              ))}
+            </div>
+
             <div className="settings-placeholder-row">
-              <span>Theme mode</span>
-              <strong>Coming next</strong>
+              <span>Active theme</span>
+              <strong>{resolvedThemeMode === "light" ? "Light" : "Dark"}</strong>
             </div>
           </SettingsSection>
 

@@ -7,7 +7,7 @@
   gap: 12px;
   border: 1px solid var(--border);
   border-radius: 20px;
-  background: rgba(10, 10, 11, 0.42);
+  background: var(--surface);
   padding: 14px;
 }
 
@@ -29,7 +29,7 @@
 .strumming-playback-cue {
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: rgba(10, 10, 11, 0.5);
+  background: var(--surface-subtle);
   color: var(--muted-strong);
   padding: 7px 10px;
   font-size: 12px;
@@ -45,14 +45,15 @@
 }
 
 .strumming-playback-cue.is-down {
-  border-color: rgba(244, 244, 245, 0.38);
-  color: #f4f4f5;
+  border-color: var(--border-strong);
+  background: var(--strum-down-soft);
+  color: var(--strum-down);
 }
 
 .strumming-playback-cue.is-up {
-  border-color: rgba(255, 239, 150, 0.6);
-  background: rgba(255, 239, 150, 0.1);
-  color: #ffef96;
+  border-color: var(--strum-up);
+  background: var(--strum-up-soft);
+  color: var(--strum-up);
 }
 
 .strumming-playback-cue.is-rest {
@@ -79,7 +80,7 @@
   gap: 7px;
   border: 1px solid var(--border);
   border-radius: 16px;
-  background: rgba(10, 10, 11, 0.42);
+  background: var(--surface-soft);
   padding: 8px 6px;
   text-align: center;
   transition:
@@ -97,9 +98,9 @@
 }
 
 .strumming-playback-slot.is-active.is-up {
-  border-color: #ffef96;
-  background: rgba(255, 239, 150, 0.1);
-  box-shadow: 0 0 0 5px rgba(255, 239, 150, 0.08);
+  border-color: var(--strum-up);
+  background: var(--strum-up-soft);
+  box-shadow: 0 0 0 5px rgba(245, 158, 11, 0.08);
 }
 
 .strumming-playback-slot-stack {
@@ -113,18 +114,18 @@
   display: grid;
   min-height: 28px;
   place-items: center;
-  color: #52525b;
+  color: var(--muted);
   font-size: 26px;
   font-weight: 900;
   line-height: 1;
 }
 
 .strumming-playback-slot.is-down .strumming-playback-slot-direction {
-  color: #f4f4f5;
+  color: var(--strum-down);
 }
 
 .strumming-playback-slot.is-up .strumming-playback-slot-direction {
-  color: #ffef96;
+  color: var(--strum-up);
 }
 
 .strumming-playback-slot-beat {

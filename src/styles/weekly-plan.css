@@ -16,12 +16,12 @@
   gap: 8px;
   border: 1px solid var(--border);
   border-radius: 22px;
-  background: rgba(10, 10, 11, 0.42);
+  background: var(--surface);
   padding: 16px;
 }
 
 .weekly-focus-card span {
-  color: var(--muted);
+  color: var(--eyebrow);
   font-size: 11px;
   font-weight: 900;
   letter-spacing: 0.1em;
@@ -31,6 +31,7 @@
 .weekly-focus-card strong {
   display: block;
   margin-top: 6px;
+  color: var(--text);
   font-size: 26px;
   line-height: 1;
   letter-spacing: -0.04em;
@@ -52,7 +53,7 @@
 .weekly-summary-grid div {
   border: 1px solid var(--border);
   border-radius: 18px;
-  background: rgba(10, 10, 11, 0.42);
+  background: var(--surface);
   padding: 14px;
 }
 
@@ -82,7 +83,7 @@
   gap: 14px;
   border: 1px solid var(--border);
   border-radius: 20px;
-  background: rgba(10, 10, 11, 0.42);
+  background: var(--surface);
   padding: 14px;
 }
 
@@ -93,7 +94,7 @@
   border: 1px solid var(--blue);
   border-radius: 18px;
   background: var(--blue-soft);
-  color: #7dd3fc;
+  color: var(--blue);
   font-size: 13px;
   font-weight: 900;
 }
@@ -107,6 +108,7 @@
 
 .weekly-day-title-row h3 {
   margin: 0;
+  color: var(--text);
   font-size: 18px;
   letter-spacing: -0.03em;
 }
@@ -115,7 +117,7 @@
   flex: 0 0 auto;
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: rgba(10, 10, 11, 0.5);
+  background: var(--surface-subtle);
   color: var(--muted-strong);
   padding: 5px 9px;
   font-size: 12px;

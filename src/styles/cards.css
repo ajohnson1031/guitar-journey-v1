@@ -9,7 +9,7 @@
   border: 1px solid var(--border);
   border-radius: 28px;
   background: var(--panel);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
+  box-shadow: var(--shadow);
   backdrop-filter: blur(18px);
 }
 
@@ -31,5 +31,5 @@
 .info-card {
   border: 1px solid var(--border);
   border-radius: 20px;
-  background: rgba(10, 10, 11, 0.42);
+  background: var(--surface);
 }

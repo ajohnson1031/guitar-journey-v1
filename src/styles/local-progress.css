@@ -18,7 +18,7 @@
 .history-stat-grid div {
   border: 1px solid var(--border);
   border-radius: 18px;
-  background: rgba(10, 10, 11, 0.42);
+  background: var(--surface);
   padding: 12px;
 }
 

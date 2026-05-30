@@ -38,7 +38,7 @@
   gap: 8px;
   border: 1px solid var(--border);
   border-radius: 18px;
-  background: rgba(10, 10, 11, 0.42);
+  background: var(--diagram-bg);
   padding: 12px;
 }
 
@@ -62,31 +62,31 @@
 }
 
 .guitar-string {
-  stroke: rgba(244, 244, 245, 0.62);
+  stroke: var(--diagram-string);
   stroke-width: 1.6;
   stroke-linecap: round;
 }
 
 .guitar-fret {
-  stroke: rgba(244, 244, 245, 0.48);
+  stroke: var(--diagram-fret);
   stroke-width: 1.6;
   stroke-linecap: round;
 }
 
 .guitar-nut {
-  stroke: rgba(244, 244, 245, 0.9);
+  stroke: var(--diagram-nut);
   stroke-width: 5;
   stroke-linecap: round;
 }
 
 .open-string {
   fill: transparent;
-  stroke: #7dd3fc;
+  stroke: var(--diagram-open-string);
   stroke-width: 2;
 }
 
 .string-marker {
-  fill: #fca5a5;
+  fill: var(--diagram-muted-string);
   font-size: 17px;
   font-weight: 900;
   text-anchor: middle;
@@ -100,7 +100,7 @@
 }
 
 .finger-label {
-  fill: #ffffff;
+  fill: var(--diagram-finger-label);
   font-size: 10px;
   font-weight: 900;
   text-anchor: middle;

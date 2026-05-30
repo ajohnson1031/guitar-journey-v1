@@ -7,12 +7,12 @@
   gap: 14px;
   border: 1px solid var(--border);
   border-radius: 20px;
-  background: rgba(10, 10, 11, 0.42);
+  background: var(--surface);
   padding: 14px;
 }
 
 .strumming-builder > div:first-child > span {
-  color: var(--muted);
+  color: var(--eyebrow);
   font-size: 11px;
   font-weight: 900;
   letter-spacing: 0.1em;
@@ -61,18 +61,18 @@
   display: grid;
   min-height: 34px;
   place-items: center;
-  color: #52525b;
+  color: var(--muted);
   font-size: 28px;
   font-weight: 900;
   line-height: 1;
 }
 
 .strumming-direction.is-active.is-down {
-  color: #f4f4f5;
+  color: var(--strum-down);
 }
 
 .strumming-direction.is-active.is-up {
-  color: #ffef96;
+  color: var(--strum-up);
 }
 
 .strumming-beat-row span {
@@ -118,7 +118,7 @@
   gap: 7px;
   border: 1px solid var(--border);
   border-radius: 16px;
-  background: rgba(10, 10, 11, 0.42);
+  background: var(--surface-soft);
   padding: 8px;
 }
 
@@ -140,7 +140,7 @@
   place-items: center;
   border: 1px solid var(--border);
   border-radius: 14px;
-  background: rgba(10, 10, 11, 0.5);
+  background: var(--surface-subtle);
   color: var(--text);
   font-size: 28px;
   font-weight: 900;
@@ -157,22 +157,22 @@
 }
 
 .strum-down-button {
-  color: #f4f4f5;
+  color: var(--strum-down);
 }
 
 .strum-up-button,
 .strum-up {
-  color: #ffef96;
+  color: var(--strum-up);
 }
 
 .strum-up-button.is-selected {
-  border-color: #ffef96;
-  background: rgba(255, 239, 150, 0.12);
-  color: #ffef96;
+  border-color: var(--strum-up);
+  background: var(--strum-up-soft);
+  color: var(--strum-up);
 }
 
 .strum-up-button:hover {
-  border-color: #ffef96;
+  border-color: var(--strum-up);
 }
 
 .inline-strumming-display {
@@ -185,7 +185,7 @@
 .inline-strumming-display strong {
   display: inline-grid;
   place-items: center;
-  color: #f4f4f5;
+  color: var(--strum-down);
   font-size: 22px;
   font-weight: 900;
   line-height: 1;
