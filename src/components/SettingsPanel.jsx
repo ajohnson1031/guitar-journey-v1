@@ -2,17 +2,18 @@ import * as React from "react";
 import { useMicrophoneTest } from "../hooks";
 import { getAudioRecordingSupportDetails } from "../utils/audioRecordingUtils";
 import { getLevelBarStates, getLevelMeterTone } from "../utils/microphoneTestUtils";
-import { applyProgressBackup, createProgressBackup, getProgressBackupSummary, parseProgressBackup } from "../utils/progressBackupUtils";
+import { applyProgressBackupWithRecordings, createProgressBackupWithRecordings, getProgressBackupSummary, parseProgressBackup } from "../utils/progressBackupUtils";
 import { getRecordingStorageSummary } from "../utils/recordingStorageUtils";
 import {
   AUDIO_INPUT_MODE_ADVANCED,
   AUDIO_INPUT_MODE_OPTIONS,
   createAudioInputSettings,
   getResolvedAudioInputSettings,
-  THEME_MODE_OPTIONS,
   loadAppSettings,
+  THEME_MODE_OPTIONS,
 } from "../utils/settingsStorageUtils";
 import { loadStoredProgress } from "../utils/storageUtils";
+import { DownloadIcon, MicIcon, MicOffIcon, UploadIcon } from "./AppIcons";
 import ConfirmDialog from "./ConfirmDialog";
 
 const { Fragment, useEffect, useMemo, useRef, useState } = React;
@@ -59,12 +60,12 @@ function downloadJsonFile(filename, data) {
   window.URL.revokeObjectURL(url);
 }
 
-function saveImportSuccessFlash() {
+function saveImportSuccessFlash(message = "Progress imported successfully.") {
   try {
     window.sessionStorage.setItem(
       IMPORT_SUCCESS_FLASH_KEY,
       JSON.stringify({
-        message: "Progress imported successfully.",
+        message,
         tone: "success",
       }),
     );
@@ -113,7 +114,7 @@ export default function SettingsPanel({ appSettings, onAudioInputModeChange, onA
   useEffect(() => {
     let isMounted = true;
 
-    getRecordingStorageSummary()
+    getRecordingStorageSummary(loadStoredProgress().sessionHistory)
       .then((summary) => {
         if (isMounted) {
           setRecordingStorageSummary(summary);
@@ -154,7 +155,6 @@ export default function SettingsPanel({ appSettings, onAudioInputModeChange, onA
     };
   }, [backupMessage]);
 
-
   function showBackupMessage(message, tone = "success") {
     setBackupMessage(message);
     setBackupMessageTone(tone);
@@ -171,15 +171,23 @@ export default function SettingsPanel({ appSettings, onAudioInputModeChange, onA
     void startMicrophoneTest();
   }
 
-  function handleExportProgress() {
+  async function handleExportProgress() {
     try {
-      const backup = createProgressBackup({
+      const backup = await createProgressBackupWithRecordings({
         appSettings: loadAppSettings(),
         progress: loadStoredProgress(),
       });
 
+      const recordingCount = backup.recordings?.items?.length || 0;
+
       downloadJsonFile(getProgressBackupFilename(), backup);
-      showBackupMessage("Progress backup exported. Recordings are not included yet.", "success");
+
+      showBackupMessage(
+        recordingCount
+          ? `Progress backup exported with ${recordingCount} recording${recordingCount === 1 ? "" : "s"}.`
+          : "Progress backup exported. No recordings were found to include.",
+        "success",
+      );
     } catch {
       showBackupMessage("Progress backup could not be exported.", "danger");
     }
@@ -217,12 +225,17 @@ export default function SettingsPanel({ appSettings, onAudioInputModeChange, onA
     setPendingImportSummary(null);
   }
 
-  function handleConfirmImport() {
+  async function handleConfirmImport() {
     if (!pendingImportBackup) return;
 
     try {
-      applyProgressBackup(pendingImportBackup);
-      saveImportSuccessFlash();
+      const importedBackup = await applyProgressBackupWithRecordings(pendingImportBackup);
+
+      saveImportSuccessFlash(
+        importedBackup.restoredRecordingCount
+          ? `Progress imported successfully with ${importedBackup.restoredRecordingCount} recording${importedBackup.restoredRecordingCount === 1 ? "" : "s"}.`
+          : "Progress imported successfully.",
+      );
       setPendingImportBackup(null);
       setPendingImportSummary(null);
       onProgressImported();
@@ -293,16 +306,18 @@ export default function SettingsPanel({ appSettings, onAudioInputModeChange, onA
             <div className="settings-action-panel settings-backup-panel">
               <div>
                 <strong>Progress backup</strong>
-                <p>Export or import custom songs, custom genres, mastered songs, completed steps, session history, and settings. Audio recordings are not included yet.</p>
+                <p>Export or import custom songs, custom genres, mastered songs, completed steps, session history, settings, and local audio recordings.</p>
               </div>
 
               <div className="settings-backup-actions">
                 <button type="button" className="ghost-button" onClick={handleChooseImportFile}>
-                  Import Progress
+                  <UploadIcon />
+                  <span>Import</span>
                 </button>
 
                 <button type="button" className="selected-button" onClick={handleExportProgress}>
-                  Export Progress
+                  <DownloadIcon />
+                  <span>Export</span>
                 </button>
               </div>
 
@@ -324,8 +339,7 @@ export default function SettingsPanel({ appSettings, onAudioInputModeChange, onA
                 <div>
                   <strong>Audio settings</strong>
                   <p>
-                    Standard mode is tuned for normal practice recording. Advanced/raw input mode can adjust browser audio processing for testing and chord-recognition
-                    experiments.
+                    Standard mode is tuned for normal practice recording. Advanced/raw input mode can adjust browser audio processing for testing and chord-recognition experiments.
                   </p>
                 </div>
 
@@ -383,7 +397,17 @@ export default function SettingsPanel({ appSettings, onAudioInputModeChange, onA
                 onClick={handleMicrophoneTestClick}
                 disabled={!audioSupport.isSupported}
               >
-                {isTestingMicrophone ? "Stop Test" : "Test Microphone"}
+                {isTestingMicrophone ? (
+                  <>
+                    <MicOffIcon />
+                    <span>Stop</span>
+                  </>
+                ) : (
+                  <>
+                    <MicIcon />
+                    <span>Test</span>
+                  </>
+                )}
               </button>
 
               <MicrophoneLevelMeter isActive={isTestingMicrophone} level={microphoneLevel} />
@@ -416,7 +440,7 @@ export default function SettingsPanel({ appSettings, onAudioInputModeChange, onA
         title="Import progress backup?"
         message={
           pendingImportSummary
-            ? `This will replace the current local progress with: ${pendingImportSummary.label}. Practice recordings are not included in this import.`
+            ? `This will replace the current local progress with: ${pendingImportSummary.label}. ${pendingImportSummary.recordingCount ? "Included recordings will be restored locally." : "No recordings are included in this backup."}`
             : "This will replace the current local progress on this device."
         }
         confirmLabel="Import Progress"

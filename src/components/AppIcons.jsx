@@ -1,8 +1,12 @@
-import * as React from "react";
 import {
   Check,
   Circle,
+  CloudDownload,
+  CloudUpload,
+  Download,
   Edit3,
+  Mic,
+  MicOff,
   Pause,
   PencilOff,
   Play,
@@ -13,8 +17,10 @@ import {
   Square,
   Star,
   Trash2,
+  Upload,
   X,
 } from "lucide-react";
+import * as React from "react";
 
 const { memo } = React;
 
@@ -34,7 +40,12 @@ function createIcon(Component, defaultProps = {}) {
 }
 
 const CheckIcon = createIcon(Check);
+const CloudDownloadIcon = createIcon(CloudDownload);
+const CloudUploadIcon = createIcon(CloudUpload);
+const DownloadIcon = createIcon(Download);
 const EditIcon = createIcon(Edit3);
+const MicIcon = createIcon(Mic);
+const MicOffIcon = createIcon(MicOff);
 const PauseIcon = createIcon(Pause);
 const PencilOffIcon = createIcon(PencilOff);
 const PlayIcon = createIcon(Play, {
@@ -52,11 +63,17 @@ const StopIcon = createIcon(Square, {
   fill: "currentColor",
 });
 const TrashIcon = createIcon(Trash2);
+const UploadIcon = createIcon(Upload);
 const XIcon = createIcon(X);
 
 export {
   CheckIcon,
+  CloudDownloadIcon,
+  CloudUploadIcon,
+  DownloadIcon,
   EditIcon,
+  MicIcon,
+  MicOffIcon,
   PauseIcon,
   PencilOffIcon,
   PlayIcon,
@@ -68,5 +85,6 @@ export {
   StarIcon,
   StopIcon,
   TrashIcon,
+  UploadIcon,
   XIcon,
 };

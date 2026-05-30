@@ -24,13 +24,62 @@ vi.mock("../../utils/audioRecordingUtils", () => ({
 }));
 
 vi.mock("../../utils/recordingStorageUtils", () => ({
+  getAllRecordings: () =>
+    Promise.resolve([
+      {
+        blob: new Blob(["test audio"], { type: "audio/webm" }),
+        createdAt: "2026-05-30T12:00:00.000Z",
+        durationSeconds: 12,
+        mimeType: "audio/webm",
+        recordingId: "recording-test",
+        sessionId: "session-test",
+        songId: "song-test",
+        songTitle: "Test Song",
+      },
+    ]),
   getRecordingStorageSummary: () =>
     Promise.resolve({
       count: 2,
       isSupported: true,
       label: "2 recordings",
     }),
+  saveRecording: () =>
+    Promise.resolve({
+      recordingId: "recording-test",
+    }),
 }));
+
+vi.mock("../../utils/progressBackupUtils", async () => {
+  const actual = await vi.importActual("../../utils/progressBackupUtils");
+
+  return {
+    ...actual,
+    createProgressBackupWithRecordings: vi.fn(async ({ appSettings, progress }) =>
+      actual.createProgressBackup({
+        appSettings,
+        progress,
+        recordings: [
+          {
+            recordingId: "recording-test",
+            sessionId: "session-test",
+            songId: "song-test",
+            songTitle: "Test Song",
+            durationSeconds: 12,
+            mimeType: "audio/webm",
+            createdAt: "2026-05-30T12:00:00.000Z",
+            updatedAt: "2026-05-30T12:00:00.000Z",
+            dataEncoding: "base64",
+            data: window.btoa("test audio"),
+          },
+        ],
+      }),
+    ),
+    applyProgressBackupWithRecordings: vi.fn(async (backup) => ({
+      ...actual.applyProgressBackup(backup),
+      restoredRecordingCount: 0,
+    })),
+  };
+});
 
 function createProgress(overrides = {}) {
   return {
@@ -110,15 +159,7 @@ function createAppSettings(overrides = {}) {
 }
 
 function renderSettingsPanel(props = {}) {
-  return render(
-    <SettingsPanel
-      appSettings={createAppSettings()}
-      onAudioInputModeChange={vi.fn()}
-      onAudioInputSettingChange={vi.fn()}
-      onThemeModeChange={vi.fn()}
-      {...props}
-    />,
-  );
+  return render(<SettingsPanel appSettings={createAppSettings()} onAudioInputModeChange={vi.fn()} onAudioInputSettingChange={vi.fn()} onThemeModeChange={vi.fn()} {...props} />);
 }
 
 describe("SettingsPanel", () => {
@@ -150,15 +191,15 @@ describe("SettingsPanel", () => {
     renderSettingsPanel();
 
     expect(screen.getByText("Progress backup")).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Import Progress" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Export Progress" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Import" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Export" })).toBeTruthy();
     expect(await screen.findByText("2 recordings")).toBeTruthy();
   });
 
   it("exports a JSON progress backup and shows a success message", async () => {
     renderSettingsPanel();
 
-    fireEvent.click(screen.getByRole("button", { name: "Export Progress" }));
+    fireEvent.click(screen.getByRole("button", { name: /Export/ }));
 
     await waitFor(() => {
       expect(window.URL.createObjectURL).toHaveBeenCalledWith(expect.any(Blob));
@@ -166,7 +207,7 @@ describe("SettingsPanel", () => {
       expect(window.URL.revokeObjectURL).toHaveBeenCalledWith("blob:guitar-journey-progress");
     });
 
-    expect(screen.getByText("Progress backup exported. Recordings are not included yet.")).toBeTruthy();
+    expect(screen.getByText(/Progress backup exported/)).toBeTruthy();
   });
 
   it("shows a validation message for invalid import JSON", async () => {
@@ -230,7 +271,7 @@ describe("SettingsPanel", () => {
 
     expect(screen.getByLabelText("Audio input settings")).toBeTruthy();
     expect(screen.getByText("Audio settings")).toBeTruthy();
-    expect(screen.getByText("Input mode")).toBeTruthy();
+    expect(screen.getByRole("group", { name: "Audio input mode" })).toBeTruthy();
     expect(screen.getByRole("button", { name: /Standard/ }).className).toContain("is-selected");
     expect(screen.getByText("Echo cancellation")).toBeTruthy();
     expect(screen.getByText("Noise suppression")).toBeTruthy();
@@ -272,7 +313,7 @@ describe("SettingsPanel", () => {
   it("starts and stops the microphone test from Settings", () => {
     renderSettingsPanel();
 
-    fireEvent.click(screen.getByRole("button", { name: "Test Microphone" }));
+    fireEvent.click(screen.getByRole("button", { name: "Test" }));
 
     expect(mockMicrophoneTestState.startMicrophoneTest).toHaveBeenCalled();
   });

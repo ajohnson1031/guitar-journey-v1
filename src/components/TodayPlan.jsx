@@ -3,7 +3,7 @@ import { SESSION_RATINGS } from "../constants";
 import { getLevelBarStates, getLevelMeterTone } from "../utils/microphoneTestUtils";
 import { getPracticeHistoryStats, getTodayPracticeSummary } from "../utils/practiceStatsUtils";
 import { formatRecordingDuration } from "../utils/recordingStorageUtils";
-import { PauseIcon, RecordIcon, StopIcon } from "./AppIcons";
+import { MicIcon, PauseIcon, RecordIcon, StopIcon } from "./AppIcons";
 import ConfirmDialog from "./ConfirmDialog";
 
 const { Fragment, useMemo, useRef, useState } = React;
@@ -203,7 +203,13 @@ export default function TodayPlan({
                   <RecordIcon />
                 </button>
 
-                <button type="button" className="session-icon-button session-stop-button" title="Stop and Discard Session" aria-label="Stop and Discard Session" onClick={handleRequestStopSession}>
+                <button
+                  type="button"
+                  className="session-icon-button session-stop-button"
+                  title="Stop and Discard Session"
+                  aria-label="Stop and Discard Session"
+                  onClick={handleRequestStopSession}
+                >
                   <StopIcon />
                 </button>
               </div>
@@ -306,7 +312,9 @@ function SessionRecordingLevelMeter({ isRecording, level }) {
   return (
     <div className="session-recording-level-card">
       <div className="session-recording-level-header">
-        <span>Live input</span>
+        <span className="session-recording-level-icon" aria-label="Live input">
+          <MicIcon />
+        </span>
         <small>{statusLabel}</small>
       </div>
 

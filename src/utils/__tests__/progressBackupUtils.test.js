@@ -113,6 +113,7 @@ describe("progressBackupUtils", () => {
     expect(summary.sessionCount).toBe(1);
     expect(summary.customSongCount).toBe(1);
     expect(summary.customGenreCount).toBe(1);
+    expect(summary.recordingCount).toBe(0);
     expect(summary.label).toBe("1 session • 1 custom song • 1 custom genre");
   });
 

@@ -156,7 +156,7 @@ describe("TodayPlan", () => {
       recordingInputLevel: 0.7,
     });
 
-    expect(screen.getByText("Live input")).toBeTruthy();
+    expect(screen.getByLabelText("Live input")).toBeTruthy();
     expect(screen.getByText("Monitoring")).toBeTruthy();
     expect(screen.getByLabelText("Session recording input level").className).toContain("is-level-high");
   });
@@ -170,7 +170,7 @@ describe("TodayPlan", () => {
       recordingInputLevel: 0.7,
     });
 
-    expect(screen.getByText("Live input")).toBeTruthy();
+    expect(screen.getByLabelText("Live input")).toBeTruthy();
     expect(screen.getByText("Recording")).toBeTruthy();
     expect(screen.getByLabelText("Session recording input level").className).toContain("is-level-high");
   });

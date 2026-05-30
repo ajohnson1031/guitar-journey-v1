@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { DEFAULT_PROGRESS } from "../constants";
-import { deleteRecording, saveRecording } from "../utils/recordingStorageUtils";
+import { clearRecordings, deleteRecording, saveRecording } from "../utils/recordingStorageUtils";
 import { clearStoredProgress, loadStoredProgress, saveStoredProgress } from "../utils/storageUtils";
 import usePracticeProgress from "./usePracticeProgress";
 import useSessionRecorder from "./useSessionRecorder";
@@ -388,7 +388,7 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
     return true;
   }
 
-  function resetLocalProgress() {
+  async function resetLocalProgress() {
     clearStoredProgress();
 
     resetPracticeProgress();
@@ -399,7 +399,8 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
     setSessionMessage("");
     setIsSessionTimerRunning(false);
     setElapsedSessionSeconds(0);
-    void discardRecording();
+    await discardRecording();
+    await clearRecordings().catch(() => false);
     stopInputMonitoring();
     goToDashboard();
   }

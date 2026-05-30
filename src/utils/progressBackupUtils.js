@@ -1,15 +1,30 @@
 import { STORAGE_VERSION } from "../constants";
+import { createRecordingBackupRecords, restoreRecordingBackupRecords } from "./recordingExportUtils";
+import { clearRecordings } from "./recordingStorageUtils";
 import { createAppSettings, saveAppSettings } from "./settingsStorageUtils";
 import { createStoredProgress, migrateStoredProgress, saveStoredProgress } from "./storageUtils";
 
 const PROGRESS_BACKUP_TYPE = "guitar-journey-progress";
-const PROGRESS_BACKUP_VERSION = 1;
+const PROGRESS_BACKUP_VERSION = 2;
 
 function isPlainObject(value) {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
-function createProgressBackup({ appSettings, exportedAt = new Date().toISOString(), progress }) {
+function createRecordingBackupEnvelope(recordings = []) {
+  const safeRecordings = Array.isArray(recordings) ? recordings : [];
+
+  return {
+    included: safeRecordings.length > 0,
+    count: safeRecordings.length,
+    items: safeRecordings,
+    note: safeRecordings.length
+      ? "Practice recordings are included as base64 audio data and can be restored into IndexedDB on import."
+      : "No practice recordings were found to include in this backup.",
+  };
+}
+
+function createProgressBackup({ appSettings, exportedAt = new Date().toISOString(), progress, recordings = [] }) {
   return {
     backupType: PROGRESS_BACKUP_TYPE,
     backupVersion: PROGRESS_BACKUP_VERSION,
@@ -17,11 +32,19 @@ function createProgressBackup({ appSettings, exportedAt = new Date().toISOString
     storageVersion: STORAGE_VERSION,
     appSettings: createAppSettings(appSettings),
     progress: createStoredProgress(progress),
-    recordings: {
-      included: false,
-      note: "Practice recordings are stored separately in IndexedDB and are not included in this progress backup.",
-    },
+    recordings: createRecordingBackupEnvelope(recordings),
   };
+}
+
+async function createProgressBackupWithRecordings({ appSettings, exportedAt = new Date().toISOString(), progress }) {
+  const recordings = await createRecordingBackupRecords();
+
+  return createProgressBackup({
+    appSettings,
+    exportedAt,
+    progress,
+    recordings,
+  });
 }
 
 function parseProgressBackup(value) {
@@ -47,6 +70,8 @@ function parseProgressBackup(value) {
     throw new Error("This backup file is missing progress data.");
   }
 
+  const recordingItems = Array.isArray(parsedValue.recordings?.items) ? parsedValue.recordings.items : [];
+
   return {
     backupType: PROGRESS_BACKUP_TYPE,
     backupVersion: Number(parsedValue.backupVersion) || PROGRESS_BACKUP_VERSION,
@@ -56,13 +81,12 @@ function parseProgressBackup(value) {
     progress: migrateStoredProgress(parsedValue.progress),
     recordings: isPlainObject(parsedValue.recordings)
       ? {
-          included: Boolean(parsedValue.recordings.included),
+          included: Boolean(parsedValue.recordings.included || recordingItems.length),
+          count: Number(parsedValue.recordings.count) || recordingItems.length,
+          items: recordingItems,
           note: String(parsedValue.recordings.note || ""),
         }
-      : {
-          included: false,
-          note: "",
-        },
+      : createRecordingBackupEnvelope(),
   };
 }
 
@@ -72,6 +96,8 @@ function getProgressBackupSummary(backup) {
   const customSongCount = progress.customSongs.length;
   const customGenreCount = progress.customGenres.length;
   const sessionCount = progress.sessionHistory.length;
+  const recordingCount = parsedBackup.recordings.items.length;
+  const recordingLabel = recordingCount ? ` • ${recordingCount} recording${recordingCount === 1 ? "" : "s"}` : "";
 
   return {
     backupType: parsedBackup.backupType,
@@ -79,10 +105,11 @@ function getProgressBackupSummary(backup) {
     exportedAt: parsedBackup.exportedAt,
     customGenreCount,
     customSongCount,
+    recordingCount,
     sessionCount,
     label: `${sessionCount} session${sessionCount === 1 ? "" : "s"} • ${customSongCount} custom song${customSongCount === 1 ? "" : "s"} • ${customGenreCount} custom genre${
       customGenreCount === 1 ? "" : "s"
-    }`,
+    }${recordingLabel}`,
   };
 }
 
@@ -95,11 +122,26 @@ function applyProgressBackup(backup) {
   return parsedBackup;
 }
 
+async function applyProgressBackupWithRecordings(backup) {
+  const parsedBackup = applyProgressBackup(backup);
+
+  await clearRecordings();
+
+  const restoredRecordings = await restoreRecordingBackupRecords(parsedBackup.recordings.items);
+
+  return {
+    ...parsedBackup,
+    restoredRecordingCount: restoredRecordings.length,
+  };
+}
+
 export {
   PROGRESS_BACKUP_TYPE,
   PROGRESS_BACKUP_VERSION,
   applyProgressBackup,
+  applyProgressBackupWithRecordings,
   createProgressBackup,
+  createProgressBackupWithRecordings,
   getProgressBackupSummary,
   parseProgressBackup,
 };
