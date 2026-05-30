@@ -104,21 +104,23 @@
   flex: 0 0 auto;
 }
 
-.session-record-button:hover,
-.session-record-button.is-recording {
+.session-record-button:hover {
   border-color: var(--danger);
-  background: var(--danger-soft);
+  background: transparent;
   color: var(--danger);
 }
 
 .session-record-button.is-recording {
+  border-color: var(--danger);
+  background: var(--danger-soft);
+  color: var(--danger);
   animation: session-record-pulse 1.15s ease-in-out infinite;
 }
 
 .session-stop-button:hover {
-  border-color: var(--danger);
-  background: var(--danger-soft);
-  color: var(--danger);
+  border-color: var(--stop);
+  background: transparent;
+  color: var(--stop);
 }
 
 .session-stop-button svg {

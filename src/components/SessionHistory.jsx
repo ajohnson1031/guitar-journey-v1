@@ -20,7 +20,7 @@ function formatPracticeTime(value) {
 
 function getRecordingActionLabel({ isLoading, isPaused, isPlaying, isReplay }) {
   if (isLoading) return "Loading...";
-  if (isPlaying) return "Pause Recording";
+  if (isPlaying) return "Pause Playback";
   if (isPaused) return "Paused - Resume Playback";
   if (isReplay) return "Replay Recording";
 

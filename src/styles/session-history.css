@@ -258,14 +258,28 @@
   min-width: 36px;
   min-height: 36px;
   place-items: center;
-  border: 1px solid var(--danger);
   border-radius: 999px;
-  background: var(--danger-soft);
-  color: var(--danger);
   padding: 0;
 }
 
-.history-recording-stop-button:not(:disabled):hover,
+.history-recording-stop-button {
+  border: 1px solid var(--border);
+  background: var(--surface-subtle);
+  color: var(--muted-strong);
+}
+
+.history-recording-stop-button:not(:disabled):hover {
+  border-color: var(--stop);
+  background: transparent;
+  color: var(--stop);
+}
+
+.history-recording-delete-button {
+  border: 1px solid var(--danger);
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
 .history-recording-delete-button:hover {
   background: var(--danger-hover);
 }

@@ -67,6 +67,10 @@
   gap: 8px;
 }
 
+.genre-manager-form textarea {
+  min-height: 100px;
+}
+
 .genre-form-actions {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -89,6 +93,26 @@
   width: 16px;
   height: 16px;
   flex: 0 0 auto;
+}
+
+.genre-cancel-edit-button {
+  border-color: var(--border);
+  background: transparent;
+  color: var(--muted);
+}
+
+.genre-cancel-edit-button:hover {
+  border-color: var(--muted-strong);
+  background: transparent;
+  color: var(--muted-strong);
+}
+
+.genre-delete-button {
+  background: transparent;
+}
+
+.genre-delete-button:hover {
+  background: rgba(248, 113, 113, 0.1);
 }
 
 .genre-description-count {
@@ -181,6 +205,24 @@
   width: 15px;
   height: 15px;
   flex: 0 0 auto;
+}
+
+.genre-edit-button {
+  border-color: var(--border);
+  background: transparent;
+  color: var(--muted);
+}
+
+.genre-edit-button:hover {
+  border-color: var(--muted-strong);
+  background: transparent;
+  color: var(--muted-strong);
+}
+
+.custom-genre-row.is-editing .genre-edit-button {
+  border-color: var(--muted-strong);
+  background: transparent;
+  color: var(--muted-strong);
 }
 
 .genre-manager-empty,

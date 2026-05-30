@@ -1,4 +1,5 @@
 import * as React from "react";
+import { EditIcon, StarIcon, TrashIcon } from "./AppIcons";
 import ConfirmDialog from "./ConfirmDialog";
 import StrummingPatternDisplay from "./StrummingPatternDisplay";
 
@@ -65,11 +66,17 @@ export default function CurrentSongCard({ filteredSongs, masteredSongs, onDelete
                     aria-label="Edit Custom Song"
                     onClick={() => onStartEditCustomSong(selectedSong.id)}
                   >
-                    <PencilIcon />
+                    <EditIcon />
                   </button>
 
-                  <button type="button" className="icon-button danger-button" title="Delete Custom Song" aria-label="Delete Custom Song" onClick={handleRequestDeleteCustomSong}>
-                    <XIcon />
+                  <button
+                    type="button"
+                    className="icon-button danger-button"
+                    title="Delete Custom Song"
+                    aria-label="Delete Custom Song"
+                    onClick={handleRequestDeleteCustomSong}
+                  >
+                    <TrashIcon />
                   </button>
                 </Fragment>
               ) : null}
@@ -81,7 +88,7 @@ export default function CurrentSongCard({ filteredSongs, masteredSongs, onDelete
                 onClick={() => onToggleMastered(selectedSong.id)}
                 className={`icon-button mastered-icon-button ${isMastered ? "is-mastered" : "ghost-button"}`}
               >
-                <StarIcon />
+                <StarIcon className="star-icon" />
               </button>
             </div>
           </div>
@@ -136,31 +143,5 @@ function InfoCard({ label, value }) {
       <span>{label}</span>
       <strong>{displayValue}</strong>
     </div>
-  );
-}
-
-function PencilIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path d="M4 20h4.25L19.7 8.55a2.12 2.12 0 0 0 0-3L18.45 4.3a2.12 2.12 0 0 0-3 0L4 15.75V20Z" />
-      <path d="m14.5 5.25 4.25 4.25" />
-    </svg>
-  );
-}
-
-function XIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path d="M6 6 18 18" />
-      <path d="M18 6 6 18" />
-    </svg>
-  );
-}
-
-function StarIcon() {
-  return (
-    <svg className="star-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path d="m12 3.5 2.67 5.41 5.97.87-4.32 4.21 1.02 5.95L12 17.13l-5.34 2.81 1.02-5.95-4.32-4.21 5.97-.87L12 3.5Z" />
-    </svg>
   );
 }
