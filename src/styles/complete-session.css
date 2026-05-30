@@ -135,6 +135,30 @@
   stroke: none;
 }
 
+.session-recording-status {
+  margin: -2px 0 0 !important;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-soft);
+  color: var(--muted-strong) !important;
+  padding: 8px 10px;
+  text-align: center;
+  font-size: 12px !important;
+  font-weight: 900;
+}
+
+.session-recording-status.is-recording {
+  border-color: var(--danger);
+  background: var(--danger-soft);
+  color: var(--danger) !important;
+}
+
+.session-recording-status.is-ready {
+  border-color: var(--green);
+  background: var(--green-soft);
+  color: var(--green) !important;
+}
+
 .session-rating-block {
   display: grid;
   gap: 8px;

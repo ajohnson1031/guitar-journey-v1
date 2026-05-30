@@ -11,6 +11,10 @@
   margin-top: 14px;
 }
 
+.step-list p {
+  margin-bottom: 0;
+}
+
 .path-card,
 .step-card {
   width: 100%;

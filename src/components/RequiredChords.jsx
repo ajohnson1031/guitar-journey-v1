@@ -1,7 +1,7 @@
 import * as React from "react";
 import { CHORD_DETAILS } from "../constants";
-import { getChordDiagram } from "../utils/chordDiagramUtils";
 import { playChordSample } from "../utils/chordAudioUtils";
+import { getChordDiagram } from "../utils/chordDiagramUtils";
 import ChordDiagram from "./ChordDiagram";
 
 const { Fragment, useEffect, useRef, useState } = React;
@@ -67,7 +67,7 @@ export default function RequiredChords({ selectedSong }) {
 
                 <ChordDiagram chordName={chord} diagram={diagram} />
 
-                <p>
+                <p className="chord-detail">
                   {chordDetail?.tip ||
                     (diagram
                       ? "Generated from a common movable chord shape. Adjust fingering as needed."
