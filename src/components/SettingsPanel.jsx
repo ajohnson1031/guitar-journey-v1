@@ -2,15 +2,44 @@ import * as React from "react";
 import { useMicrophoneTest } from "../hooks";
 import { getAudioRecordingSupportDetails } from "../utils/audioRecordingUtils";
 import { getLevelBarStates } from "../utils/microphoneTestUtils";
+import { applyProgressBackup, createProgressBackup, getProgressBackupSummary, parseProgressBackup } from "../utils/progressBackupUtils";
 import { getRecordingStorageSummary } from "../utils/recordingStorageUtils";
-import { THEME_MODE_OPTIONS } from "../utils/settingsStorageUtils";
+import { THEME_MODE_OPTIONS, loadAppSettings } from "../utils/settingsStorageUtils";
+import { loadStoredProgress } from "../utils/storageUtils";
+import ConfirmDialog from "./ConfirmDialog";
 
-const { Fragment, useEffect, useMemo, useState } = React;
+const { Fragment, useEffect, useMemo, useRef, useState } = React;
+
+function getProgressBackupFilename() {
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+
+  return `guitar-journey-progress-${timestamp}.json`;
+}
+
+function downloadJsonFile(filename, data) {
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], {
+    type: "application/json",
+  });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = filename;
+  link.click();
+
+  window.URL.revokeObjectURL(url);
+}
 
 export default function SettingsPanel({ appSettings, onThemeModeChange }) {
   const audioSupport = useMemo(() => getAudioRecordingSupportDetails(), []);
   const { isTestingMicrophone, microphoneLevel, microphoneTestMessage, startMicrophoneTest, stopMicrophoneTest } = useMicrophoneTest();
 
+  const importInputRef = useRef(null);
+  const reloadTimeoutRef = useRef(null);
+  const [backupMessage, setBackupMessage] = useState("");
+  const [pendingImportBackup, setPendingImportBackup] = useState(null);
+  const [pendingImportSummary, setPendingImportSummary] = useState(null);
   const [recordingStorageSummary, setRecordingStorageSummary] = useState({
     count: 0,
     isSupported: false,
@@ -41,6 +70,14 @@ export default function SettingsPanel({ appSettings, onThemeModeChange }) {
     };
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (reloadTimeoutRef.current) {
+        window.clearTimeout(reloadTimeoutRef.current);
+      }
+    };
+  }, []);
+
   function handleMicrophoneTestClick() {
     if (!audioSupport.isSupported) return;
 
@@ -50,6 +87,69 @@ export default function SettingsPanel({ appSettings, onThemeModeChange }) {
     }
 
     void startMicrophoneTest();
+  }
+
+  function handleExportProgress() {
+    try {
+      const backup = createProgressBackup({
+        appSettings: loadAppSettings(),
+        progress: loadStoredProgress(),
+      });
+
+      downloadJsonFile(getProgressBackupFilename(), backup);
+      setBackupMessage("Progress backup exported. Recordings are not included yet.");
+    } catch {
+      setBackupMessage("Progress backup could not be exported.");
+    }
+  }
+
+  function handleChooseImportFile() {
+    setBackupMessage("");
+    importInputRef.current?.click();
+  }
+
+  async function handleImportFileChange(event) {
+    const file = event.target.files?.[0];
+
+    event.target.value = "";
+
+    if (!file) return;
+
+    try {
+      const fileText = await file.text();
+      const parsedBackup = parseProgressBackup(fileText);
+      const summary = getProgressBackupSummary(parsedBackup);
+
+      setPendingImportBackup(parsedBackup);
+      setPendingImportSummary(summary);
+      setBackupMessage("");
+    } catch (error) {
+      setPendingImportBackup(null);
+      setPendingImportSummary(null);
+      setBackupMessage(error instanceof Error ? error.message : "Progress backup could not be imported.");
+    }
+  }
+
+  function handleCancelImport() {
+    setPendingImportBackup(null);
+    setPendingImportSummary(null);
+  }
+
+  function handleConfirmImport() {
+    if (!pendingImportBackup) return;
+
+    try {
+      applyProgressBackup(pendingImportBackup);
+      setPendingImportBackup(null);
+      setPendingImportSummary(null);
+      setBackupMessage("Progress imported. Reloading Guitar Journey...");
+
+      reloadTimeoutRef.current = window.setTimeout(() => {
+        window.location.reload();
+      }, 800);
+    } catch (error) {
+      setBackupMessage(error instanceof Error ? error.message : "Progress backup could not be imported.");
+    }
   }
 
   return (
@@ -86,7 +186,7 @@ export default function SettingsPanel({ appSettings, onThemeModeChange }) {
           <SettingsSection
             title="Storage"
             eyebrow="Persistence"
-            description="Local progress is currently stored on this device. Later, this section can support user-configured databases or online sync targets."
+            description="Local progress is currently stored on this device. Export a backup before clearing browser data or moving to another browser."
           >
             <div className="settings-placeholder-row">
               <span>Progress and settings</span>
@@ -99,6 +199,27 @@ export default function SettingsPanel({ appSettings, onThemeModeChange }) {
             <div className="settings-placeholder-row">
               <span>Database configuration</span>
               <strong>Planned</strong>
+            </div>
+
+            <div className="settings-action-panel settings-backup-panel">
+              <div>
+                <strong>Progress backup</strong>
+                <p>Export or import custom songs, custom genres, mastered songs, completed steps, session history, and settings. Audio recordings are not included yet.</p>
+              </div>
+
+              <div className="settings-backup-actions">
+                <button type="button" className="ghost-button" onClick={handleChooseImportFile}>
+                  Import Progress
+                </button>
+
+                <button type="button" className="selected-button" onClick={handleExportProgress}>
+                  Export Progress
+                </button>
+              </div>
+
+              <input ref={importInputRef} type="file" accept="application/json,.json" className="settings-file-input" onChange={handleImportFileChange} />
+
+              {backupMessage ? <p className="settings-backup-message">{backupMessage}</p> : null}
             </div>
           </SettingsSection>
 
@@ -153,6 +274,21 @@ export default function SettingsPanel({ appSettings, onThemeModeChange }) {
           </SettingsSection>
         </div>
       </section>
+
+      <ConfirmDialog
+        isOpen={Boolean(pendingImportBackup)}
+        title="Import progress backup?"
+        message={
+          pendingImportSummary
+            ? `This will replace the current local progress with: ${pendingImportSummary.label}. Practice recordings are not included in this import.`
+            : "This will replace the current local progress on this device."
+        }
+        confirmLabel="Import Progress"
+        cancelLabel="Cancel"
+        tone="primary"
+        onCancel={handleCancelImport}
+        onConfirm={handleConfirmImport}
+      />
     </Fragment>
   );
 }
