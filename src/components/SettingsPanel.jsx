@@ -1,14 +1,16 @@
 import * as React from "react";
-import { getAudioRecordingSupportDetails, testAudioRecordingAccess } from "../utils/audioRecordingUtils";
+import { useMicrophoneTest } from "../hooks";
+import { getAudioRecordingSupportDetails } from "../utils/audioRecordingUtils";
+import { getLevelBarStates } from "../utils/microphoneTestUtils";
 import { getRecordingStorageSummary } from "../utils/recordingStorageUtils";
 import { THEME_MODE_OPTIONS } from "../utils/settingsStorageUtils";
 
 const { Fragment, useEffect, useMemo, useState } = React;
 
-export default function SettingsPanel({ appSettings, onThemeModeChange, resolvedThemeMode }) {
+export default function SettingsPanel({ appSettings, onThemeModeChange }) {
   const audioSupport = useMemo(() => getAudioRecordingSupportDetails(), []);
-  const [isTestingMicrophone, setIsTestingMicrophone] = useState(false);
-  const [microphoneTestMessage, setMicrophoneTestMessage] = useState("");
+  const { isTestingMicrophone, microphoneLevel, microphoneTestMessage, startMicrophoneTest, stopMicrophoneTest } = useMicrophoneTest();
+
   const [recordingStorageSummary, setRecordingStorageSummary] = useState({
     count: 0,
     isSupported: false,
@@ -39,19 +41,15 @@ export default function SettingsPanel({ appSettings, onThemeModeChange, resolved
     };
   }, []);
 
-  async function handleTestMicrophone() {
-    if (!audioSupport.isSupported) {
-      setMicrophoneTestMessage("Recording is not supported in this browser.");
+  function handleMicrophoneTestClick() {
+    if (!audioSupport.isSupported) return;
+
+    if (isTestingMicrophone) {
+      void stopMicrophoneTest();
       return;
     }
 
-    setIsTestingMicrophone(true);
-    setMicrophoneTestMessage("Requesting microphone access...");
-
-    const result = await testAudioRecordingAccess();
-
-    setMicrophoneTestMessage(result.message);
-    setIsTestingMicrophone(false);
+    void startMicrophoneTest();
   }
 
   return (
@@ -60,17 +58,11 @@ export default function SettingsPanel({ appSettings, onThemeModeChange, resolved
         <div className="settings-hero">
           <p className="eyebrow">Settings</p>
           <h2>App preferences</h2>
-          <p>
-            Configure how Guitar Journey looks, stores progress, and handles audio. Some options are placeholders for upcoming features.
-          </p>
+          <p>Configure how Guitar Journey looks, stores progress, and handles audio. Some options are placeholders for upcoming features.</p>
         </div>
 
         <div className="settings-grid">
-          <SettingsSection
-            title="Appearance"
-            eyebrow="Theme"
-            description="Choose how the app should look. System follows this device’s light or dark preference."
-          >
+          <SettingsSection title="Appearance" eyebrow="Theme" description="Choose how the app should look. System follows this device’s light or dark preference.">
             <div className="settings-option-grid" role="group" aria-label="Theme mode">
               {THEME_MODE_OPTIONS.map((option) => (
                 <button
@@ -79,15 +71,15 @@ export default function SettingsPanel({ appSettings, onThemeModeChange, resolved
                   className={`settings-option-card ${appSettings.themeMode === option.id ? "is-selected" : ""}`}
                   onClick={() => onThemeModeChange(option.id)}
                 >
-                  <span>{option.label}</span>
+                  <div className="settings-option-header">
+                    <span>{option.label}</span>
+
+                    {appSettings.themeMode === option.id ? <strong className="settings-active-badge">Active</strong> : null}
+                  </div>
+
                   <small>{option.description}</small>
                 </button>
               ))}
-            </div>
-
-            <div className="settings-placeholder-row">
-              <span>Active theme</span>
-              <strong>{resolvedThemeMode === "light" ? "Light" : "Dark"}</strong>
             </div>
           </SettingsSection>
 
@@ -110,44 +102,41 @@ export default function SettingsPanel({ appSettings, onThemeModeChange, resolved
             </div>
           </SettingsSection>
 
-          <SettingsSection
-            title="Audio"
-            eyebrow="Input / Output"
-            description="Review recording support, test microphone access, and confirm where practice recordings are stored."
-          >
+          <SettingsSection title="Audio" eyebrow="Input / Output" description="Review recording support, test microphone access, and confirm where practice recordings are stored.">
             <div className="settings-status-grid">
-              <StatusCard
-                label="Recording support"
-                value={audioSupport.isSupported ? "Supported" : "Unavailable"}
-                tone={audioSupport.isSupported ? "success" : "danger"}
-              />
+              <StatusCard label="Recording support" value={audioSupport.isSupported ? "Supported" : "Unavailable"} tone={audioSupport.isSupported ? "success" : "danger"} />
               <StatusCard label="Detected format" value={audioSupport.supportedMimeTypeLabel} />
-              <StatusCard
-                label="Local recordings"
-                value={recordingStorageSummary.label}
-                tone={recordingStorageSummary.count > 0 ? "success" : "neutral"}
-              />
+              <StatusCard label="Local recordings" value={recordingStorageSummary.label} tone={recordingStorageSummary.count > 0 ? "success" : "neutral"} />
             </div>
 
-            <div className="settings-action-panel">
+            <div className="settings-action-panel settings-audio-test-panel">
               <div>
                 <strong>Test microphone</strong>
                 <p>
-                  This checks browser microphone permission and immediately releases the input. No test audio is saved.
+                  This checks browser microphone permission and shows live input level. The mic stays active until you stop the test or leave Settings. No test audio is saved.{" "}
+                  {microphoneTestMessage ? (
+                    <span className={`settings-inline-message ${!isTestingMicrophone ? "settings-inline-message-stopped" : ""}`}>{microphoneTestMessage}</span>
+                  ) : null}
                 </p>
               </div>
 
-              <button type="button" className="selected-button" onClick={handleTestMicrophone} disabled={isTestingMicrophone || !audioSupport.isSupported}>
-                {isTestingMicrophone ? "Testing..." : "Test Microphone"}
+              <button
+                type="button"
+                className={`selected-button microphone-test-button ${isTestingMicrophone ? "is-testing" : ""}`}
+                onClick={handleMicrophoneTestClick}
+                disabled={!audioSupport.isSupported}
+              >
+                {isTestingMicrophone ? "Stop Test" : "Test Microphone"}
               </button>
-            </div>
 
-            {microphoneTestMessage ? <p className="settings-inline-message">{microphoneTestMessage}</p> : null}
+              <MicrophoneLevelMeter isActive={isTestingMicrophone} level={microphoneLevel} />
+            </div>
 
             <div className="settings-note-card">
               <strong>Local audio note</strong>
               <p>
-                Practice recordings are stored locally in this browser with IndexedDB. They are not synced across devices yet, and they can be removed if browser site data is cleared.
+                Practice recordings are stored locally in this browser with IndexedDB. They are not synced across devices yet, and they can be removed if browser site data is
+                cleared.
               </p>
             </div>
           </SettingsSection>
@@ -187,6 +176,18 @@ function StatusCard({ label, tone = "neutral", value }) {
     <div className={`settings-status-card settings-status-card--${tone}`}>
       <span>{label}</span>
       <strong>{value}</strong>
+    </div>
+  );
+}
+
+function MicrophoneLevelMeter({ isActive, level }) {
+  const levelBars = getLevelBarStates(level, 10);
+
+  return (
+    <div className={`microphone-level-meter ${isActive ? "is-active" : ""}`} aria-label="Microphone input level" aria-live="polite">
+      {levelBars.map((isLevelActive, index) => (
+        <span key={index} className={`microphone-level-bar ${isLevelActive ? "is-level-active" : ""}`} />
+      ))}
     </div>
   );
 }

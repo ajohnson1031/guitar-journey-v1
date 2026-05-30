@@ -70,12 +70,12 @@
 .settings-status-card {
   display: grid;
   gap: 6px;
-  min-height: 104px;
+  min-height: 64px;
   border: 1px solid var(--border);
   border-radius: 18px;
   background: var(--surface-soft);
   color: var(--text);
-  padding: 14px;
+  padding: 8px 14px;
   text-align: left;
 }
 
@@ -111,8 +111,24 @@
   line-height: 1.4;
 }
 
-.settings-status-card {
-  min-height: 86px;
+.settings-option-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.settings-active-badge {
+  border: 1px solid var(--blue);
+  border-radius: 999px;
+  background: var(--blue-soft);
+  color: var(--blue);
+  padding: 4px 8px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
 .settings-status-card strong {
@@ -167,6 +183,11 @@
   align-items: flex-start;
 }
 
+.settings-audio-test-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
 .settings-action-panel strong,
 .settings-note-card strong {
   color: var(--text);
@@ -185,21 +206,80 @@
   flex: 0 0 auto;
 }
 
+.microphone-level-meter {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 2px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  min-height: 34px;
+  padding: 3px;
+}
+
+.microphone-level-bar {
+  background: var(--surface-subtle);
+  opacity: 0.72;
+  transition:
+    background 80ms ease,
+    opacity 80ms ease,
+    transform 80ms ease;
+}
+
+.microphone-level-bar:first-of-type {
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+
+.microphone-level-bar:last-of-type {
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.microphone-level-meter.is-active .microphone-level-bar.is-level-active {
+  background: var(--green);
+  opacity: 1;
+  transform: scaleY(1.02);
+}
+
+.microphone-test-button.is-testing {
+  border-color: var(--danger);
+  background: var(--danger-soft);
+  color: white;
+}
+
+.microphone-test-button.is-testing:hover {
+  border-color: var(--danger);
+  background: var(--danger-soft);
+  color: white;
+}
+
+html[data-theme="light"] .microphone-test-button.is-testing {
+  border-color: var(--danger);
+  background: var(--danger);
+  color: white;
+}
+
+html[data-theme="light"] .microphone-test-button.is-testing:hover {
+  border-color: var(--danger);
+  background: var(--danger);
+  color: white;
+  filter: brightness(0.92);
+}
+
 .settings-note-card {
   display: grid;
   justify-content: stretch;
 }
 
 .settings-inline-message {
-  margin: 0 !important;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--surface-soft);
-  color: var(--muted-strong) !important;
-  padding: 8px 10px;
-  text-align: center;
-  font-size: 12px !important;
   font-weight: 900;
+}
+
+.settings-inline-message-stopped {
+  color: var(--danger);
 }
 
 @media (max-width: 760px) {
@@ -208,8 +288,10 @@
     grid-template-columns: 1fr;
   }
 
-  .settings-action-panel {
+  .settings-action-panel,
+  .settings-audio-test-panel {
     display: grid;
+    grid-template-columns: 1fr;
   }
 
   .settings-action-panel button {
