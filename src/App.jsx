@@ -7,6 +7,7 @@ import {
   EditSongRoute,
   HistoryRoute,
   NewSongRoute,
+  SettingsRoute,
   SongSectionsRoute,
   TransitionsRoute,
   WeeklyPlanRoute,
@@ -51,6 +52,8 @@ export default function App() {
               <Route path="songs/new" element={<NewSongRoute {...newSongRouteProps} />} />
 
               <Route path="songs/edit/:songId" element={<EditSongRoute {...editSongRouteProps} />} />
+
+              <Route path="settings" element={<SettingsRoute />} />
 
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
