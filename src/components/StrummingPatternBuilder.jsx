@@ -34,6 +34,22 @@ export default function StrummingPatternBuilder({ value, onChange }) {
     onChange(createPresetStrummingPattern(preset));
   }
 
+  function isPresetActive(preset) {
+    const presetPattern = createPresetStrummingPattern(preset);
+
+    if (presetPattern.subdivision !== patternData.subdivision) {
+      return false;
+    }
+
+    if (presetPattern.slots.length !== pattern.length) {
+      return false;
+    }
+
+    return presetPattern.slots.every((slot, index) => {
+      return slot.direction === (pattern[index]?.direction || "");
+    });
+  }
+
   return (
     <div className={`strumming-builder ${isSixteenth ? "is-sixteenth" : "is-eighth"}`}>
       <div>
@@ -59,10 +75,15 @@ export default function StrummingPatternBuilder({ value, onChange }) {
 
       <div className="custom-song-preview">
         <span>Presets</span>
-
         <div>
           {STRUMMING_PRESETS.map((preset) => (
-            <button key={preset.id} type="button" className="ghost-button" title={preset.description} onClick={() => handleApplyPreset(preset)}>
+            <button
+              key={preset.id}
+              type="button"
+              className={`preset-button ${isPresetActive(preset) ? "is-active" : ""}`}
+              title={preset.description}
+              onClick={() => handleApplyPreset(preset)}
+            >
               {preset.name}
             </button>
           ))}
@@ -99,7 +120,7 @@ export default function StrummingPatternBuilder({ value, onChange }) {
         ))}
       </div>
 
-      <button type="button" className="ghost-button" onClick={handleClearPattern}>
+      <button type="button" className="danger-button" onClick={handleClearPattern}>
         Clear Pattern
       </button>
     </div>

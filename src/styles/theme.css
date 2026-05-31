@@ -42,8 +42,17 @@
   --color-danger-soft: rgba(248, 113, 113, 0.1);
   --color-danger-hover: rgba(248, 113, 113, 0.16);
   --color-danger-text: #fca5a5;
+  --color-destructive: #b91c1c;
+  --color-destructive-hover: #991b1b;
+  --color-destructive-text: #ffffff;
   --color-stop: #972020;
   --color-track: #27272a;
+
+  /* Neutral action colors */
+  --color-neutral-action: #f4f4f5;
+  --color-neutral-action-hover: #d4d4d8;
+  --color-neutral-action-contrast: #111827;
+  --color-neutral-action-soft-hover: rgba(244, 244, 245, 0.1);
 
   /* Effects */
   --shadow-elevated: 0 20px 60px rgba(0, 0, 0, 0.22);
@@ -81,6 +90,9 @@
   --danger-soft: var(--color-danger-soft);
   --danger-hover: var(--color-danger-hover);
   --danger-text: var(--color-danger-text);
+  --destructive: var(--color-destructive);
+  --destructive-hover: var(--color-destructive-hover);
+  --destructive-text: var(--color-destructive-text);
   --stop: var(--color-stop);
   --track: var(--color-track);
   --shadow: var(--shadow-elevated);
@@ -140,8 +152,17 @@
   --color-danger-soft: rgba(220, 38, 38, 0.1);
   --color-danger-hover: rgba(220, 38, 38, 0.16);
   --color-danger-text: #b91c1c;
+  --color-destructive: #dc2626;
+  --color-destructive-hover: #b91c1c;
+  --color-destructive-text: #ffffff;
   --color-stop: #972020;
   --color-track: #dbe3ef;
+
+  /* Neutral action colors */
+  --color-neutral-action: #1f2937;
+  --color-neutral-action-hover: #111827;
+  --color-neutral-action-contrast: #ffffff;
+  --color-neutral-action-soft-hover: rgba(31, 41, 55, 0.08);
 
   /* Effects */
   --shadow-elevated: 0 20px 60px rgba(15, 23, 42, 0.12);
@@ -179,6 +200,9 @@
   --danger-soft: var(--color-danger-soft);
   --danger-hover: var(--color-danger-hover);
   --danger-text: var(--color-danger-text);
+  --destructive: var(--color-destructive);
+  --destructive-hover: var(--color-destructive-hover);
+  --destructive-text: var(--color-destructive-text);
   --stop: var(--color-stop);
   --track: var(--color-track);
   --shadow: var(--shadow-elevated);

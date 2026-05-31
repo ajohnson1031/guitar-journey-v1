@@ -310,7 +310,7 @@ export default function SettingsPanel({ appSettings, onAudioInputModeChange, onA
               </div>
 
               <div className="settings-backup-actions">
-                <button type="button" className="ghost-button" onClick={handleChooseImportFile}>
+                <button type="button" className="preset-button" onClick={handleChooseImportFile}>
                   <UploadIcon />
                   <span>Import</span>
                 </button>

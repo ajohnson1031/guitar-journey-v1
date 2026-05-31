@@ -250,29 +250,6 @@ export default function CustomSongForm({
               : "Create a personal study song with chords, sections, rhythm, and a practice goal."}
           </p>
         </div>
-
-        {showToggle ? (
-          <button
-            type="button"
-            className={isOpen ? "selected-button" : "ghost-button"}
-            onClick={() => {
-              if (isOpen) {
-                closeForm();
-                return;
-              }
-
-              setIsOpen(true);
-              onOpenChange(true);
-              setMessage("");
-            }}
-          >
-            {isOpen ? "Close" : "Add Song"}
-          </button>
-        ) : (
-          <button type="button" className="ghost-button" onClick={closeForm}>
-            Close
-          </button>
-        )}
       </div>
 
       {isOpen ? (
@@ -288,7 +265,7 @@ export default function CustomSongForm({
               />
             </label>
 
-            <button type="button" className="ghost-button" onClick={importFromUltimateGuitarLink}>
+            <button type="button" className="primary-button" onClick={importFromUltimateGuitarLink}>
               Import Starter Details
             </button>
 
@@ -414,7 +391,7 @@ export default function CustomSongForm({
                   Cancel Edit
                 </button>
               ) : (
-                <button type="button" className="ghost-button" onClick={resetForm}>
+                <button type="button" className="preset-button" onClick={resetForm}>
                   Reset Form
                 </button>
               )}
