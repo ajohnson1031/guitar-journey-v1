@@ -34,19 +34,28 @@
   gap: 10px;
 }
 
-.form-grid.two {
+.form-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
+}
+
+.form-grid.two,
+.custom-song-chord-transition-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.form-grid.three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .custom-song-form label {
   display: grid;
   gap: 7px;
+  min-width: 0;
 }
 
 .custom-song-form label span {
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 11px;
   font-weight: 900;
   letter-spacing: 0.1em;
@@ -62,25 +71,40 @@
 }
 
 .custom-song-message.is-error {
-  color: var(--danger-text);
+  color: var(--color-danger-text);
 }
 
 .custom-song-message.is-info {
-  color: var(--blue);
+  color: var(--color-primary);
 }
 
 .import-link-card {
   display: grid;
   gap: 12px;
-  border: 1px solid rgba(125, 211, 252, 0.25);
+  border: 1px solid var(--color-border);
   border-radius: 20px;
   background: var(--color-surface);
   padding: 14px;
 }
 
+.import-link-url-card {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+}
+
+.import-link-url-card button {
+  align-self: end;
+  min-height: 42px;
+  white-space: nowrap;
+}
+
+.import-link-url-card p {
+  grid-column: 1 / -1;
+}
+
 .import-link-card p {
   margin: 0;
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 12px;
   line-height: 1.45;
 }
@@ -88,14 +112,14 @@
 .custom-song-preview {
   display: grid;
   gap: 10px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 18px;
-  background: var(--surface);
+  background: var(--color-surface);
   padding: 12px;
 }
 
 .custom-song-preview > span {
-  color: var(--eyebrow);
+  color: var(--color-eyebrow);
   font-size: 11px;
   font-weight: 900;
   letter-spacing: 0.1em;
@@ -109,14 +133,33 @@
 }
 
 .custom-song-preview strong {
-  border: 1px solid var(--blue);
+  border: 1px solid var(--color-primary);
   border-radius: 999px;
   padding: 6px 10px;
-  background: var(--blue-soft);
-  color: var(--blue);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
   font-size: 13px;
 }
 
 .custom-song-preview small {
-  color: var(--muted);
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 980px) {
+  .form-grid.three {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .form-grid.two,
+  .form-grid.three,
+  .custom-song-chord-transition-row,
+  .import-link-url-card {
+    grid-template-columns: 1fr;
+  }
+
+  .import-link-url-card button {
+    width: 100%;
+  }
 }

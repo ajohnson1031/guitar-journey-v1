@@ -72,7 +72,7 @@ export default function SongImportAssistant({ onApplyAnalysis }) {
           Clear Paste
         </button>
 
-        <button type="button" className="primary-outline-button" onClick={handleAnalyzeSongText}>
+        <button type="button" className="preset-button analyze-paste-button" onClick={handleAnalyzeSongText}>
           Analyze Paste
         </button>
 
