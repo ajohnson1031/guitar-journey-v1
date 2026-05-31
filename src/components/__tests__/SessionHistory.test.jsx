@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import * as React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import SessionHistory from "../SessionHistory";
@@ -126,6 +126,117 @@ describe("SessionHistory", () => {
     expect(dayGroups[1].textContent).toContain("1 session");
     expect(dayGroups[1].textContent).toContain("30m");
     expect(dayGroups[1].textContent).toContain("Yesterday Blues");
+  });
+
+  it("filters sessions by search", () => {
+    renderSessionHistory({
+      sessions: [
+        createSession({
+          id: "worship",
+          songTitle: "Worship Song",
+          genre: "Worship",
+        }),
+        createSession({
+          id: "blues",
+          songTitle: "Blues Song",
+          genre: "Blues",
+        }),
+      ],
+    });
+
+    fireEvent.change(screen.getByLabelText("Search sessions"), {
+      target: {
+        value: "worship",
+      },
+    });
+
+    expect(screen.getByText("Worship Song")).toBeTruthy();
+    expect(screen.queryByText("Blues Song")).toBeNull();
+  });
+
+  it("sorts sessions oldest first when selected", () => {
+    const { container } = renderSessionHistory({
+      sessions: [
+        createSession({
+          id: "newer",
+          songTitle: "Newer Song",
+          completedAt: "2026-05-31T09:00:00",
+        }),
+        createSession({
+          id: "older",
+          songTitle: "Older Song",
+          completedAt: "2026-05-29T09:00:00",
+        }),
+      ],
+    });
+
+    fireEvent.change(screen.getByLabelText("Sort sessions"), {
+      target: {
+        value: "oldest",
+      },
+    });
+
+    const dayGroups = Array.from(container.querySelectorAll(".history-day-group"));
+
+    expect(dayGroups[0].textContent).toContain("May 29, 2026");
+    expect(dayGroups[0].textContent).toContain("Older Song");
+    expect(dayGroups[1].textContent).toContain("May 31, 2026");
+    expect(dayGroups[1].textContent).toContain("Newer Song");
+  });
+
+  it("sorts sessions by duration inside each date group", () => {
+    const { container } = renderSessionHistory({
+      sessions: [
+        createSession({
+          id: "long",
+          songTitle: "Long Song",
+          completedAt: "2026-05-30T10:00:00",
+          elapsedSeconds: 1800,
+        }),
+        createSession({
+          id: "short",
+          songTitle: "Short Song",
+          completedAt: "2026-05-30T09:00:00",
+          elapsedSeconds: 300,
+        }),
+      ],
+    });
+
+    fireEvent.change(screen.getByLabelText("Sort sessions"), {
+      target: {
+        value: "shortest",
+      },
+    });
+
+    const cards = Array.from(container.querySelectorAll(".history-card"));
+
+    expect(cards[0].textContent).toContain("Short Song");
+    expect(cards[1].textContent).toContain("Long Song");
+
+    fireEvent.change(screen.getByLabelText("Sort sessions"), {
+      target: {
+        value: "longest",
+      },
+    });
+
+    const resortedCards = Array.from(container.querySelectorAll(".history-card"));
+
+    expect(resortedCards[0].textContent).toContain("Long Song");
+    expect(resortedCards[1].textContent).toContain("Short Song");
+  });
+
+  it("adds a scrollable class after more than five visible sessions", () => {
+    const { container } = renderSessionHistory({
+      sessions: Array.from({ length: 6 }, (_, index) =>
+        createSession({
+          id: `session-${index}`,
+          songTitle: `Session ${index}`,
+          completedAt: `2026-05-30T${String(index + 8).padStart(2, "0")}:00:00`,
+        }),
+      ),
+    });
+
+    expect(container.querySelector(".history-day-group-list")?.className).toContain("is-scrollable");
   });
 
   it("shows recording controls only for sessions with stored recordings", async () => {
