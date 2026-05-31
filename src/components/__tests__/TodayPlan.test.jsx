@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import * as React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import TodayPlan from "../TodayPlan";
@@ -140,6 +140,32 @@ describe("TodayPlan", () => {
     expect(screen.getByRole("button", { name: "Hard" }).disabled).toBe(true);
     expect(screen.getByRole("button", { name: "Okay" }).disabled).toBe(true);
     expect(screen.getByRole("button", { name: "Easy" }).disabled).toBe(true);
+  });
+
+  it("expands the first plan card by default", () => {
+    renderTodayPlan();
+
+    expect(screen.getByRole("button", { name: "Warm up practice step" }).getAttribute("aria-expanded")).toBe("true");
+    expect(screen.getByRole("button", { name: "Transition drill practice step" }).getAttribute("aria-expanded")).toBe("false");
+  });
+
+  it("expands the selected plan card and collapses the previous card", () => {
+    renderTodayPlan();
+
+    fireEvent.click(screen.getByRole("button", { name: "Transition drill practice step" }));
+
+    expect(screen.getByRole("button", { name: "Warm up practice step" }).getAttribute("aria-expanded")).toBe("false");
+    expect(screen.getByRole("button", { name: "Transition drill practice step" }).getAttribute("aria-expanded")).toBe("true");
+  });
+
+  it("uses a dedicated completion button so expanding does not toggle completion", () => {
+    const props = renderTodayPlan();
+
+    fireEvent.click(screen.getByRole("button", { name: "Transition drill practice step" }));
+    expect(props.onToggleStep).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Mark Transition drill complete" }));
+    expect(props.onToggleStep).toHaveBeenCalledWith("Transition drill");
   });
 
   it("hides the live input meter until a session is active", () => {

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { CurrentSongCard, RequiredChords, TodayPlan } from "../components";
+import { CurrentSongCard, LocalProgressCard, RequiredChords, TodayPlan } from "../components";
 
 const { Fragment } = React;
 
@@ -13,6 +13,7 @@ export default function DashboardRoute({
   isSessionRecording,
   isSessionRecordingPaused,
   isSessionTimerRunning,
+  localProgressProps = {},
   masteredSongs,
   onCompleteSession,
   onDeleteCustomSong,
@@ -38,6 +39,8 @@ export default function DashboardRoute({
   sessionMinutes,
   sessionRating,
 }) {
+  const fallbackMasteredCount = Object.values(masteredSongs || {}).filter(Boolean).length;
+
   return (
     <Fragment>
       <div className="top-grid dashboard-top-grid">
@@ -55,34 +58,38 @@ export default function DashboardRoute({
           <RequiredChords selectedSong={selectedSong} />
         </div>
 
-        <TodayPlan
-          actualPracticeMinutes={actualPracticeMinutes}
-          canCompleteSession={canCompleteSession}
-          completedSteps={completedSteps}
-          elapsedSessionSeconds={elapsedSessionSeconds}
-          hasPendingRecording={hasPendingRecording}
-          isSessionRecording={isSessionRecording}
-          isSessionRecordingPaused={isSessionRecordingPaused}
-          isSessionTimerRunning={isSessionTimerRunning}
-          onCompleteSession={onCompleteSession}
-          onPauseSessionRecording={onPauseSessionRecording}
-          onResetSessionTimer={onResetSessionTimer}
-          onResumeSessionRecording={onResumeSessionRecording}
-          onSessionMinutesChange={onSessionMinutesChange}
-          onSessionRatingChange={onSessionRatingChange}
-          onToggleSessionRecording={onToggleSessionRecording}
-          onToggleSessionTimer={onToggleSessionTimer}
-          onToggleStep={onToggleStep}
-          plan={plan}
-          progressPercent={progressPercent}
-          recordingDurationSeconds={recordingDurationSeconds}
-          recordingInputLevel={recordingInputLevel}
-          recordingMessage={recordingMessage}
-          sessionHistory={sessionHistory}
-          sessionMessage={sessionMessage}
-          sessionMinutes={sessionMinutes}
-          sessionRating={sessionRating}
-        />
+        <div className="dashboard-side-column">
+          <TodayPlan
+            actualPracticeMinutes={actualPracticeMinutes}
+            canCompleteSession={canCompleteSession}
+            completedSteps={completedSteps}
+            elapsedSessionSeconds={elapsedSessionSeconds}
+            hasPendingRecording={hasPendingRecording}
+            isSessionRecording={isSessionRecording}
+            isSessionRecordingPaused={isSessionRecordingPaused}
+            isSessionTimerRunning={isSessionTimerRunning}
+            onCompleteSession={onCompleteSession}
+            onPauseSessionRecording={onPauseSessionRecording}
+            onResetSessionTimer={onResetSessionTimer}
+            onResumeSessionRecording={onResumeSessionRecording}
+            onSessionMinutesChange={onSessionMinutesChange}
+            onSessionRatingChange={onSessionRatingChange}
+            onToggleSessionRecording={onToggleSessionRecording}
+            onToggleSessionTimer={onToggleSessionTimer}
+            onToggleStep={onToggleStep}
+            plan={plan}
+            progressPercent={progressPercent}
+            recordingDurationSeconds={recordingDurationSeconds}
+            recordingInputLevel={recordingInputLevel}
+            recordingMessage={recordingMessage}
+            sessionHistory={sessionHistory}
+            sessionMessage={sessionMessage}
+            sessionMinutes={sessionMinutes}
+            sessionRating={sessionRating}
+          />
+
+          <LocalProgressCard masteredCount={fallbackMasteredCount} sessionHistory={sessionHistory} {...localProgressProps} />
+        </div>
       </div>
     </Fragment>
   );
