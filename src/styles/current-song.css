@@ -8,7 +8,7 @@
 
 .song-card.compact-song-card {
   display: grid;
-  gap: 22px;
+  gap: 14px;
 }
 
 .song-header,
@@ -108,7 +108,7 @@
 }
 
 .compact-info-grid .info-card {
-  padding: 12px;
+  padding: 8px 12px 12px;
 }
 
 .info-card span {
