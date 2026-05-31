@@ -10,6 +10,7 @@ export default function SettingsRoute() {
   const {
     settings: appSettings,
     resolvedThemeMode,
+    updateAccentColor,
     updateAudioInputMode,
     updateAudioInputSetting,
     updateThemeMode,
@@ -19,6 +20,7 @@ export default function SettingsRoute() {
     <Fragment>
       <SettingsPanel
         appSettings={appSettings}
+        onAccentColorChange={updateAccentColor}
         onAudioInputModeChange={updateAudioInputMode}
         onAudioInputSettingChange={updateAudioInputSetting}
         onProgressImported={onProgressImported}

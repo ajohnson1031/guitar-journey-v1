@@ -245,6 +245,170 @@
   --diagram-finger-label: #ffffff;
 }
 
+/* =========================
+   Accent Palette Presets
+========================= */
+
+:root[data-accent="purple"] {
+  --color-body-bg:
+    radial-gradient(circle at top left, rgba(139, 92, 246, 0.18), transparent 34rem), radial-gradient(circle at bottom right, rgba(255, 179, 71, 0.12), transparent 30rem), #0a0a0b;
+  --color-primary: #8b5cf6;
+  --color-primary-hover: #7c3aed;
+  --color-primary-soft: rgba(139, 92, 246, 0.14);
+  --color-primary-soft-hover: rgba(139, 92, 246, 0.24);
+  --color-primary-outline: #8b5cf6;
+  --color-primary-outline-hover: #7c3aed;
+  --color-eyebrow: #c4b5fd;
+  --color-edit: #c4b5fd;
+  --color-edit-soft: rgba(196, 181, 253, 0.12);
+  --color-edit-soft-hover: rgba(196, 181, 253, 0.18);
+  --diagram-open-string: #c4b5fd;
+}
+
+:root[data-accent="teal"] {
+  --color-body-bg:
+    radial-gradient(circle at top left, rgba(20, 184, 166, 0.18), transparent 34rem), radial-gradient(circle at bottom right, rgba(255, 179, 71, 0.12), transparent 30rem), #0a0a0b;
+  --color-primary: #14b8a6;
+  --color-primary-hover: #0f766e;
+  --color-primary-soft: rgba(20, 184, 166, 0.14);
+  --color-primary-soft-hover: rgba(20, 184, 166, 0.24);
+  --color-primary-outline: #14b8a6;
+  --color-primary-outline-hover: #0f766e;
+  --color-eyebrow: #5eead4;
+  --color-edit: #5eead4;
+  --color-edit-soft: rgba(94, 234, 212, 0.12);
+  --color-edit-soft-hover: rgba(94, 234, 212, 0.18);
+  --diagram-open-string: #5eead4;
+}
+
+:root[data-accent="rose"] {
+  --color-body-bg:
+    radial-gradient(circle at top left, rgba(225, 29, 72, 0.18), transparent 34rem), radial-gradient(circle at bottom right, rgba(255, 179, 71, 0.12), transparent 30rem), #0a0a0b;
+  --color-primary: #e11d48;
+  --color-primary-hover: #be123c;
+  --color-primary-soft: rgba(225, 29, 72, 0.14);
+  --color-primary-soft-hover: rgba(225, 29, 72, 0.24);
+  --color-primary-outline: #e11d48;
+  --color-primary-outline-hover: #be123c;
+  --color-eyebrow: #fda4af;
+  --color-edit: #fda4af;
+  --color-edit-soft: rgba(253, 164, 175, 0.12);
+  --color-edit-soft-hover: rgba(253, 164, 175, 0.18);
+  --diagram-open-string: #fda4af;
+}
+
+:root[data-accent="amber"] {
+  --color-body-bg:
+    radial-gradient(circle at top left, rgba(217, 119, 6, 0.18), transparent 34rem), radial-gradient(circle at bottom right, rgba(255, 179, 71, 0.12), transparent 30rem), #0a0a0b;
+  --color-primary: #d97706;
+  --color-primary-hover: #b45309;
+  --color-primary-soft: rgba(217, 119, 6, 0.14);
+  --color-primary-soft-hover: rgba(217, 119, 6, 0.24);
+  --color-primary-outline: #d97706;
+  --color-primary-outline-hover: #b45309;
+  --color-eyebrow: #fbbf24;
+  --color-edit: #fbbf24;
+  --color-edit-soft: rgba(251, 191, 36, 0.12);
+  --color-edit-soft-hover: rgba(251, 191, 36, 0.18);
+  --diagram-open-string: #fbbf24;
+}
+
+:root[data-accent="green"] {
+  --color-body-bg:
+    radial-gradient(circle at top left, rgba(22, 163, 74, 0.18), transparent 34rem), radial-gradient(circle at bottom right, rgba(255, 179, 71, 0.12), transparent 30rem), #0a0a0b;
+  --color-primary: #16a34a;
+  --color-primary-hover: #15803d;
+  --color-primary-soft: rgba(22, 163, 74, 0.14);
+  --color-primary-soft-hover: rgba(22, 163, 74, 0.24);
+  --color-primary-outline: #16a34a;
+  --color-primary-outline-hover: #15803d;
+  --color-eyebrow: #86efac;
+  --color-edit: #86efac;
+  --color-edit-soft: rgba(134, 239, 172, 0.12);
+  --color-edit-soft-hover: rgba(134, 239, 172, 0.18);
+  --diagram-open-string: #86efac;
+}
+
+:root[data-theme="light"][data-accent="purple"] {
+  --color-body-bg:
+    radial-gradient(circle at top left, rgba(124, 58, 237, 0.14), transparent 34rem), radial-gradient(circle at bottom right, rgba(180, 83, 9, 0.16), transparent 30rem), #f6f8fb;
+  --color-primary: #7c3aed;
+  --color-primary-hover: #6d28d9;
+  --color-primary-soft: rgba(124, 58, 237, 0.12);
+  --color-primary-soft-hover: rgba(124, 58, 237, 0.2);
+  --color-primary-outline: #7c3aed;
+  --color-primary-outline-hover: #6d28d9;
+  --color-eyebrow: #5b21b6;
+  --color-edit: #7c3aed;
+  --color-edit-soft: rgba(124, 58, 237, 0.12);
+  --color-edit-soft-hover: rgba(124, 58, 237, 0.18);
+  --diagram-open-string: #7c3aed;
+}
+
+:root[data-theme="light"][data-accent="teal"] {
+  --color-body-bg:
+    radial-gradient(circle at top left, rgba(15, 118, 110, 0.14), transparent 34rem), radial-gradient(circle at bottom right, rgba(180, 83, 9, 0.16), transparent 30rem), #f6f8fb;
+  --color-primary: #0f766e;
+  --color-primary-hover: #115e59;
+  --color-primary-soft: rgba(15, 118, 110, 0.12);
+  --color-primary-soft-hover: rgba(15, 118, 110, 0.2);
+  --color-primary-outline: #0f766e;
+  --color-primary-outline-hover: #115e59;
+  --color-eyebrow: #115e59;
+  --color-edit: #0f766e;
+  --color-edit-soft: rgba(15, 118, 110, 0.12);
+  --color-edit-soft-hover: rgba(15, 118, 110, 0.18);
+  --diagram-open-string: #0f766e;
+}
+
+:root[data-theme="light"][data-accent="rose"] {
+  --color-body-bg:
+    radial-gradient(circle at top left, rgba(190, 18, 60, 0.14), transparent 34rem), radial-gradient(circle at bottom right, rgba(180, 83, 9, 0.16), transparent 30rem), #f6f8fb;
+  --color-primary: #be123c;
+  --color-primary-hover: #9f1239;
+  --color-primary-soft: rgba(190, 18, 60, 0.12);
+  --color-primary-soft-hover: rgba(190, 18, 60, 0.2);
+  --color-primary-outline: #be123c;
+  --color-primary-outline-hover: #9f1239;
+  --color-eyebrow: #9f1239;
+  --color-edit: #be123c;
+  --color-edit-soft: rgba(190, 18, 60, 0.12);
+  --color-edit-soft-hover: rgba(190, 18, 60, 0.18);
+  --diagram-open-string: #be123c;
+}
+
+:root[data-theme="light"][data-accent="amber"] {
+  --color-body-bg:
+    radial-gradient(circle at top left, rgba(180, 83, 9, 0.16), transparent 34rem), radial-gradient(circle at bottom right, rgba(180, 83, 9, 0.12), transparent 30rem), #f6f8fb;
+  --color-primary: #b45309;
+  --color-primary-hover: #92400e;
+  --color-primary-soft: rgba(180, 83, 9, 0.12);
+  --color-primary-soft-hover: rgba(180, 83, 9, 0.2);
+  --color-primary-outline: #b45309;
+  --color-primary-outline-hover: #92400e;
+  --color-eyebrow: #92400e;
+  --color-edit: #b45309;
+  --color-edit-soft: rgba(180, 83, 9, 0.12);
+  --color-edit-soft-hover: rgba(180, 83, 9, 0.18);
+  --diagram-open-string: #b45309;
+}
+
+:root[data-theme="light"][data-accent="green"] {
+  --color-body-bg:
+    radial-gradient(circle at top left, rgba(21, 128, 61, 0.14), transparent 34rem), radial-gradient(circle at bottom right, rgba(180, 83, 9, 0.16), transparent 30rem), #f6f8fb;
+  --color-primary: #15803d;
+  --color-primary-hover: #166534;
+  --color-primary-soft: rgba(21, 128, 61, 0.12);
+  --color-primary-soft-hover: rgba(21, 128, 61, 0.2);
+  --color-primary-outline: #15803d;
+  --color-primary-outline-hover: #166534;
+  --color-eyebrow: #166534;
+  --color-edit: #15803d;
+  --color-edit-soft: rgba(21, 128, 61, 0.12);
+  --color-edit-soft-hover: rgba(21, 128, 61, 0.18);
+  --diagram-open-string: #15803d;
+}
+
 body {
   background: var(--body-bg);
 }

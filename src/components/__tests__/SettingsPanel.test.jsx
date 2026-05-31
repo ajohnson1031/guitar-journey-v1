@@ -148,6 +148,7 @@ function createFileWithText({ filename = "guitar-journey-progress.json", text })
 function createAppSettings(overrides = {}) {
   return {
     themeMode: "light",
+    accentColor: "blue",
     audioInputSettings: {
       inputMode: "standard",
       echoCancellation: true,
@@ -159,7 +160,16 @@ function createAppSettings(overrides = {}) {
 }
 
 function renderSettingsPanel(props = {}) {
-  return render(<SettingsPanel appSettings={createAppSettings()} onAudioInputModeChange={vi.fn()} onAudioInputSettingChange={vi.fn()} onThemeModeChange={vi.fn()} {...props} />);
+  return render(
+    <SettingsPanel
+      appSettings={createAppSettings()}
+      onAccentColorChange={vi.fn()}
+      onAudioInputModeChange={vi.fn()}
+      onAudioInputSettingChange={vi.fn()}
+      onThemeModeChange={vi.fn()}
+      {...props}
+    />,
+  );
 }
 
 describe("SettingsPanel", () => {
@@ -328,5 +338,19 @@ describe("SettingsPanel", () => {
     fireEvent.click(screen.getByRole("button", { name: /Dark/ }));
 
     expect(onThemeModeChange).toHaveBeenCalledWith("dark");
+  });
+
+  it("calls accent color change handler when an accent option is selected", () => {
+    const onAccentColorChange = vi.fn();
+
+    renderSettingsPanel({
+      onAccentColorChange,
+    });
+
+    expect(screen.getByRole("group", { name: "Accent color" })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: /Purple/ }));
+
+    expect(onAccentColorChange).toHaveBeenCalledWith("purple");
   });
 });
