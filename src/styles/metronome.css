@@ -105,6 +105,18 @@
   box-shadow: 0 0 18px rgba(255, 179, 71, 0.45);
 }
 
+.metronome-toggle-button {
+  display: inline-grid;
+  min-height: 46px;
+  place-items: center;
+}
+
+.metronome-toggle-button svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
 .metronome-note {
   margin: 0;
   color: var(--color-text-muted);

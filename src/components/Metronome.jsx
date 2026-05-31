@@ -1,5 +1,6 @@
 import * as React from "react";
 import useStrummingPlayback from "../hooks/useStrummingPlayback";
+import { PlayIcon, StopIcon } from "./AppIcons";
 import StrummingPlaybackGuide from "./StrummingPlaybackGuide";
 
 const { useEffect, useRef, useState } = React;
@@ -173,8 +174,14 @@ export default function Metronome({ songBpm, songTitle, strummingPattern }) {
         ))}
       </div>
 
-      <button type="button" className={isRunning ? "metronome-stop-button" : "selected-button"} onClick={toggleMetronome}>
-        {isRunning ? "Stop" : "Start"}
+      <button
+        type="button"
+        className={`metronome-toggle-button ${isRunning ? "metronome-stop-button" : "selected-button"}`}
+        title={isRunning ? "Stop" : "Start"}
+        aria-label={isRunning ? "Stop" : "Start"}
+        onClick={toggleMetronome}
+      >
+        {isRunning ? <StopIcon /> : <PlayIcon />}
       </button>
 
       <StrummingPlaybackGuide activeSlot={playback.activeSlot} isRunning={isRunning} slots={playback.slots} />

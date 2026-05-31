@@ -310,10 +310,10 @@ describe("SettingsPanel", () => {
     expect(onAudioInputSettingChange).toHaveBeenCalledWith("noiseSuppression", true);
   });
 
-  it("starts and stops the microphone test from Settings", () => {
+  it("starts the microphone test from Settings", () => {
     renderSettingsPanel();
 
-    fireEvent.click(screen.getByRole("button", { name: "Test" }));
+    fireEvent.click(screen.getByRole("button", { name: "Test Microphone" }));
 
     expect(mockMicrophoneTestState.startMicrophoneTest).toHaveBeenCalled();
   });
