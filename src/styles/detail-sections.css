@@ -20,28 +20,32 @@
 .transition-card input {
   width: 100%;
   margin-top: 14px;
-  accent-color: var(--blue);
+  accent-color: var(--color-primary);
 }
 
 .strum-pill {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 18px;
   padding: 9px 12px;
-  color: var(--muted-strong);
+  color: var(--color-text-muted-strong);
   font-size: 13px;
   font-weight: 800;
 }
 
 .strum-pill > span:first-child {
-  color: var(--muted-strong);
+  color: var(--color-text-muted-strong);
 }
 
 .song-section-card {
   display: grid;
   gap: 8px;
+}
+
+:root[data-theme="light"] .song-section-card {
+  border-color: var(--color-border-strong);
 }
 
 .song-section-card span {
@@ -50,6 +54,10 @@
   font-weight: 900;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+}
+
+:root[data-theme="light"] .song-section-card span {
+  color: var(--color-eyebrow);
 }
 
 .song-section-card strong {

@@ -16,15 +16,15 @@
 .history-summary-card {
   display: grid;
   gap: 4px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 18px;
-  background: var(--surface);
+  background: var(--color-surface);
   padding: 14px;
 }
 
 .history-summary-card strong {
   display: block;
-  color: var(--text);
+  color: var(--color-text);
   font-size: 28px;
   font-weight: 900;
   line-height: 1;
@@ -32,7 +32,7 @@
 }
 
 .history-summary-card span {
-  color: var(--muted-strong);
+  color: var(--color-text-muted-strong);
   font-size: 12px;
   font-weight: 900;
   letter-spacing: 0.08em;
@@ -40,22 +40,22 @@
 }
 
 .history-summary-card small {
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 12px;
   line-height: 1.35;
 }
 
 .history-summary-card--green {
-  border-color: var(--green);
-  background: var(--green-soft);
+  border-color: var(--color-success);
+  background: var(--color-success-soft);
 }
 
 .history-summary-card--green strong {
-  color: var(--green);
+  color: var(--color-success);
 }
 
 .history-summary-card--muted strong {
-  color: var(--muted-strong);
+  color: var(--color-text-muted-strong);
 }
 
 .history-streak-card {
@@ -63,22 +63,22 @@
   grid-template-columns: 1fr auto;
   gap: 18px;
   align-items: center;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 22px;
-  background: var(--surface);
+  background: var(--color-surface);
   padding: 16px;
 }
 
 .history-streak-card h3 {
   margin: 0;
-  color: var(--text);
+  color: var(--color-text);
   font-size: 24px;
   letter-spacing: -0.04em;
 }
 
 .history-streak-card p:not(.eyebrow) {
   margin: 8px 0 0;
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 13px;
   line-height: 1.5;
 }
@@ -87,15 +87,15 @@
   display: grid;
   min-width: 180px;
   gap: 4px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 18px;
-  background: var(--surface-soft);
+  background: var(--color-surface-soft);
   padding: 14px;
   text-align: right;
 }
 
 .history-streak-meta span {
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 11px;
   font-weight: 900;
   letter-spacing: 0.1em;
@@ -103,13 +103,13 @@
 }
 
 .history-streak-meta strong {
-  color: var(--text);
+  color: var(--color-text);
   font-size: 24px;
   line-height: 1;
 }
 
 .history-streak-meta small {
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 12px;
 }
 
@@ -123,15 +123,15 @@
 }
 
 .history-action-message--success {
-  border: 1px solid var(--green);
-  background: var(--green-soft);
-  color: var(--green);
+  border: 1px solid var(--color-success);
+  background: var(--color-success-soft);
+  color: var(--color-success);
 }
 
 .history-action-message--danger {
-  border: 1px solid var(--danger);
-  background: var(--danger-soft);
-  color: var(--danger-text);
+  border: 1px solid var(--color-danger);
+  background: var(--color-danger-soft);
+  color: var(--color-danger-text);
 }
 
 .history-day-group-list {
@@ -149,9 +149,9 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 18px;
-  background: var(--surface-soft);
+  background: var(--color-surface-soft);
   padding: 12px 14px;
 }
 
@@ -161,21 +161,21 @@
 }
 
 .history-day-header strong {
-  color: var(--text);
+  color: var(--color-text);
   font-size: 15px;
 }
 
 .history-day-header small {
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 12px;
   font-weight: 800;
 }
 
 .history-day-header span {
-  border: 1px solid var(--green);
+  border: 1px solid var(--color-success);
   border-radius: 999px;
-  background: var(--green-soft);
-  color: var(--green);
+  background: var(--color-success-soft);
+  color: var(--color-success);
   padding: 6px 10px;
   font-size: 12px;
   font-weight: 900;
@@ -189,9 +189,9 @@
 .history-card {
   display: grid;
   gap: 12px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 18px;
-  background: var(--surface);
+  background: var(--color-surface);
   padding: 14px;
 }
 
@@ -208,13 +208,13 @@
 }
 
 .history-card strong {
-  color: var(--text);
+  color: var(--color-text);
   font-size: 17px;
 }
 
 .history-card-header small,
 .history-card-header span {
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 13px;
 }
 
@@ -241,10 +241,10 @@
 }
 
 .history-card-metrics span {
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 999px;
-  background: var(--surface-soft);
-  color: var(--muted-strong);
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted-strong);
   padding: 6px 10px;
   font-size: 12px;
   font-weight: 800;
@@ -270,24 +270,26 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  border: 1px solid var(--blue);
+  border: 1px solid var(--color-neutral-action);
   border-radius: 999px;
-  background: var(--blue-soft);
-  color: var(--blue);
+  background: transparent;
+  color: var(--color-neutral-action);
   padding: 7px 11px;
   font-size: 12px;
   font-weight: 900;
 }
 
-.history-recording-button:hover {
-  background: rgba(27, 130, 230, 0.18);
+.history-recording-button:not(:disabled):not(.is-playing):not(.is-replay):hover {
+  border-color: var(--color-success-outline);
+  background: transparent;
+  color: var(--color-success-outline);
 }
 
 .history-recording-button:disabled,
 .history-recording-stop-button:disabled {
-  border-color: var(--border);
-  background: var(--surface-soft);
-  color: var(--muted);
+  border-color: var(--color-border);
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted);
   cursor: not-allowed;
 }
 
@@ -296,15 +298,15 @@
 }
 
 .history-recording-button.is-playing {
-  border-color: var(--green);
-  background: var(--green-soft);
-  color: var(--green);
+  border-color: var(--color-success);
+  background: var(--color-success-soft);
+  color: var(--color-success);
 }
 
 .history-recording-button.is-replay {
-  border-color: var(--mango);
-  background: var(--mango-soft);
-  color: var(--mango);
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
 }
 
 .history-recording-stop-button,
@@ -320,35 +322,31 @@
 }
 
 .history-recording-stop-button {
-  border: 1px solid var(--border);
-  background: var(--surface-subtle);
-  color: var(--muted-strong);
-}
-
-.history-recording-stop-button:not(:disabled):hover {
-  border-color: var(--stop);
-  background: transparent;
-  color: var(--stop);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-subtle);
+  color: var(--color-text-muted-strong);
 }
 
 .history-recording-download-button {
-  border: 1px solid var(--blue);
-  background: var(--blue-soft);
-  color: var(--blue);
+  border: 1px solid var(--color-neutral-action);
+  background: transparent;
+  color: var(--color-neutral-action);
 }
 
 .history-recording-download-button:hover {
-  background: rgba(27, 130, 230, 0.18);
+  border-color: var(--color-neutral-action-hover);
+  background: var(--color-neutral-action-soft-hover);
+  color: var(--color-neutral-action-hover);
 }
 
 .history-recording-delete-button {
-  border: 1px solid var(--danger);
-  background: var(--danger-soft);
-  color: var(--danger);
+  border: 1px solid var(--color-danger);
+  background: transparent;
+  color: var(--color-danger);
 }
 
 .history-recording-delete-button:hover {
-  background: var(--danger-hover);
+  background: var(--color-danger-hover);
 }
 
 .history-recording-button svg,
@@ -371,7 +369,7 @@
 
 .history-playback-message {
   margin: 0;
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 12px;
   font-weight: 400;
   line-height: 1.35;
@@ -381,22 +379,22 @@
 .history-empty {
   display: grid;
   gap: 8px;
-  border: 1px dashed var(--border);
+  border: 1px dashed var(--color-border);
   border-radius: 18px;
-  background: var(--surface-soft);
+  background: var(--color-surface-soft);
   padding: 18px;
 }
 
 .history-empty h3 {
   margin: 0;
-  color: var(--text);
+  color: var(--color-text);
   font-size: 20px;
   letter-spacing: -0.03em;
 }
 
 .history-empty p {
   margin: 0;
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 13px;
   line-height: 1.45;
 }

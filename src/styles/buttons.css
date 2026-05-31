@@ -79,27 +79,29 @@
 }
 
 .preset-button {
-  border-color: #1f2937;
+  border-color: var(--color-neutral-action);
   background: transparent;
-  color: #1f2937;
+  color: var(--color-neutral-action);
 }
 
 .preset-button:hover {
-  border-color: #111827;
-  background: rgba(31, 41, 55, 0.08);
+  border-color: var(--color-neutral-action-hover);
+  background: var(--color-neutral-action-soft-hover);
+  color: var(--color-neutral-action-hover);
+}
+
+.preset-button.is-active,
+.preset-button.is-active:hover,
+:root:not([data-theme="light"]) .preset-button.is-active,
+:root:not([data-theme="light"]) .preset-button.is-active:hover {
+  border-color: #ffffff;
+  background: #ffffff;
   color: #111827;
 }
 
-.preset-button.is-active {
-  border-color: #1f2937;
-  background: #1f2937;
-  color: #ffffff;
-}
-
-.preset-button.is-active:hover {
+:root[data-theme="light"] .preset-button.is-active,
+:root[data-theme="light"] .preset-button.is-active:hover {
   border-color: #111827;
-  background: #111827;
-  color: #ffffff;
 }
 
 :root:not([data-theme="light"]) .preset-button {
@@ -114,35 +116,64 @@
   color: #ffffff;
 }
 
-:root:not([data-theme="light"]) .preset-button.is-active,
-:root:not([data-theme="light"]) .preset-button.is-active:hover {
-  border-color: #1f2937;
-  background: #1f2937;
-  color: #ffffff;
+.green-outline-button,
+.success-outline-button,
+.blue-outline-button {
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: transparent;
+  padding: 10px 14px;
+  font-weight: 900;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.green-outline-button,
+.success-outline-button {
+  border-color: var(--color-success-outline);
+  color: var(--color-success-outline);
+}
+
+.green-outline-button:hover,
+.success-outline-button:hover {
+  border-color: var(--color-success-outline-hover);
+  background: transparent;
+  color: var(--color-success-outline-hover);
+}
+
+.blue-outline-button {
+  border-color: var(--color-primary-outline);
+  color: var(--color-primary-outline);
+}
+
+.blue-outline-button:hover {
+  border-color: var(--color-primary-outline-hover);
+  background: transparent;
+  color: var(--color-primary-outline-hover);
 }
 
 .destructive-outline-button {
   border-color: var(--color-danger);
   background: transparent;
-  color: var(--color-danger-text);
+  color: var(--color-danger);
 }
 
 .destructive-outline-button:hover {
-  border-color: var(--color-danger-text);
+  border-color: var(--color-danger);
   background: var(--color-danger-hover);
-  color: var(--color-danger-text);
+  color: var(--color-danger);
 }
 
-:root:not([data-theme="light"]) .destructive-outline-button,
-:root:not([data-theme="light"]) .destructive-outline-button:hover,
 :root:not([data-theme="light"]) .primary-outline-button,
 :root:not([data-theme="light"]) .primary-outline-button:hover {
   color: #ffffff;
 }
 
 .danger-button,
-.destructive-button,
-.metronome-stop-button {
+.destructive-button {
   border: 1px solid var(--color-destructive);
   border-radius: 999px;
   background: var(--color-destructive);
@@ -157,11 +188,44 @@
 }
 
 .danger-button:hover,
-.destructive-button:hover,
-.metronome-stop-button:hover {
+.destructive-button:hover {
   border-color: var(--color-destructive-hover);
   background: var(--color-destructive-hover);
   color: var(--color-destructive-text);
+}
+
+.metronome-stop-button {
+  border: 1px solid var(--color-neutral-action);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-neutral-action);
+  padding: 10px 14px;
+  font-weight: 900;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.metronome-stop-button:hover {
+  border-color: var(--color-neutral-action-hover);
+  background: var(--color-neutral-action-soft-hover);
+  color: var(--color-neutral-action-hover);
+}
+
+.session-stop-button,
+.history-recording-stop-button:not(:disabled) {
+  border-color: var(--color-neutral-action);
+  background: transparent;
+  color: var(--color-neutral-action);
+}
+
+.session-stop-button:hover,
+.history-recording-stop-button:not(:disabled):hover {
+  border-color: var(--color-neutral-action-hover);
+  background: var(--color-neutral-action-soft-hover);
+  color: var(--color-neutral-action-hover);
 }
 
 .path-card:hover,

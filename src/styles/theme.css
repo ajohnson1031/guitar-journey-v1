@@ -30,10 +30,16 @@
   --color-primary-hover: #176fc4;
   --color-primary-soft: rgba(27, 130, 230, 0.14);
   --color-primary-soft-hover: rgba(27, 130, 230, 0.24);
+  --color-primary-outline: #1b82e6;
+  --color-primary-outline-hover: #176fc4;
   --color-success: #34d399;
   --color-success-hover: #10b981;
   --color-success-soft: rgba(52, 211, 153, 0.12);
   --color-success-soft-hover: rgba(52, 211, 153, 0.22);
+  --color-success-outline: #10b981;
+  --color-success-outline-hover: #10b981;
+  --color-success-fill: #059669;
+  --color-success-fill-hover: #047857;
   --color-accent: #ffb347;
   --color-accent-hover: #f59e0b;
   --color-accent-soft: rgba(255, 179, 71, 0.14);
@@ -47,6 +53,9 @@
   --color-destructive-text: #ffffff;
   --color-stop: #972020;
   --color-track: #27272a;
+  --color-edit: #7dd3fc;
+  --color-edit-soft: rgba(125, 211, 252, 0.12);
+  --color-edit-soft-hover: rgba(125, 211, 252, 0.18);
 
   /* Neutral action colors */
   --color-neutral-action: #f4f4f5;
@@ -59,7 +68,7 @@
   --shadow-subtle: 0 20px 60px rgba(0, 0, 0, 0.16);
   --overlay-dialog-backdrop: rgba(0, 0, 0, 0.68);
 
-  /* Legacy aliases - keep until component styles are migrated */
+  /* Legacy aliases - keep until final deprecation cleanup */
   --bg: var(--color-app-bg);
   --body-bg: var(--color-body-bg);
   --panel: var(--color-panel);
@@ -140,10 +149,16 @@
   --color-primary-hover: #0b5bb0;
   --color-primary-soft: rgba(15, 114, 216, 0.12);
   --color-primary-soft-hover: rgba(15, 114, 216, 0.2);
+  --color-primary-outline: #0f72d8;
+  --color-primary-outline-hover: #0b5bb0;
   --color-success: #059669;
   --color-success-hover: #047857;
   --color-success-soft: rgba(5, 150, 105, 0.12);
   --color-success-soft-hover: rgba(5, 150, 105, 0.2);
+  --color-success-outline: #059669;
+  --color-success-outline-hover: #047857;
+  --color-success-fill: #059669;
+  --color-success-fill-hover: #047857;
   --color-accent: #f59e0b;
   --color-accent-hover: #d97706;
   --color-accent-soft: rgba(245, 158, 11, 0.16);
@@ -157,6 +172,9 @@
   --color-destructive-text: #ffffff;
   --color-stop: #972020;
   --color-track: #dbe3ef;
+  --color-edit: #0f72d8;
+  --color-edit-soft: rgba(15, 114, 216, 0.12);
+  --color-edit-soft-hover: rgba(15, 114, 216, 0.18);
 
   /* Neutral action colors */
   --color-neutral-action: #1f2937;
@@ -169,7 +187,7 @@
   --shadow-subtle: 0 20px 60px rgba(15, 23, 42, 0.08);
   --overlay-dialog-backdrop: rgba(15, 23, 42, 0.34);
 
-  /* Legacy aliases - keep until component styles are migrated */
+  /* Legacy aliases - keep until final deprecation cleanup */
   --bg: var(--color-app-bg);
   --body-bg: var(--color-body-bg);
   --panel: var(--color-panel);

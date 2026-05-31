@@ -14,14 +14,14 @@
 .weekly-focus-card {
   display: grid;
   gap: 8px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 22px;
-  background: var(--surface);
+  background: var(--color-surface);
   padding: 16px;
 }
 
 .weekly-focus-card span {
-  color: var(--eyebrow);
+  color: var(--color-eyebrow);
   font-size: 11px;
   font-weight: 900;
   letter-spacing: 0.1em;
@@ -31,7 +31,7 @@
 .weekly-focus-card strong {
   display: block;
   margin-top: 6px;
-  color: var(--text);
+  color: var(--color-text);
   font-size: 26px;
   line-height: 1;
   letter-spacing: -0.04em;
@@ -39,7 +39,7 @@
 
 .weekly-focus-card p {
   margin: 8px 0 0;
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 13px;
   line-height: 1.5;
 }
@@ -51,15 +51,15 @@
 }
 
 .weekly-summary-grid div {
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 18px;
-  background: var(--surface);
+  background: var(--color-surface);
   padding: 14px;
 }
 
 .weekly-summary-grid span {
   display: block;
-  color: var(--text);
+  color: var(--color-text);
   font-size: 24px;
   font-weight: 900;
 }
@@ -67,7 +67,7 @@
 .weekly-summary-grid small {
   display: block;
   margin-top: 4px;
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 12px;
   line-height: 1.35;
 }
@@ -81,9 +81,9 @@
   display: grid;
   grid-template-columns: 84px 1fr;
   gap: 14px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 20px;
-  background: var(--surface);
+  background: var(--color-surface);
   padding: 14px;
 }
 
@@ -91,12 +91,18 @@
   display: grid;
   min-height: 54px;
   place-items: center;
-  border: 1px solid var(--blue);
+  border: 1px solid var(--color-primary);
   border-radius: 18px;
-  background: var(--blue-soft);
-  color: var(--blue);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
   font-size: 13px;
   font-weight: 900;
+}
+
+:root:not([data-theme="light"]) .weekly-day-badge {
+  border-color: var(--color-edit);
+  background: rgba(125, 211, 252, 0.12);
+  color: var(--color-edit);
 }
 
 .weekly-day-title-row {
@@ -108,17 +114,17 @@
 
 .weekly-day-title-row h3 {
   margin: 0;
-  color: var(--text);
+  color: var(--color-text);
   font-size: 18px;
   letter-spacing: -0.03em;
 }
 
 .weekly-day-title-row span {
   flex: 0 0 auto;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 999px;
-  background: var(--surface-subtle);
-  color: var(--muted-strong);
+  background: var(--color-surface-subtle);
+  color: var(--color-text-muted-strong);
   padding: 5px 9px;
   font-size: 12px;
   font-weight: 900;
@@ -126,7 +132,7 @@
 
 .weekly-day-card p {
   margin: 8px 0 0;
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 13px;
   line-height: 1.5;
 }

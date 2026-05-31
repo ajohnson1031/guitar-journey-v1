@@ -117,12 +117,6 @@
   animation: session-record-pulse 1.15s ease-in-out infinite;
 }
 
-.session-stop-button:hover {
-  border-color: var(--color-stop);
-  background: rgba(151, 32, 32, 0.14);
-  color: var(--color-stop);
-}
-
 .session-stop-button svg {
   stroke: none;
 }
@@ -271,9 +265,9 @@
 }
 
 .complete-session-button {
-  border: 1px solid var(--color-success);
+  border: 1px solid var(--color-success-fill);
   border-radius: 999px;
-  background: var(--color-success);
+  background: var(--color-success-fill);
   color: #ffffff;
   padding: 11px 14px;
   font-weight: 900;
@@ -285,20 +279,8 @@
 }
 
 .complete-session-button:hover {
-  border-color: var(--color-success-hover);
-  background: var(--color-success-hover);
-  color: #ffffff;
-}
-
-:root:not([data-theme="light"]) .complete-session-button:not(:disabled) {
-  border-color: var(--color-success-hover);
-  background: var(--color-success-hover);
-  color: #ffffff;
-}
-
-:root:not([data-theme="light"]) .complete-session-button:not(:disabled):hover {
-  border-color: #059669;
-  background: #059669;
+  border-color: var(--color-success-fill-hover);
+  background: var(--color-success-fill-hover);
   color: #ffffff;
 }
 
