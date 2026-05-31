@@ -1,14 +1,15 @@
 import * as React from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { DEFAULT_PROGRESS } from "../constants";
 import { clearRecordings, deleteRecording, saveRecording } from "../utils/recordingStorageUtils";
+import { getRouteRecordingSyncAction } from "../utils/activeSessionUtils";
 import { clearStoredProgress, loadStoredProgress, saveStoredProgress } from "../utils/storageUtils";
 import usePracticeProgress from "./usePracticeProgress";
 import useSessionRecorder from "./useSessionRecorder";
 import useSessionTimer from "./useSessionTimer";
 import useSongLibrary from "./useSongLibrary";
 
-const { useEffect, useMemo, useState } = React;
+const { useEffect, useMemo, useRef, useState } = React;
 
 function createPracticePlan(song, minutes) {
   const warmup = Math.max(2, Math.round(minutes * 0.12));
@@ -55,7 +56,9 @@ function createSessionId() {
 }
 
 export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
+  const location = useLocation();
   const navigate = useNavigate();
+  const autoPausedRecordingRef = useRef(false);
   const storedProgress = useMemo(() => loadStoredProgress(), []);
 
   const [sessionMinutes, setSessionMinutes] = useState(storedProgress.sessionMinutes);
@@ -146,6 +149,7 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
 
   const hasSelectedSessionRating = Boolean(sessionRating);
   const canSaveCompletedSession = canCompleteSession && hasSelectedSessionRating;
+  const isDashboardRoute = location.pathname === "/" || location.pathname === "";
 
   useEffect(() => {
     saveStoredProgress({
@@ -176,6 +180,31 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
     setSessionRating("");
     void discardRecording();
   }, [discardRecording, selectedSong.id, sessionMinutes]);
+
+  useEffect(() => {
+    const routeRecordingAction = getRouteRecordingSyncAction({
+      isDashboardRoute,
+      isSessionRecording,
+      isSessionRecordingPaused,
+      wasAutoPaused: autoPausedRecordingRef.current,
+    });
+
+    if (routeRecordingAction === "clear-auto-pause") {
+      autoPausedRecordingRef.current = false;
+      return;
+    }
+
+    if (routeRecordingAction === "pause") {
+      autoPausedRecordingRef.current = true;
+      void pauseRecording();
+      return;
+    }
+
+    if (routeRecordingAction === "resume") {
+      autoPausedRecordingRef.current = false;
+      void resumeRecording();
+    }
+  }, [isDashboardRoute, isSessionRecording, isSessionRecordingPaused, pauseRecording, resumeRecording]);
 
   function goToDashboard() {
     navigate("/");
@@ -296,10 +325,12 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
   }
 
   async function handlePauseSessionRecording() {
+    autoPausedRecordingRef.current = false;
     await pauseRecording();
   }
 
   async function handleResumeSessionRecording() {
+    autoPausedRecordingRef.current = false;
     await resumeRecording();
   }
 
@@ -406,6 +437,15 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
   }
 
   return {
+    activeSessionProps: {
+      elapsedSessionSeconds,
+      hasPendingRecording,
+      isActive: elapsedSessionSeconds > 0 || isSessionTimerRunning || isSessionRecording || hasPendingRecording,
+      isSessionRecording,
+      isSessionRecordingPaused,
+      isSessionTimerRunning,
+      recordingDurationSeconds,
+    },
     dashboardRouteProps: {
       actualPracticeMinutes,
       canCompleteSession: canSaveCompletedSession,

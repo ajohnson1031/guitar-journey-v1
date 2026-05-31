@@ -1,3 +1,4 @@
+export { default as ActiveSessionIndicator } from "./ActiveSessionIndicator";
 export { default as AppSidebar } from "./AppSidebar";
 export { default as ChordDiagram } from "./ChordDiagram";
 export { default as ConfirmDialog } from "./ConfirmDialog";

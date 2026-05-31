@@ -37,6 +37,7 @@ function AppRuntime({ onProgressImported }) {
   } = useAppSettings();
 
   const {
+    activeSessionProps,
     dashboardRouteProps,
     editSongRouteProps,
     historyRouteProps,
@@ -56,7 +57,7 @@ function AppRuntime({ onProgressImported }) {
           <AppSidebar {...sidebarProps} />
 
           <section className="main-content">
-            <DashboardNav />
+            <DashboardNav activeSession={activeSessionProps} />
 
             <Routes>
               <Route index element={<DashboardRoute {...dashboardRouteProps} />} />
