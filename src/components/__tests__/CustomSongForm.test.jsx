@@ -127,15 +127,13 @@ describe("CustomSongForm", () => {
     vi.restoreAllMocks();
   });
 
-  it("starts closed by default and opens with the Add Song toggle", () => {
+  it("stays closed when defaultOpen is false", () => {
     const props = renderCustomSongForm();
 
+    expect(screen.getByRole("heading", { name: "Add Custom Song" })).toBeTruthy();
     expect(screen.queryByLabelText("Song Title")).toBeNull();
-
-    fireEvent.click(screen.getByRole("button", { name: "Add Song" }));
-
-    expect(screen.getByLabelText("Song Title")).toBeTruthy();
-    expect(props.onOpenChange).toHaveBeenCalledWith(true);
+    expect(screen.queryByRole("button", { name: "Add Song" })).toBeNull();
+    expect(props.onOpenChange).not.toHaveBeenCalled();
   });
 
   it("renders open immediately when defaultOpen is true", () => {
@@ -145,7 +143,7 @@ describe("CustomSongForm", () => {
     });
 
     expect(screen.getByLabelText("Song Title")).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Close" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Close" })).toBeNull();
     expect(props.onOpenChange).toHaveBeenCalledWith(true);
   });
 
@@ -307,18 +305,6 @@ describe("CustomSongForm", () => {
     fireEvent.click(screen.getByRole("button", { name: "Cancel Edit" }));
 
     expect(props.onCancelEdit).toHaveBeenCalledTimes(1);
-    expect(props.onClose).toHaveBeenCalledTimes(1);
-    expect(props.onOpenChange).toHaveBeenCalledWith(false);
-  });
-
-  it("closing the routed form calls onClose", () => {
-    const props = renderCustomSongForm({
-      defaultOpen: true,
-      showToggle: false,
-    });
-
-    fireEvent.click(screen.getByRole("button", { name: "Close" }));
-
     expect(props.onClose).toHaveBeenCalledTimes(1);
     expect(props.onOpenChange).toHaveBeenCalledWith(false);
   });
