@@ -18,10 +18,44 @@ function formatRecordingDate(value) {
   }).format(date);
 }
 
+function formatRecordingGroupDate(dateKey) {
+  if (!dateKey || dateKey === "unknown-date") return "Unknown date";
+
+  const date = new Date(`${dateKey}T12:00:00`);
+
+  if (Number.isNaN(date.getTime())) return "Unknown date";
+
+  return new Intl.DateTimeFormat("en", {
+    dateStyle: "medium",
+  }).format(date);
+}
+
+function getRecordingDateKey(recording) {
+  const date = new Date(recording?.createdAt || recording?.updatedAt || 0);
+
+  if (Number.isNaN(date.getTime())) return "unknown-date";
+
+  return date.toISOString().slice(0, 10);
+}
+
 function getRecordingTimestamp(recording) {
   const timestamp = new Date(recording?.createdAt || recording?.updatedAt || 0).getTime();
 
   return Number.isFinite(timestamp) ? timestamp : 0;
+}
+
+function getRecordingDurationSeconds(recording) {
+  const durationSeconds = Number(recording?.durationSeconds);
+
+  if (!Number.isFinite(durationSeconds) || durationSeconds < 0) return 0;
+
+  return Math.round(durationSeconds);
+}
+
+function formatRecordingCountLabel(count) {
+  const safeCount = Math.max(0, Math.round(Number(count) || 0));
+
+  return `${safeCount} recording${safeCount === 1 ? "" : "s"}`;
 }
 
 function getRecordingActionLabel({ isLoading, isPaused, isPlaying, isReplay }) {
@@ -50,6 +84,34 @@ function createSessionLikeRecording(recording, linkedSession) {
 
 function getRecordingTitle(recording, linkedSession) {
   return linkedSession?.songTitle || recording.songTitle || "Untitled Recording";
+}
+
+function createRecordingGroups(recordingItems = []) {
+  const groupByDateKey = new Map();
+
+  recordingItems.forEach((item) => {
+    const dateKey = getRecordingDateKey(item.recording);
+
+    if (!groupByDateKey.has(dateKey)) {
+      groupByDateKey.set(dateKey, {
+        dateKey,
+        items: [],
+        totalDurationSeconds: 0,
+      });
+    }
+
+    const group = groupByDateKey.get(dateKey);
+
+    group.items.push(item);
+    group.totalDurationSeconds += getRecordingDurationSeconds(item.recording);
+  });
+
+  return Array.from(groupByDateKey.values()).sort((leftGroup, rightGroup) => {
+    if (leftGroup.dateKey === "unknown-date") return 1;
+    if (rightGroup.dateKey === "unknown-date") return -1;
+
+    return rightGroup.dateKey.localeCompare(leftGroup.dateKey);
+  });
 }
 
 export default function RecordingsLibrary({ sessions = [] }) {
@@ -93,6 +155,8 @@ export default function RecordingsLibrary({ sessions = [] }) {
       .filter((item) => item.recordingId)
       .sort((leftItem, rightItem) => getRecordingTimestamp(rightItem.recording) - getRecordingTimestamp(leftItem.recording));
   }, [recordings, sessionByRecordingId]);
+
+  const recordingGroups = useMemo(() => createRecordingGroups(recordingItems), [recordingItems]);
 
   const linkedRecordingCount = recordingItems.filter((item) => item.isLinked).length;
   const orphanedRecordingCount = recordingItems.length - linkedRecordingCount;
@@ -292,7 +356,22 @@ export default function RecordingsLibrary({ sessions = [] }) {
             <p>Checking local IndexedDB storage for saved practice audio.</p>
           </div>
         ) : recordingItems.length ? (
-          <div className="recording-library-list">{recordingItems.map((item) => renderRecordingCard(item))}</div>
+          <div className="recording-library-day-group-list">
+            {recordingGroups.map((group) => (
+              <section key={group.dateKey} className="recording-library-day-group">
+                <div className="recording-library-day-header">
+                  <div>
+                    <strong>{formatRecordingGroupDate(group.dateKey)}</strong>
+                    <small>{formatRecordingCountLabel(group.items.length)}</small>
+                  </div>
+
+                  <span>{formatRecordingDuration(group.totalDurationSeconds)} total</span>
+                </div>
+
+                <div className="recording-library-list">{group.items.map((item) => renderRecordingCard(item))}</div>
+              </section>
+            ))}
+          </div>
         ) : (
           <div className="recordings-empty">
             <h3>No local recordings yet</h3>

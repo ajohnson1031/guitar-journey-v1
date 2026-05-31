@@ -110,6 +110,53 @@
   color: var(--color-danger-text);
 }
 
+.recording-library-day-group-list {
+  display: grid;
+  gap: 16px;
+}
+
+.recording-library-day-group {
+  display: grid;
+  gap: 10px;
+}
+
+.recording-library-day-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  background: var(--color-surface-soft);
+  padding: 12px 14px;
+}
+
+.recording-library-day-header > div {
+  display: grid;
+  gap: 2px;
+}
+
+.recording-library-day-header strong {
+  color: var(--color-text);
+  font-size: 15px;
+}
+
+.recording-library-day-header small {
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.recording-library-day-header span {
+  border: 1px solid var(--color-primary);
+  border-radius: 999px;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
 .recording-library-list {
   display: grid;
   gap: 10px;
@@ -328,7 +375,8 @@
     grid-template-columns: 1fr;
   }
 
-  .recording-library-card-header {
+  .recording-library-card-header,
+  .recording-library-day-header {
     display: grid;
   }
 

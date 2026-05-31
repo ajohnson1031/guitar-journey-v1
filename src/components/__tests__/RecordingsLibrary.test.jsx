@@ -86,21 +86,32 @@ describe("RecordingsLibrary", () => {
     vi.restoreAllMocks();
   });
 
-  it("renders linked and orphaned local recordings", async () => {
+  it("groups linked and orphaned local recordings by recording date", async () => {
     mockRecordingStorageState.recordings = [
       createRecording({
+        createdAt: "2026-05-30T12:00:00.000Z",
+        durationSeconds: 62,
         recordingId: "recording-linked",
         sessionId: "session-linked",
         songTitle: "Stored Linked Title",
       }),
       createRecording({
+        createdAt: "2026-05-30T13:00:00.000Z",
+        durationSeconds: 64,
         recordingId: "recording-orphaned",
         sessionId: "session-orphaned",
         songTitle: "Orphaned Song",
       }),
+      createRecording({
+        createdAt: "2026-05-31T09:00:00.000Z",
+        durationSeconds: 30,
+        recordingId: "recording-newest",
+        sessionId: "session-newest",
+        songTitle: "Newest Song",
+      }),
     ];
 
-    renderRecordingsLibrary({
+    const { container } = renderRecordingsLibrary({
       sessions: [
         createSession({
           id: "session-linked",
@@ -112,8 +123,23 @@ describe("RecordingsLibrary", () => {
 
     expect(await screen.findByText("Linked Song")).toBeTruthy();
     expect(screen.getByText("Orphaned Song")).toBeTruthy();
+    expect(screen.getByText("Newest Song")).toBeTruthy();
     expect(screen.getByText("Linked")).toBeTruthy();
-    expect(screen.getByText("Orphaned")).toBeTruthy();
+    expect(screen.getAllByText("Orphaned")).toHaveLength(2);
+
+    const dayGroups = Array.from(container.querySelectorAll(".recording-library-day-group"));
+
+    expect(dayGroups).toHaveLength(2);
+    expect(dayGroups[0].textContent).toContain("May 31, 2026");
+    expect(dayGroups[0].textContent).toContain("1 recording");
+    expect(dayGroups[0].textContent).toContain("0:30 total");
+    expect(dayGroups[0].textContent).toContain("Newest Song");
+
+    expect(dayGroups[1].textContent).toContain("May 30, 2026");
+    expect(dayGroups[1].textContent).toContain("2 recordings");
+    expect(dayGroups[1].textContent).toContain("2:06 total");
+    expect(dayGroups[1].textContent).toContain("Linked Song");
+    expect(dayGroups[1].textContent).toContain("Orphaned Song");
   });
 
   it("renders an empty state when there are no local recordings", async () => {
