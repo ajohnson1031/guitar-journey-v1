@@ -3,10 +3,10 @@ import { SESSION_RATINGS } from "../constants";
 import { getLevelBarStates, getLevelMeterTone } from "../utils/microphoneTestUtils";
 import { getPracticeHistoryStats, getTodayPracticeSummary } from "../utils/practiceStatsUtils";
 import { formatRecordingDuration } from "../utils/recordingStorageUtils";
-import { MicIcon, PauseIcon, RecordIcon, StopIcon } from "./AppIcons";
+import { CheckIcon, MicIcon, PauseIcon, RecordIcon, StopIcon } from "./AppIcons";
 import ConfirmDialog from "./ConfirmDialog";
 
-const { Fragment, useMemo, useRef, useState } = React;
+const { Fragment, useEffect, useMemo, useRef, useState } = React;
 
 const SESSION_RECORDING_LEVEL_BAR_COUNT = 6;
 
@@ -53,6 +53,7 @@ export default function TodayPlan({
   sessionMinutes,
   sessionRating,
 }) {
+  const [expandedStepLabel, setExpandedStepLabel] = useState(() => plan[0]?.label || "");
   const [isStopDialogOpen, setIsStopDialogOpen] = useState(false);
   const didPauseSessionForStopRef = useRef(false);
   const didPauseRecordingForStopRef = useRef(false);
@@ -65,6 +66,14 @@ export default function TodayPlan({
   const shouldShowRecordingStatus = Boolean(recordingMessage || isSessionRecording || hasPendingRecording);
   const todaySummary = useMemo(() => getTodayPracticeSummary(sessionHistory), [sessionHistory]);
   const practiceStats = useMemo(() => getPracticeHistoryStats(sessionHistory), [sessionHistory]);
+
+  useEffect(() => {
+    setExpandedStepLabel((currentStepLabel) => {
+      const hasCurrentStep = plan.some((step) => step.label === currentStepLabel);
+
+      return hasCurrentStep ? currentStepLabel : plan[0]?.label || "";
+    });
+  }, [plan]);
 
   function resetStopDecisionState() {
     didPauseSessionForStopRef.current = false;
@@ -127,6 +136,22 @@ export default function TodayPlan({
     onToggleSessionRecording();
   }
 
+  function handleExpandStep(stepLabel) {
+    setExpandedStepLabel(stepLabel);
+  }
+
+  function handleStepKeyDown(event, stepLabel) {
+    if (event.key !== "Enter" && event.key !== " ") return;
+
+    event.preventDefault();
+    handleExpandStep(stepLabel);
+  }
+
+  function handleToggleStepComplete(event, stepLabel) {
+    event.stopPropagation();
+    onToggleStep(stepLabel);
+  }
+
   return (
     <Fragment>
       <section className="session-card">
@@ -159,16 +184,43 @@ export default function TodayPlan({
           <div className={`progress-fill ${progressState}`} style={{ width: `${progressPercent}%` }} />
         </div>
 
-        <div className="step-list">
-          {plan.map((step) => (
-            <button key={step.label} type="button" onClick={() => onToggleStep(step.label)} className={`step-card ${completedSteps[step.label] ? "is-complete" : ""}`}>
-              <span>
-                <strong>{step.label}</strong>
-                <small>{step.minutes} min</small>
-              </span>
-              <p>{step.detail}</p>
-            </button>
-          ))}
+        <div className="step-list" aria-label="Today’s practice steps">
+          {plan.map((step) => {
+            const isComplete = Boolean(completedSteps[step.label]);
+            const isExpanded = expandedStepLabel === step.label;
+
+            return (
+              <article
+                key={step.label}
+                role="button"
+                tabIndex={0}
+                aria-expanded={isExpanded}
+                aria-label={`${step.label} practice step`}
+                onClick={() => handleExpandStep(step.label)}
+                onKeyDown={(event) => handleStepKeyDown(event, step.label)}
+                className={`step-card ${isComplete ? "is-complete" : ""} ${isExpanded ? "is-expanded" : ""}`}
+              >
+                <div className="step-card-header">
+                  <span className="step-card-title-row">
+                    <strong>{step.label}</strong>
+                    <small>{step.minutes} min</small>
+                  </span>
+
+                  <button
+                    type="button"
+                    className={`step-complete-button ${isComplete ? "is-complete" : ""}`}
+                    aria-label={`Mark ${step.label} ${isComplete ? "incomplete" : "complete"}`}
+                    title={isComplete ? "Mark incomplete" : "Mark complete"}
+                    onClick={(event) => handleToggleStepComplete(event, step.label)}
+                  >
+                    <CheckIcon />
+                  </button>
+                </div>
+
+                <p className="step-card-detail">{step.detail}</p>
+              </article>
+            );
+          })}
         </div>
 
         <div className="complete-session-card">

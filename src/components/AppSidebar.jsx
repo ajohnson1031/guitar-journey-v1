@@ -19,18 +19,13 @@ export default function AppSidebar({
   allSongs,
   builtInGenreNames,
   customGenres,
-  masteredCount,
   onAddGenre,
   onPathChange,
   onRemoveGenre,
-  onResetLocalProgress,
   onUpdateGenre,
   pathCards,
   selectedPath,
   selectedSong,
-  sessionHistory,
-  totalPracticeMinutes,
-  transitionScores,
 }) {
   return (
     <Fragment>
@@ -75,32 +70,6 @@ export default function AppSidebar({
         />
 
         <Metronome songTitle={selectedSong.title} songBpm={selectedSong.bpm} strummingPattern={selectedSong.strummingPattern || selectedSong.strumming} />
-
-        <section className="panel-card local-progress-card">
-          <h2>Local Progress</h2>
-          <div className="progress-stat-grid">
-            <div>
-              <span>{masteredCount}</span>
-              <small>songs mastered</small>
-            </div>
-            <div>
-              <span>{Object.keys(transitionScores).length}</span>
-              <small>tracked transitions</small>
-            </div>
-            <div>
-              <span>{sessionHistory.length}</span>
-              <small>sessions completed</small>
-            </div>
-            <div>
-              <span>{totalPracticeMinutes}</span>
-              <small>actual minutes</small>
-            </div>
-          </div>
-
-          <button type="button" className="danger-button" onClick={onResetLocalProgress}>
-            Reset Local Progress
-          </button>
-        </section>
       </aside>
     </Fragment>
   );

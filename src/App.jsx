@@ -2,16 +2,7 @@ import * as React from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AppSidebar, DashboardNav } from "./components";
 import { AppSettingsProvider, GuitarJourneyProvider, useAppSettingsContext, useGuitarJourneyContext } from "./context";
-import {
-  DashboardRoute,
-  EditSongRoute,
-  HistoryRoute,
-  NewSongRoute,
-  SettingsRoute,
-  SongSectionsRoute,
-  TransitionsRoute,
-  WeeklyPlanRoute,
-} from "./routes";
+import { DashboardRoute, EditSongRoute, HistoryRoute, NewSongRoute, SettingsRoute, SongSectionsRoute, TransitionsRoute, WeeklyPlanRoute } from "./routes";
 
 import "./App.css";
 
@@ -68,7 +59,21 @@ function AppLayout({ onProgressImported }) {
             <DashboardNav activeSession={activeSessionProps} />
 
             <Routes>
-              <Route index element={<DashboardRoute {...dashboardRouteProps} />} />
+              <Route
+                index
+                element={
+                  <DashboardRoute
+                    {...dashboardRouteProps}
+                    localProgressProps={{
+                      masteredCount: sidebarProps.masteredCount,
+                      onResetLocalProgress: sidebarProps.onResetLocalProgress,
+                      sessionHistory: sidebarProps.sessionHistory,
+                      totalPracticeMinutes: sidebarProps.totalPracticeMinutes,
+                      transitionScores: sidebarProps.transitionScores,
+                    }}
+                  />
+                }
+              />
 
               <Route path="transitions" element={<TransitionsRoute {...transitionsRouteProps} />} />
 

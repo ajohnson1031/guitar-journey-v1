@@ -6,6 +6,7 @@ export { default as CurrentSongCard } from "./CurrentSongCard";
 export { default as CustomSongForm } from "./CustomSongForm";
 export { default as DashboardNav } from "./DashboardNav";
 export { default as GenreManager } from "./GenreManager";
+export { default as LocalProgressCard } from "./LocalProgressCard";
 export { default as Metronome } from "./Metronome";
 export { default as RequiredChords } from "./RequiredChords";
 export { default as SessionHistory } from "./SessionHistory";
