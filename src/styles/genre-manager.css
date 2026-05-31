@@ -24,10 +24,10 @@
   min-width: 34px;
   height: 34px;
   place-items: center;
-  border: 1px solid var(--green);
+  border: 1px solid var(--color-success);
   border-radius: 999px;
-  background: var(--green-soft);
-  color: var(--green);
+  background: var(--color-success-soft);
+  color: var(--color-success);
   padding: 0;
   transition:
     background 180ms ease,
@@ -36,19 +36,19 @@
 }
 
 .genre-add-toggle-button:hover {
-  background: var(--green-soft-hover);
+  background: var(--color-success-soft-hover);
 }
 
 .genre-add-toggle-button.is-open {
-  border-color: var(--danger);
-  background: var(--danger-soft);
-  color: var(--danger-text);
+  border-color: var(--color-danger);
+  background: var(--color-danger-soft);
+  color: var(--color-danger-text);
 }
 
 .genre-add-toggle-button.is-open:hover {
-  border-color: var(--danger);
-  background: var(--danger-hover);
-  color: var(--danger-text);
+  border-color: var(--color-danger);
+  background: var(--color-danger-hover);
+  color: var(--color-danger-text);
 }
 
 .genre-add-toggle-button svg {
@@ -96,31 +96,31 @@
 }
 
 .genre-cancel-edit-button {
-  border-color: var(--border);
+  border-color: var(--color-border);
   background: transparent;
-  color: var(--muted);
+  color: var(--color-text-muted);
 }
 
 .genre-cancel-edit-button:hover {
-  border-color: var(--muted-strong);
-  background: var(--surface-hover);
-  color: var(--muted-strong);
+  border-color: var(--color-text-muted-strong);
+  background: var(--color-surface-hover);
+  color: var(--color-text-muted-strong);
 }
 
 .genre-delete-button {
-  border-color: var(--danger);
+  border-color: var(--color-danger);
   background: transparent;
-  color: var(--danger-text);
+  color: var(--color-danger-text);
 }
 
 .genre-delete-button:hover {
-  border-color: var(--danger-text);
-  background: var(--danger-hover);
-  color: var(--danger-text);
+  border-color: var(--color-danger-text);
+  background: var(--color-danger-hover);
+  color: var(--color-danger-text);
 }
 
 .genre-description-count {
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 11px;
   line-height: 1;
   text-align: right;
@@ -134,9 +134,9 @@
 .custom-genre-row {
   min-width: 0;
   overflow: hidden;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 16px;
-  background: var(--surface);
+  background: var(--color-surface);
   padding: 10px 12px;
   transition:
     background 180ms ease,
@@ -145,13 +145,13 @@
 }
 
 .custom-genre-row.is-active {
-  border-color: var(--blue);
-  background: var(--blue-soft);
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
 }
 
 .custom-genre-row.is-editing {
-  border-color: var(--green);
-  background: var(--green-soft);
+  border-color: var(--color-success);
+  background: var(--color-success-soft);
 }
 
 .custom-genre-content {
@@ -178,14 +178,14 @@
 .custom-genre-content strong {
   display: block;
   overflow: hidden;
-  color: var(--text);
+  color: var(--color-text);
   font-size: 13px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .custom-genre-content small {
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 11px;
 }
 
@@ -212,36 +212,36 @@
 }
 
 .genre-edit-button {
-  border-color: var(--border);
+  border-color: var(--color-border);
   background: transparent;
-  color: var(--muted);
+  color: var(--color-text-muted);
 }
 
 .genre-edit-button:hover {
-  border-color: var(--muted-strong);
-  background: var(--surface-hover);
-  color: var(--muted-strong);
+  border-color: var(--color-text-muted-strong);
+  background: var(--color-surface-hover);
+  color: var(--color-text-muted-strong);
 }
 
 .custom-genre-row.is-editing .genre-edit-button {
-  border-color: var(--muted-strong);
+  border-color: var(--color-text-muted-strong);
   background: transparent;
-  color: var(--muted-strong);
+  color: var(--color-text-muted-strong);
 }
 
 .custom-genre-row.is-editing .genre-edit-button:hover {
-  background: var(--surface-hover);
+  background: var(--color-surface-hover);
 }
 
 .genre-manager-empty,
 .genre-manager-message {
   margin: 0;
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 12px;
   line-height: 1.45;
 }
 
 .genre-manager-message {
-  color: var(--danger-text);
+  color: var(--color-danger-text);
   font-weight: 800;
 }
