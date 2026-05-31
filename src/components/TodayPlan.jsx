@@ -3,7 +3,7 @@ import { SESSION_RATINGS } from "../constants";
 import { getLevelBarStates, getLevelMeterTone } from "../utils/microphoneTestUtils";
 import { getPracticeHistoryStats, getTodayPracticeSummary } from "../utils/practiceStatsUtils";
 import { formatRecordingDuration } from "../utils/recordingStorageUtils";
-import { CheckIcon, MicIcon, PauseIcon, RecordIcon, StopIcon } from "./AppIcons";
+import { CheckIcon, MicIcon, PauseIcon, PlayIcon, RecordIcon, StopIcon } from "./AppIcons";
 import ConfirmDialog from "./ConfirmDialog";
 
 const { Fragment, useEffect, useMemo, useRef, useState } = React;
@@ -266,8 +266,15 @@ export default function TodayPlan({
                 </button>
               </div>
             ) : (
-              <button type="button" className="selected-button session-primary-action" onClick={handleStartOrResumeSession}>
-                {sessionActionLabel}
+              <button
+                type="button"
+                className="selected-button session-primary-action"
+                title={sessionActionLabel}
+                aria-label={sessionActionLabel}
+                onClick={handleStartOrResumeSession}
+              >
+                <PlayIcon />
+                <span>{sessionActionLabel}</span>
               </button>
             )}
           </div>

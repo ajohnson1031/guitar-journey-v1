@@ -62,6 +62,8 @@
   --color-neutral-action-hover: #d4d4d8;
   --color-neutral-action-contrast: #111827;
   --color-neutral-action-soft-hover: rgba(244, 244, 245, 0.1);
+  --color-neutral-action-active-bg: #ffffff;
+  --color-neutral-action-active-text: #111827;
 
   /* Effects */
   --shadow-elevated: 0 20px 60px rgba(0, 0, 0, 0.22);
@@ -159,10 +161,10 @@
   --color-success-outline-hover: #047857;
   --color-success-fill: #059669;
   --color-success-fill-hover: #047857;
-  --color-accent: #f59e0b;
-  --color-accent-hover: #d97706;
-  --color-accent-soft: rgba(245, 158, 11, 0.16);
-  --color-accent-soft-hover: rgba(245, 158, 11, 0.24);
+  --color-accent: #b45309;
+  --color-accent-hover: #92400e;
+  --color-accent-soft: rgba(180, 83, 9, 0.16);
+  --color-accent-soft-hover: rgba(180, 83, 9, 0.24);
   --color-danger: #dc2626;
   --color-danger-soft: rgba(220, 38, 38, 0.1);
   --color-danger-hover: rgba(220, 38, 38, 0.16);
@@ -181,6 +183,8 @@
   --color-neutral-action-hover: #111827;
   --color-neutral-action-contrast: #ffffff;
   --color-neutral-action-soft-hover: rgba(31, 41, 55, 0.08);
+  --color-neutral-action-active-bg: #1f2937;
+  --color-neutral-action-active-text: #ffffff;
 
   /* Effects */
   --shadow-elevated: 0 20px 60px rgba(15, 23, 42, 0.12);
@@ -229,8 +233,8 @@
 
   --strum-down: #1f2937;
   --strum-down-soft: rgba(31, 41, 55, 0.08);
-  --strum-up: #d97706;
-  --strum-up-soft: rgba(245, 158, 11, 0.16);
+  --strum-up: #92400e;
+  --strum-up-soft: rgba(180, 83, 9, 0.16);
 
   --diagram-bg: #f8fafc;
   --diagram-string: rgba(51, 65, 85, 0.64);

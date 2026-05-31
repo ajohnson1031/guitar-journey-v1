@@ -109,10 +109,20 @@
   line-height: 1.45;
 }
 
+.import-link-card textarea {
+  min-height: 235px;
+}
+
 .analyze-paste-button:hover {
-  border-color: var(--color-primary-hover);
-  background: var(--color-primary-soft-hover);
-  color: var(--color-primary-hover);
+  border-color: var(--color-neutral-action-active-bg);
+  background: var(--color-neutral-action-active-bg);
+  color: var(--color-neutral-action-active-text);
+}
+
+:root:not([data-theme="light"]) .preset-button.analyze-paste-button:hover {
+  border-color: var(--color-neutral-action-active-bg);
+  background: var(--color-neutral-action-active-bg);
+  color: var(--color-neutral-action-active-text);
 }
 
 :root:not([data-theme="light"]) .analyze-paste-button:hover {

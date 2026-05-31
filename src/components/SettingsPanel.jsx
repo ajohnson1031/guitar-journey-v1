@@ -394,20 +394,12 @@ export default function SettingsPanel({ appSettings, onAudioInputModeChange, onA
               <button
                 type="button"
                 className={`selected-button microphone-test-button ${isTestingMicrophone ? "is-testing" : ""}`}
+                title={isTestingMicrophone ? "Stop Microphone Test" : "Test Microphone"}
+                aria-label={isTestingMicrophone ? "Stop Microphone Test" : "Test Microphone"}
                 onClick={handleMicrophoneTestClick}
                 disabled={!audioSupport.isSupported}
               >
-                {isTestingMicrophone ? (
-                  <>
-                    <MicOffIcon />
-                    <span>Stop</span>
-                  </>
-                ) : (
-                  <>
-                    <MicIcon />
-                    <span>Test</span>
-                  </>
-                )}
+                {isTestingMicrophone ? <MicOffIcon /> : <MicIcon />}
               </button>
 
               <MicrophoneLevelMeter isActive={isTestingMicrophone} level={microphoneLevel} />

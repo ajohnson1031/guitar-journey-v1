@@ -84,36 +84,12 @@
   color: var(--color-neutral-action);
 }
 
-.preset-button:hover {
-  border-color: var(--color-neutral-action-hover);
-  background: var(--color-neutral-action-soft-hover);
-  color: var(--color-neutral-action-hover);
-}
-
+.preset-button:hover,
 .preset-button.is-active,
-.preset-button.is-active:hover,
-:root:not([data-theme="light"]) .preset-button.is-active,
-:root:not([data-theme="light"]) .preset-button.is-active:hover {
-  border-color: #ffffff;
-  background: #ffffff;
-  color: #111827;
-}
-
-:root[data-theme="light"] .preset-button.is-active,
-:root[data-theme="light"] .preset-button.is-active:hover {
-  border-color: #111827;
-}
-
-:root:not([data-theme="light"]) .preset-button {
-  border-color: #f4f4f5;
-  background: transparent;
-  color: #f4f4f5;
-}
-
-:root:not([data-theme="light"]) .preset-button:hover {
-  border-color: #ffffff;
-  background: rgba(244, 244, 245, 0.1);
-  color: #ffffff;
+.preset-button.is-active:hover {
+  border-color: var(--color-neutral-action-active-bg);
+  background: var(--color-neutral-action-active-bg);
+  color: var(--color-neutral-action-active-text);
 }
 
 .green-outline-button,
@@ -208,10 +184,13 @@
     transform 160ms ease;
 }
 
-.metronome-stop-button:hover {
-  border-color: var(--color-neutral-action-hover);
-  background: var(--color-neutral-action-soft-hover);
-  color: var(--color-neutral-action-hover);
+.metronome-stop-button:hover,
+.session-stop-button:hover,
+.history-recording-stop-button:not(:disabled):hover,
+.history-recording-download-button:hover {
+  border-color: var(--color-neutral-action-active-bg);
+  background: var(--color-neutral-action-active-bg);
+  color: var(--color-neutral-action-active-text);
 }
 
 .session-stop-button,
@@ -219,13 +198,6 @@
   border-color: var(--color-neutral-action);
   background: transparent;
   color: var(--color-neutral-action);
-}
-
-.session-stop-button:hover,
-.history-recording-stop-button:not(:disabled):hover {
-  border-color: var(--color-neutral-action-hover);
-  background: var(--color-neutral-action-soft-hover);
-  color: var(--color-neutral-action-hover);
 }
 
 .path-card:hover,
