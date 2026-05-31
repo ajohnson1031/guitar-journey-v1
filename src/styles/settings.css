@@ -307,6 +307,35 @@
   flex: 0 0 auto;
 }
 
+.settings-recording-cleanup-panel {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: start;
+  gap: 12px;
+}
+
+.settings-recording-cleanup-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.settings-recording-cleanup-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-recording-cleanup-actions button:disabled {
+  border-color: var(--color-border);
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
 .settings-file-input {
   display: none;
 }
@@ -633,11 +662,14 @@ html[data-theme="light"] .microphone-test-button.is-testing:hover {
 
   .settings-action-panel button,
   .settings-backup-actions,
-  .settings-backup-actions button {
+  .settings-backup-actions button,
+  .settings-recording-cleanup-actions,
+  .settings-recording-cleanup-actions button {
     width: 100%;
   }
 
-  .settings-backup-actions {
+  .settings-backup-actions,
+  .settings-recording-cleanup-actions {
     display: grid;
   }
 
