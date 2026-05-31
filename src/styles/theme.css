@@ -15,6 +15,7 @@
   --color-surface: rgba(10, 10, 11, 0.42);
   --color-surface-soft: rgba(10, 10, 11, 0.38);
   --color-surface-subtle: rgba(10, 10, 11, 0.5);
+  --color-surface-hover: rgba(24, 24, 27, 0.88);
 
   /* Borders/text */
   --color-border: #2d2d33;
@@ -26,11 +27,17 @@
 
   /* Intent/brand colors */
   --color-primary: #1b82e6;
+  --color-primary-hover: #176fc4;
   --color-primary-soft: rgba(27, 130, 230, 0.14);
+  --color-primary-soft-hover: rgba(27, 130, 230, 0.24);
   --color-success: #34d399;
+  --color-success-hover: #10b981;
   --color-success-soft: rgba(52, 211, 153, 0.12);
+  --color-success-soft-hover: rgba(52, 211, 153, 0.22);
   --color-accent: #ffb347;
+  --color-accent-hover: #f59e0b;
   --color-accent-soft: rgba(255, 179, 71, 0.14);
+  --color-accent-soft-hover: rgba(255, 179, 71, 0.24);
   --color-danger: #f87171;
   --color-danger-soft: rgba(248, 113, 113, 0.1);
   --color-danger-hover: rgba(248, 113, 113, 0.16);
@@ -51,6 +58,7 @@
   --surface: var(--color-surface);
   --surface-soft: var(--color-surface-soft);
   --surface-subtle: var(--color-surface-subtle);
+  --surface-hover: var(--color-surface-hover);
   --border: var(--color-border);
   --border-strong: var(--color-border-strong);
   --text: var(--color-text);
@@ -58,11 +66,17 @@
   --muted-strong: var(--color-text-muted-strong);
   --eyebrow: var(--color-eyebrow);
   --blue: var(--color-primary);
+  --blue-hover: var(--color-primary-hover);
   --blue-soft: var(--color-primary-soft);
+  --blue-soft-hover: var(--color-primary-soft-hover);
   --green: var(--color-success);
+  --green-hover: var(--color-success-hover);
   --green-soft: var(--color-success-soft);
+  --green-soft-hover: var(--color-success-soft-hover);
   --mango: var(--color-accent);
+  --mango-hover: var(--color-accent-hover);
   --mango-soft: var(--color-accent-soft);
+  --mango-soft-hover: var(--color-accent-soft-hover);
   --danger: var(--color-danger);
   --danger-soft: var(--color-danger-soft);
   --danger-hover: var(--color-danger-hover);
@@ -99,6 +113,7 @@
   --color-surface: rgba(248, 250, 252, 0.88);
   --color-surface-soft: rgba(241, 245, 249, 0.78);
   --color-surface-subtle: rgba(255, 255, 255, 0.86);
+  --color-surface-hover: rgba(226, 232, 240, 0.96);
 
   /* Borders/text */
   --color-border: #d7dde7;
@@ -110,11 +125,17 @@
 
   /* Intent/brand colors */
   --color-primary: #0f72d8;
+  --color-primary-hover: #0b5bb0;
   --color-primary-soft: rgba(15, 114, 216, 0.12);
+  --color-primary-soft-hover: rgba(15, 114, 216, 0.2);
   --color-success: #059669;
+  --color-success-hover: #047857;
   --color-success-soft: rgba(5, 150, 105, 0.12);
+  --color-success-soft-hover: rgba(5, 150, 105, 0.2);
   --color-accent: #f59e0b;
+  --color-accent-hover: #d97706;
   --color-accent-soft: rgba(245, 158, 11, 0.16);
+  --color-accent-soft-hover: rgba(245, 158, 11, 0.24);
   --color-danger: #dc2626;
   --color-danger-soft: rgba(220, 38, 38, 0.1);
   --color-danger-hover: rgba(220, 38, 38, 0.16);
@@ -135,6 +156,7 @@
   --surface: var(--color-surface);
   --surface-soft: var(--color-surface-soft);
   --surface-subtle: var(--color-surface-subtle);
+  --surface-hover: var(--color-surface-hover);
   --border: var(--color-border);
   --border-strong: var(--color-border-strong);
   --text: var(--color-text);
@@ -142,11 +164,17 @@
   --muted-strong: var(--color-text-muted-strong);
   --eyebrow: var(--color-eyebrow);
   --blue: var(--color-primary);
+  --blue-hover: var(--color-primary-hover);
   --blue-soft: var(--color-primary-soft);
+  --blue-soft-hover: var(--color-primary-soft-hover);
   --green: var(--color-success);
+  --green-hover: var(--color-success-hover);
   --green-soft: var(--color-success-soft);
+  --green-soft-hover: var(--color-success-soft-hover);
   --mango: var(--color-accent);
+  --mango-hover: var(--color-accent-hover);
   --mango-soft: var(--color-accent-soft);
+  --mango-soft-hover: var(--color-accent-soft-hover);
   --danger: var(--color-danger);
   --danger-soft: var(--color-danger-soft);
   --danger-hover: var(--color-danger-hover);
