@@ -11,10 +11,10 @@
 .custom-genre-name-input,
 .bpm-input-wrap input {
   width: 100%;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 16px;
-  background: var(--panel-strong);
-  color: var(--text);
+  background: var(--color-panel-strong);
+  color: var(--color-text);
   padding: 11px 12px;
   outline: none;
 }
@@ -27,10 +27,10 @@ select,
 .select-control,
 .custom-song-form select {
   width: 100%;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 18px;
-  background-color: var(--panel-strong);
-  color: var(--text);
+  background-color: var(--color-panel-strong);
+  color: var(--color-text);
   padding: 12px 34px 12px 14px;
   outline: none;
 
@@ -66,13 +66,13 @@ select:focus,
 .custom-genre-content textarea:focus,
 .custom-genre-name-input:focus,
 .bpm-input-wrap input:focus {
-  border-color: var(--blue);
+  border-color: var(--color-primary);
 }
 
 .select-label {
   display: block;
   margin-bottom: 8px;
-  color: var(--muted-strong);
+  color: var(--color-text-muted-strong);
   font-size: 13px;
   font-weight: 900;
   letter-spacing: 0.08em;
