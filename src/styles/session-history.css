@@ -186,10 +186,18 @@
 }
 
 .history-day-group-list.is-scrollable {
-  max-height: min(76vh, 920px);
+  --history-card-estimated-height: 148px;
+  --history-card-gap: 10px;
+  --history-day-header-height: 58px;
+
+  max-height: calc(var(--history-day-header-height) + (var(--history-card-estimated-height) * 4) + (var(--history-card-gap) * 4) + 4px);
   overflow-y: auto;
-  padding-right: 6px;
+  padding-right: 16px;
   scrollbar-gutter: stable;
+}
+
+.history-day-group-list.is-scrollable > .history-day-group {
+  margin-right: 4px;
 }
 
 .history-day-group {

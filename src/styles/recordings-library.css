@@ -175,10 +175,18 @@
 }
 
 .recording-library-day-group-list.is-scrollable {
-  max-height: min(76vh, 920px);
+  --recording-card-estimated-height: 148px;
+  --recording-card-gap: 10px;
+  --recording-day-header-height: 58px;
+
+  max-height: calc(var(--recording-day-header-height) + (var(--recording-card-estimated-height) * 5) + (var(--recording-card-gap) * 4) + 3px);
   overflow-y: auto;
-  padding-right: 6px;
+  padding-right: 16px;
   scrollbar-gutter: stable;
+}
+
+.recording-library-day-group-list.is-scrollable > .recording-library-day-group {
+  margin-right: 4px;
 }
 
 .recording-library-day-group {
