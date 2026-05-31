@@ -49,7 +49,7 @@
 }
 
 .song-section-card span {
-  color: #7dd3fc;
+  color: var(--color-eyebrow);
   font-size: 12px;
   font-weight: 900;
   letter-spacing: 0.12em;
