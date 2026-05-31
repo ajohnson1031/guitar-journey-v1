@@ -3,7 +3,7 @@ import { useMicrophoneTest } from "../hooks";
 import { getAudioRecordingSupportDetails } from "../utils/audioRecordingUtils";
 import { getLevelBarStates, getLevelMeterTone } from "../utils/microphoneTestUtils";
 import { applyProgressBackupWithRecordings, createProgressBackupWithRecordings, getProgressBackupSummary, parseProgressBackup } from "../utils/progressBackupUtils";
-import { getRecordingStorageSummary } from "../utils/recordingStorageUtils";
+import { clearRecordings, clearUnlinkedRecordings, formatRecordingCount, getRecordingStorageSummary } from "../utils/recordingStorageUtils";
 import {
   ACCENT_COLOR_OPTIONS,
   AUDIO_INPUT_MODE_ADVANCED,
@@ -118,6 +118,10 @@ export default function SettingsPanel({
     isSupported: false,
     label: "Checking...",
   });
+  const [pendingRecordingCleanup, setPendingRecordingCleanup] = useState(null);
+
+  const storedRecordingCount = Math.max(0, Number(recordingStorageSummary.storedCount ?? recordingStorageSummary.count ?? 0) || 0);
+  const orphanedRecordingCount = Math.max(0, Number(recordingStorageSummary.orphanedCount ?? 0) || 0);
 
   useEffect(() => {
     let isMounted = true;
@@ -142,6 +146,21 @@ export default function SettingsPanel({
       isMounted = false;
     };
   }, []);
+
+  async function refreshRecordingStorageSummary() {
+    try {
+      const summary = await getRecordingStorageSummary(loadStoredProgress().sessionHistory);
+
+      setRecordingStorageSummary(summary);
+    } catch {
+      setRecordingStorageSummary({
+        count: 0,
+        isSupported: false,
+        label: "Storage unavailable",
+      });
+    }
+  }
+
 
   useEffect(() => {
     const importSuccessFlash = readImportSuccessFlash();
@@ -249,6 +268,55 @@ export default function SettingsPanel({
       onProgressImported();
     } catch (error) {
       showBackupMessage(error instanceof Error ? error.message : "Progress backup could not be imported.", "danger");
+    }
+  }
+
+  function handleOpenRecordingCleanup(cleanupType) {
+    setBackupMessage("");
+
+    if (cleanupType === "orphaned" && orphanedRecordingCount < 1) {
+      showBackupMessage("No orphaned recordings were found.", "success");
+      return;
+    }
+
+    if (cleanupType === "all" && storedRecordingCount < 1) {
+      showBackupMessage("No local recordings were found.", "success");
+      return;
+    }
+
+    setPendingRecordingCleanup(cleanupType);
+  }
+
+  function handleCancelRecordingCleanup() {
+    setPendingRecordingCleanup(null);
+  }
+
+  async function handleConfirmRecordingCleanup() {
+    const cleanupType = pendingRecordingCleanup;
+
+    if (!cleanupType) return;
+
+    setPendingRecordingCleanup(null);
+
+    try {
+      if (cleanupType === "orphaned") {
+        const deletedCount = await clearUnlinkedRecordings(loadStoredProgress().sessionHistory);
+
+        showBackupMessage(
+          deletedCount
+            ? `Deleted ${formatRecordingCount(deletedCount)} that were not linked to session history.`
+            : "No orphaned recordings were found.",
+          "success",
+        );
+      } else {
+        await clearRecordings();
+
+        showBackupMessage(`Deleted ${formatRecordingCount(storedRecordingCount)} from local recording storage.`, "success");
+      }
+
+      await refreshRecordingStorageSummary();
+    } catch {
+      showBackupMessage("Recording cleanup could not be completed.", "danger");
     }
   }
 
@@ -373,6 +441,33 @@ export default function SettingsPanel({
               <StatusCard label="Local recordings" value={recordingStorageSummary.label} tone={recordingStorageSummary.count > 0 ? "success" : "neutral"} />
             </div>
 
+            <div className="settings-action-panel settings-recording-cleanup-panel">
+              <div>
+                <strong>Recording cleanup</strong>
+                <p>Remove local audio files without changing session history. Orphaned recordings are saved files that no longer match a session.</p>
+              </div>
+
+              <div className="settings-recording-cleanup-actions">
+                <button
+                  type="button"
+                  className="preset-button"
+                  disabled={!recordingStorageSummary.isSupported || orphanedRecordingCount < 1}
+                  onClick={() => handleOpenRecordingCleanup("orphaned")}
+                >
+                  Delete orphaned
+                </button>
+
+                <button
+                  type="button"
+                  className="destructive-outline-button"
+                  disabled={!recordingStorageSummary.isSupported || storedRecordingCount < 1}
+                  onClick={() => handleOpenRecordingCleanup("all")}
+                >
+                  Delete all recordings
+                </button>
+              </div>
+            </div>
+
             <div className="settings-audio-options-panel" aria-label="Audio input settings">
               <div className="settings-audio-options-copy">
                 <div>
@@ -479,6 +574,21 @@ export default function SettingsPanel({
         tone="primary"
         onCancel={handleCancelImport}
         onConfirm={handleConfirmImport}
+      />
+
+      <ConfirmDialog
+        isOpen={Boolean(pendingRecordingCleanup)}
+        title={pendingRecordingCleanup === "orphaned" ? "Delete orphaned recordings?" : "Delete all local recordings?"}
+        message={
+          pendingRecordingCleanup === "orphaned"
+            ? `This will delete ${formatRecordingCount(orphanedRecordingCount)} that are not linked to session history. Session history will be preserved.`
+            : `This will delete ${formatRecordingCount(storedRecordingCount)} from local IndexedDB storage. Session history will be preserved, but playback/download will no longer be available for those sessions.`
+        }
+        confirmLabel={pendingRecordingCleanup === "orphaned" ? "Delete Orphaned" : "Delete All Recordings"}
+        cancelLabel="Cancel"
+        tone="danger"
+        onCancel={handleCancelRecordingCleanup}
+        onConfirm={handleConfirmRecordingCleanup}
       />
     </Fragment>
   );

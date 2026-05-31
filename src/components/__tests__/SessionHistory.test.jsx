@@ -16,6 +16,19 @@ const mockPlaybackState = vi.hoisted(() => ({
   stopPlayback: vi.fn(),
 }));
 
+const mockRecordingStorageState = vi.hoisted(() => ({
+  recordings: [],
+}));
+
+vi.mock("../../utils/recordingStorageUtils", async () => {
+  const actual = await vi.importActual("../../utils/recordingStorageUtils");
+
+  return {
+    ...actual,
+    getAllRecordings: vi.fn(() => Promise.resolve(mockRecordingStorageState.recordings)),
+  };
+});
+
 vi.mock("../../hooks", () => ({
   useRecordingPlayback: () => mockPlaybackState,
 }));
@@ -65,6 +78,7 @@ function resetPlaybackState() {
   mockPlaybackState.playbackState = "idle";
   mockPlaybackState.playRecording.mockReset();
   mockPlaybackState.stopPlayback.mockReset();
+  mockRecordingStorageState.recordings = [];
 }
 
 describe("SessionHistory", () => {
@@ -114,7 +128,13 @@ describe("SessionHistory", () => {
     expect(dayGroups[1].textContent).toContain("Yesterday Blues");
   });
 
-  it("shows recording controls only for sessions with recordings", () => {
+  it("shows recording controls only for sessions with stored recordings", async () => {
+    mockRecordingStorageState.recordings = [
+      {
+        recordingId: "recording-recorded",
+      },
+    ];
+
     renderSessionHistory({
       sessions: [
         createSession({
@@ -131,13 +151,19 @@ describe("SessionHistory", () => {
       ],
     });
 
-    expect(screen.getByRole("button", { name: "Play Recording" })).toBeTruthy();
+    expect(await screen.findByRole("button", { name: "Play Recording" })).toBeTruthy();
     expect(screen.getByLabelText("Stop playback")).toBeTruthy();
     expect(screen.getByLabelText("Delete recording for Recorded Song")).toBeTruthy();
     expect(screen.queryByLabelText("Delete recording for Silent Song")).toBeNull();
   });
 
-  it("uses Pause Playback text while a recording is playing", () => {
+  it("uses Pause Playback text while a stored recording is playing", async () => {
+    mockRecordingStorageState.recordings = [
+      {
+        recordingId: "recording-playing",
+      },
+    ];
+
     mockPlaybackState.activeRecordingId = "recording-playing";
     mockPlaybackState.isPlayingRecording = true;
     mockPlaybackState.playbackState = "playing";
@@ -154,7 +180,7 @@ describe("SessionHistory", () => {
       ],
     });
 
-    expect(screen.getByRole("button", { name: "Pause Playback" })).toBeTruthy();
+    expect(await screen.findByRole("button", { name: "Pause Playback" })).toBeTruthy();
     expect(screen.getByLabelText("Stop playback").disabled).toBe(false);
   });
 

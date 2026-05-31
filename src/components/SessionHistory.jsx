@@ -2,7 +2,7 @@ import * as React from "react";
 import { useRecordingPlayback } from "../hooks";
 import { formatPracticeDate, formatSessionActualDuration, getPracticeDayGroups, getPracticeHistoryStats } from "../utils/practiceStatsUtils";
 import { downloadRecordingForSession } from "../utils/recordingExportUtils";
-import { formatRecordingDuration } from "../utils/recordingStorageUtils";
+import { formatRecordingDuration, getAllRecordings } from "../utils/recordingStorageUtils";
 import { DownloadIcon, PauseIcon, PlayIcon, ReplayIcon, StopIcon, TrashIcon } from "./AppIcons";
 import ConfirmDialog from "./ConfirmDialog";
 
@@ -33,6 +33,7 @@ function canStopRecordingPlayback({ isActiveRecording, playbackState }) {
 }
 
 export default function SessionHistory({ onDeleteSessionRecording, sessions }) {
+  const [availableRecordingIds, setAvailableRecordingIds] = useState(() => new Set());
   const [historyActionMessage, setHistoryActionMessage] = useState("");
   const [historyActionTone, setHistoryActionTone] = useState("success");
   const [pendingDeleteSession, setPendingDeleteSession] = useState(null);
@@ -42,6 +43,39 @@ export default function SessionHistory({ onDeleteSessionRecording, sessions }) {
 
   const { activeRecordingId, isLoadingRecording, isPlayingRecording, playbackMessage, playbackMessageRecordingId, playbackState, playRecording, stopPlayback } =
     useRecordingPlayback();
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadAvailableRecordings() {
+      try {
+        const recordings = await getAllRecordings();
+        const recordingIds = new Set();
+
+        recordings.forEach((recording) => {
+          const recordingId = String(recording?.recordingId || "").trim();
+
+          if (recordingId) {
+            recordingIds.add(recordingId);
+          }
+        });
+
+        if (isMounted) {
+          setAvailableRecordingIds(recordingIds);
+        }
+      } catch {
+        if (isMounted) {
+          setAvailableRecordingIds(new Set());
+        }
+      }
+    }
+
+    void loadAvailableRecordings();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [sessions]);
 
   useEffect(() => {
     if (!historyActionMessage) return undefined;
@@ -90,6 +124,16 @@ export default function SessionHistory({ onDeleteSessionRecording, sessions }) {
       stopPlayback(session.recordingId);
 
       const didDelete = await onDeleteSessionRecording(session);
+
+      if (didDelete) {
+        setAvailableRecordingIds((currentIds) => {
+          const nextIds = new Set(currentIds);
+
+          nextIds.delete(session.recordingId);
+
+          return nextIds;
+        });
+      }
 
       showHistoryActionMessage(didDelete ? "Recording deleted. Session history kept." : "Recording could not be deleted.", didDelete ? "success" : "danger");
     } catch {
@@ -148,7 +192,8 @@ export default function SessionHistory({ onDeleteSessionRecording, sessions }) {
 
                 <div className="history-list">
                   {group.sessions.map((session) => {
-                    const isActiveRecording = activeRecordingId === session.recordingId;
+                    const hasStoredRecording = Boolean(session.recordingId && availableRecordingIds.has(session.recordingId));
+                    const isActiveRecording = hasStoredRecording && activeRecordingId === session.recordingId;
                     const isLoadingThisRecording = isActiveRecording && isLoadingRecording;
                     const isPlayingThisRecording = isActiveRecording && isPlayingRecording;
                     const isPausedThisRecording = isActiveRecording && playbackState === "paused";
@@ -187,10 +232,10 @@ export default function SessionHistory({ onDeleteSessionRecording, sessions }) {
 
                             <span>{session.rating}</span>
 
-                            {session.recordingId ? <span>Recording {formatRecordingDuration(session.recordingDurationSeconds)}</span> : null}
+                            {hasStoredRecording ? <span>Recording {formatRecordingDuration(session.recordingDurationSeconds)}</span> : null}
                           </div>
 
-                          {session.recordingId ? (
+                          {hasStoredRecording ? (
                             <div className="history-recording-actions">
                               <div className="history-recording-controls">
                                 <button

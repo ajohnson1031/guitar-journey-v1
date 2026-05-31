@@ -23,31 +23,49 @@ vi.mock("../../utils/audioRecordingUtils", () => ({
   }),
 }));
 
-vi.mock("../../utils/recordingStorageUtils", () => ({
-  getAllRecordings: () =>
-    Promise.resolve([
-      {
-        blob: new Blob(["test audio"], { type: "audio/webm" }),
-        createdAt: "2026-05-30T12:00:00.000Z",
-        durationSeconds: 12,
-        mimeType: "audio/webm",
-        recordingId: "recording-test",
-        sessionId: "session-test",
-        songId: "song-test",
-        songTitle: "Test Song",
-      },
-    ]),
-  getRecordingStorageSummary: () =>
+const mockRecordingStorageUtils = vi.hoisted(() => ({
+  clearRecordings: vi.fn(() => Promise.resolve(true)),
+  clearUnlinkedRecordings: vi.fn(() => Promise.resolve(1)),
+  getRecordingStorageSummary: vi.fn(() =>
     Promise.resolve({
       count: 2,
       isSupported: true,
       label: "2 recordings",
+      linkedStoredCount: 2,
+      missingLinkedCount: 0,
+      orphanedCount: 0,
+      storedCount: 2,
     }),
-  saveRecording: () =>
-    Promise.resolve({
-      recordingId: "recording-test",
-    }),
+  ),
 }));
+
+vi.mock("../../utils/recordingStorageUtils", async () => {
+  const actual = await vi.importActual("../../utils/recordingStorageUtils");
+
+  return {
+    ...actual,
+    clearRecordings: mockRecordingStorageUtils.clearRecordings,
+    clearUnlinkedRecordings: mockRecordingStorageUtils.clearUnlinkedRecordings,
+    getAllRecordings: () =>
+      Promise.resolve([
+        {
+          blob: new Blob(["test audio"], { type: "audio/webm" }),
+          createdAt: "2026-05-30T12:00:00.000Z",
+          durationSeconds: 12,
+          mimeType: "audio/webm",
+          recordingId: "recording-test",
+          sessionId: "session-test",
+          songId: "song-test",
+          songTitle: "Test Song",
+        },
+      ]),
+    getRecordingStorageSummary: mockRecordingStorageUtils.getRecordingStorageSummary,
+    saveRecording: () =>
+      Promise.resolve({
+        recordingId: "recording-test",
+      }),
+  };
+});
 
 vi.mock("../../utils/progressBackupUtils", async () => {
   const actual = await vi.importActual("../../utils/progressBackupUtils");
@@ -182,6 +200,21 @@ describe("SettingsPanel", () => {
     mockMicrophoneTestState.startMicrophoneTest.mockReset();
     mockMicrophoneTestState.stopMicrophoneTest.mockReset();
 
+    mockRecordingStorageUtils.clearRecordings.mockReset();
+    mockRecordingStorageUtils.clearRecordings.mockResolvedValue(true);
+    mockRecordingStorageUtils.clearUnlinkedRecordings.mockReset();
+    mockRecordingStorageUtils.clearUnlinkedRecordings.mockResolvedValue(1);
+    mockRecordingStorageUtils.getRecordingStorageSummary.mockReset();
+    mockRecordingStorageUtils.getRecordingStorageSummary.mockResolvedValue({
+      count: 2,
+      isSupported: true,
+      label: "2 recordings",
+      linkedStoredCount: 2,
+      missingLinkedCount: 0,
+      orphanedCount: 0,
+      storedCount: 2,
+    });
+
     vi.stubGlobal("URL", {
       createObjectURL: vi.fn(() => "blob:guitar-journey-progress"),
       revokeObjectURL: vi.fn(),
@@ -204,6 +237,23 @@ describe("SettingsPanel", () => {
     expect(screen.getByRole("button", { name: "Import" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Export" })).toBeTruthy();
     expect(await screen.findByText("2 recordings")).toBeTruthy();
+  });
+
+  it("clears all local recordings after confirmation", async () => {
+    renderSettingsPanel();
+
+    fireEvent.click(await screen.findByRole("button", { name: "Delete all recordings" }));
+
+    const dialog = await screen.findByRole("dialog");
+
+    expect(within(dialog).getByText("Delete all local recordings?")).toBeTruthy();
+
+    fireEvent.click(within(dialog).getByRole("button", { name: "Delete All Recordings" }));
+
+    await waitFor(() => {
+      expect(mockRecordingStorageUtils.clearRecordings).toHaveBeenCalled();
+      expect(screen.getByText("Deleted 2 recordings from local recording storage.")).toBeTruthy();
+    });
   });
 
   it("exports a JSON progress backup and shows a success message", async () => {
