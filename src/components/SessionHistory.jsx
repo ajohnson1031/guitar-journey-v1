@@ -74,7 +74,9 @@ function canStopRecordingPlayback({ isActiveRecording, playbackState }) {
 }
 
 function filterPracticeSessions(sessions = [], searchTerm = "") {
-  const normalizedSearchTerm = String(searchTerm || "").trim().toLowerCase();
+  const normalizedSearchTerm = String(searchTerm || "")
+    .trim()
+    .toLowerCase();
 
   if (!normalizedSearchTerm) return sessions;
 
@@ -128,10 +130,7 @@ export default function SessionHistory({ onDeleteSessionRecording, sessions }) {
 
   const stats = getPracticeHistoryStats(sessions);
   const filteredSessions = useMemo(() => filterPracticeSessions(sessions, practiceHistorySearchTerm), [practiceHistorySearchTerm, sessions]);
-  const recentSessionGroups = useMemo(
-    () => getVisiblePracticeDayGroups(filteredSessions, practiceHistorySortMode).slice(0, 8),
-    [filteredSessions, practiceHistorySortMode],
-  );
+  const recentSessionGroups = useMemo(() => getVisiblePracticeDayGroups(filteredSessions, practiceHistorySortMode).slice(0, 8), [filteredSessions, practiceHistorySortMode]);
   const visibleSessionCount = filteredSessions.length;
   const shouldScrollHistory = visibleSessionCount > 5;
 
@@ -316,7 +315,8 @@ export default function SessionHistory({ onDeleteSessionRecording, sessions }) {
                   {group.sessions.map((session) => {
                     const hasRecordingReference = Boolean(session.recordingId);
                     const hasStoredRecording = hasRecordingReference && availableRecordingIds.has(session.recordingId);
-                    const hasMissingRecording = hasRecordingReference && !hasStoredRecording;
+                    const hasRemovedRecording = Boolean(session.recordingRemovedAt);
+                    const hasMissingRecording = hasRemovedRecording || (hasRecordingReference && !hasStoredRecording);
                     const isActiveRecording = hasStoredRecording && activeRecordingId === session.recordingId;
                     const isLoadingThisRecording = isActiveRecording && isLoadingRecording;
                     const isPlayingThisRecording = isActiveRecording && isPlayingRecording;

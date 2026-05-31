@@ -286,6 +286,22 @@ describe("SessionHistory", () => {
     expect(screen.queryByLabelText("Delete recording for Missing Recording Song")).toBeNull();
   });
 
+  it("shows a removed recording pill when a session has an explicit removed recording marker", () => {
+    renderSessionHistory({
+      sessions: [
+        createSession({
+          id: "removed-recording",
+          songTitle: "Removed Recording Song",
+          recordingRemovedAt: "2026-05-31T12:00:00.000Z",
+        }),
+      ],
+    });
+
+    expect(screen.getByText("Recording removed")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Play Recording" })).toBeNull();
+    expect(screen.queryByLabelText("Delete recording for Removed Recording Song")).toBeNull();
+  });
+
   it("uses Pause Playback text while a stored recording is playing", async () => {
     mockRecordingStorageState.recordings = [
       {
