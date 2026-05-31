@@ -1,10 +1,16 @@
 import {
+  CalendarDays,
   Check,
   Circle,
+  CirclePlus,
   CloudDownload,
   CloudUpload,
   Download,
   Edit3,
+  History,
+  LayoutDashboard,
+  ListMusic,
+  Menu,
   Mic,
   MicOff,
   Pause,
@@ -12,6 +18,7 @@ import {
   Play,
   Plus,
   RefreshCcw,
+  Repeat2,
   Save,
   Settings,
   Square,
@@ -39,11 +46,17 @@ function createIcon(Component, defaultProps = {}) {
   return memo(AppIcon);
 }
 
+const CalendarDaysIcon = createIcon(CalendarDays);
 const CheckIcon = createIcon(Check);
+const CirclePlusIcon = createIcon(CirclePlus);
 const CloudDownloadIcon = createIcon(CloudDownload);
 const CloudUploadIcon = createIcon(CloudUpload);
+const DashboardIcon = createIcon(LayoutDashboard);
 const DownloadIcon = createIcon(Download);
 const EditIcon = createIcon(Edit3);
+const HistoryIcon = createIcon(History);
+const ListMusicIcon = createIcon(ListMusic);
+const MenuIcon = createIcon(Menu);
 const MicIcon = createIcon(Mic);
 const MicOffIcon = createIcon(MicOff);
 const PauseIcon = createIcon(Pause);
@@ -56,6 +69,7 @@ const RecordIcon = createIcon(Circle, {
   fill: "currentColor",
 });
 const ReplayIcon = createIcon(RefreshCcw);
+const RepeatIcon = createIcon(Repeat2);
 const SaveIcon = createIcon(Save);
 const SettingsIcon = createIcon(Settings);
 const StarIcon = createIcon(Star);
@@ -67,11 +81,17 @@ const UploadIcon = createIcon(Upload);
 const XIcon = createIcon(X);
 
 export {
+  CalendarDaysIcon,
   CheckIcon,
+  CirclePlusIcon,
   CloudDownloadIcon,
   CloudUploadIcon,
+  DashboardIcon,
   DownloadIcon,
   EditIcon,
+  HistoryIcon,
+  ListMusicIcon,
+  MenuIcon,
   MicIcon,
   MicOffIcon,
   PauseIcon,
@@ -80,6 +100,7 @@ export {
   PlusIcon,
   RecordIcon,
   ReplayIcon,
+  RepeatIcon,
   SaveIcon,
   SettingsIcon,
   StarIcon,
