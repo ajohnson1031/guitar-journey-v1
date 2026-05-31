@@ -508,6 +508,13 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
       onClose: handleCloseCustomSongRoute,
       onUpdateSong: handleUpdateCustomSong,
     },
+    progressRouteProps: {
+      allSongs,
+      completedStepsBySong,
+      masteredSongs,
+      pathOptions,
+      sessionHistory,
+    },
     sidebarProps: {
       allSongs,
       builtInGenreNames,

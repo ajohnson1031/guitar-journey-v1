@@ -8,6 +8,7 @@ export { default as DashboardNav } from "./DashboardNav";
 export { default as GenreManager } from "./GenreManager";
 export { default as LocalProgressCard } from "./LocalProgressCard";
 export { default as Metronome } from "./Metronome";
+export { default as ProgressLibrary } from "./ProgressLibrary";
 export { default as RecordingsLibrary } from "./RecordingsLibrary";
 export { default as RequiredChords } from "./RequiredChords";
 export { default as SessionHistory } from "./SessionHistory";

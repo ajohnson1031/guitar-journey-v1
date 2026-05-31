@@ -4,7 +4,7 @@ import { NAV_SECTIONS } from "../constants";
 import { getSectionRoute } from "../routes/routeConfig";
 import { getNavItemRoute, splitDashboardNavSections } from "../utils/navigationUtils";
 import ActiveSessionIndicator from "./ActiveSessionIndicator";
-import { CalendarDaysIcon, CirclePlusIcon, DashboardIcon, HistoryIcon, ListMusicIcon, MenuIcon, RecordIcon, RepeatIcon, SettingsIcon } from "./AppIcons";
+import { CalendarDaysIcon, CirclePlusIcon, DashboardIcon, HistoryIcon, ListMusicIcon, MenuIcon, RecordIcon, RepeatIcon, SettingsIcon, StarIcon } from "./AppIcons";
 
 const { Fragment, useEffect, useMemo, useRef, useState } = React;
 
@@ -12,6 +12,7 @@ const NAV_ICON_BY_ID = {
   "add-song": CirclePlusIcon,
   dashboard: DashboardIcon,
   history: HistoryIcon,
+  progress: StarIcon,
   recordings: RecordIcon,
   sections: ListMusicIcon,
   settings: SettingsIcon,
