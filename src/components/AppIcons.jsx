@@ -7,6 +7,7 @@ import {
   CloudUpload,
   Download,
   Edit3,
+  Guitar,
   History,
   LayoutDashboard,
   ListMusic,
@@ -54,6 +55,7 @@ const CloudUploadIcon = createIcon(CloudUpload);
 const DashboardIcon = createIcon(LayoutDashboard);
 const DownloadIcon = createIcon(Download);
 const EditIcon = createIcon(Edit3);
+const GuitarIcon = createIcon(Guitar);
 const HistoryIcon = createIcon(History);
 const ListMusicIcon = createIcon(ListMusic);
 const MenuIcon = createIcon(Menu);
@@ -89,6 +91,7 @@ export {
   DashboardIcon,
   DownloadIcon,
   EditIcon,
+  GuitarIcon,
   HistoryIcon,
   ListMusicIcon,
   MenuIcon,

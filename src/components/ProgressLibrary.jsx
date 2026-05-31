@@ -1,4 +1,5 @@
 import * as React from "react";
+import { GuitarIcon, HistoryIcon, StarIcon } from "./AppIcons";
 
 const { Fragment, useMemo, useState } = React;
 
@@ -39,6 +40,8 @@ const PROGRESS_SORT_OPTIONS = [
     label: "Title A-Z",
   },
 ];
+
+function noop() {}
 
 function getSessionSeconds(session) {
   const elapsedSeconds = Number(session?.elapsedSeconds);
@@ -134,7 +137,9 @@ function getSongProgressItems({ allSongs = [], completedStepsBySong = {}, master
 }
 
 function filterProgressItems(items = [], { genreFilter = "all", searchTerm = "", statusFilter = "all" } = {}) {
-  const normalizedSearchTerm = String(searchTerm || "").trim().toLowerCase();
+  const normalizedSearchTerm = String(searchTerm || "")
+    .trim()
+    .toLowerCase();
 
   return items.filter((item) => {
     if (statusFilter === "mastered" && !item.isMastered) return false;
@@ -143,10 +148,7 @@ function filterProgressItems(items = [], { genreFilter = "all", searchTerm = "",
 
     if (!normalizedSearchTerm) return true;
 
-    const searchableText = [item.song.title, item.song.genre, item.song.difficulty, item.song.key]
-      .filter(Boolean)
-      .join(" ")
-      .toLowerCase();
+    const searchableText = [item.song.title, item.song.genre, item.song.difficulty, item.song.key].filter(Boolean).join(" ").toLowerCase();
 
     return searchableText.includes(normalizedSearchTerm);
   });
@@ -191,7 +193,16 @@ function createProgressSummary(items = []) {
   };
 }
 
-export default function ProgressLibrary({ allSongs = [], completedStepsBySong = {}, masteredSongs = {}, pathOptions = [], sessionHistory = [] }) {
+export default function ProgressLibrary({
+  allSongs = [],
+  completedStepsBySong = {},
+  masteredSongs = {},
+  onPracticeSong = noop,
+  onToggleMastered = noop,
+  onViewHistory = noop,
+  pathOptions = [],
+  sessionHistory = [],
+}) {
   const [genreFilter, setGenreFilter] = useState("all");
   const [progressSearchTerm, setProgressSearchTerm] = useState("");
   const [progressSortMode, setProgressSortMode] = useState("recent");
@@ -299,7 +310,7 @@ export default function ProgressLibrary({ allSongs = [], completedStepsBySong = 
         {visibleProgressItems.length ? (
           <div className={`progress-song-list ${shouldScrollProgress ? "is-scrollable" : ""}`}>
             {visibleProgressItems.map((item) => (
-              <ProgressSongCard key={item.song.id} item={item} />
+              <ProgressSongCard key={item.song.id} item={item} onPracticeSong={onPracticeSong} onToggleMastered={onToggleMastered} onViewHistory={onViewHistory} />
             ))}
           </div>
         ) : progressItems.length ? (
@@ -328,21 +339,58 @@ function SummaryCard({ accent = "blue", helper, label, value }) {
   );
 }
 
-function ProgressSongCard({ item }) {
+function ProgressSongCard({ item, onPracticeSong, onToggleMastered, onViewHistory }) {
   const { completedStepCount, isInProgress, isMastered, lastPracticedAt, sessionCount, song, totalPracticeSeconds } = item;
-  const statusLabel = isMastered ? "Mastered" : isInProgress ? "In Progress" : "Tracked";
+  const progressLabel = isMastered ? "(Mastered)" : "(In Progress)";
+  const masteredActionLabel = isMastered ? "Marked Mastered" : "Mark Mastered";
+  const masteredTitle = isMastered ? `Marked Mastered: ${song.title}` : `Mark Mastered: ${song.title}`;
 
   return (
     <article className="progress-song-card">
       <div className="progress-song-card-header">
-        <div>
-          <strong>{song.title}</strong>
+        <div className="progress-song-title-group">
+          <h3 className="progress-song-title">
+            <span>
+              {`${song.title} `}
+              <span className={`progress-song-title-status ${isMastered ? "is-mastered" : "is-in-progress"}`}>{progressLabel}</span>
+            </span>
+          </h3>
           <small>
             {song.genre} • {song.difficulty} • Key {song.key}
           </small>
         </div>
 
-        <span className={`progress-status-pill ${isMastered ? "progress-status-pill--mastered" : "progress-status-pill--active"}`}>{statusLabel}</span>
+        <div className="progress-song-actions" aria-label={`${song.title} actions`}>
+          <button
+            type="button"
+            className="icon-button progress-action-icon-button progress-practice-icon-button"
+            title={`Practice ${song.title}`}
+            aria-label={`Practice ${song.title}`}
+            onClick={() => onPracticeSong(song.id)}
+          >
+            <GuitarIcon />
+          </button>
+
+          <button
+            type="button"
+            className="icon-button progress-action-icon-button progress-history-icon-button"
+            title={`View History for ${song.title}`}
+            aria-label={`View History for ${song.title}`}
+            onClick={() => onViewHistory(song.id)}
+          >
+            <HistoryIcon />
+          </button>
+
+          <button
+            type="button"
+            title={masteredTitle}
+            aria-label={masteredActionLabel}
+            onClick={() => onToggleMastered(song.id)}
+            className={`icon-button mastered-icon-button progress-mastered-icon-button ${isMastered ? "is-mastered" : "ghost-button"}`}
+          >
+            <StarIcon className="star-icon" />
+          </button>
+        </div>
       </div>
 
       <p>{song.goal}</p>
@@ -353,7 +401,9 @@ function ProgressSongCard({ item }) {
           {sessionCount} session{sessionCount === 1 ? "" : "s"}
         </span>
         <span>Last: {formatLastPracticed(lastPracticedAt)}</span>
-        <span>{completedStepCount} active step{completedStepCount === 1 ? "" : "s"}</span>
+        <span>
+          {completedStepCount} active step{completedStepCount === 1 ? "" : "s"}
+        </span>
       </div>
     </article>
   );

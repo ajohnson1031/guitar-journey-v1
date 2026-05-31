@@ -151,7 +151,7 @@
 }
 
 .progress-song-list.is-scrollable {
-  --progress-card-estimated-height: 148px;
+  --progress-card-estimated-height: 168px;
   --progress-card-gap: 10px;
 
   max-height: calc((var(--progress-card-estimated-height) * 6) + (var(--progress-card-gap) * 5));
@@ -180,15 +180,33 @@
   gap: 12px;
 }
 
-.progress-song-card-header > div {
+.progress-song-title-group {
   display: grid;
   min-width: 0;
   gap: 4px;
 }
 
-.progress-song-card strong {
+.progress-song-title {
+  display: inline-flex;
+  align-items: baseline;
+  margin: 0;
   color: var(--color-text);
   font-size: 17px;
+  line-height: 1.2;
+}
+
+.progress-song-title-status {
+  font-size: 17px;
+  line-height: inherit;
+  white-space: nowrap;
+}
+
+.progress-song-title-status.is-mastered {
+  color: var(--color-accent);
+}
+
+.progress-song-title-status.is-in-progress {
+  color: var(--color-text-muted-strong);
 }
 
 .progress-song-card small {
@@ -201,29 +219,6 @@
   color: var(--color-text-muted);
   font-size: 13px;
   line-height: 1.45;
-}
-
-.progress-status-pill {
-  flex: 0 0 auto;
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  background: var(--color-surface-soft);
-  color: var(--color-text-muted-strong);
-  padding: 6px 10px;
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.progress-status-pill--mastered {
-  border-color: var(--color-accent);
-  background: transparent;
-  color: var(--color-accent);
-}
-
-.progress-status-pill--active {
-  border-color: var(--color-border);
-  background: var(--color-surface-soft);
-  color: var(--color-text-muted-strong);
 }
 
 .progress-song-metrics {
@@ -240,6 +235,90 @@
   padding: 6px 10px;
   font-size: 12px;
   font-weight: 800;
+}
+
+.progress-song-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+}
+
+.progress-action-icon-button,
+.progress-mastered-icon-button {
+  display: inline-grid;
+  width: 42px;
+  min-width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  place-items: center;
+  padding: 0;
+}
+
+.progress-action-icon-button svg,
+.progress-mastered-icon-button svg {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.35;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.progress-action-icon-button {
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-text-muted-strong);
+}
+
+.progress-action-icon-button:hover {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-hover);
+  color: var(--color-text);
+}
+
+.progress-practice-icon-button:hover {
+  border-color: var(--color-success);
+  background: var(--color-success-soft-hover);
+  color: var(--color-success);
+}
+
+.progress-history-icon-button:hover {
+  border-color: var(--color-neutral-action);
+  background: var(--color-neutral-action-soft-hover);
+  color: var(--color-neutral-action);
+}
+
+.progress-mastered-icon-button {
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-text-muted);
+}
+
+.progress-mastered-icon-button svg {
+  fill: none;
+}
+
+.progress-mastered-icon-button:hover {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+
+.progress-mastered-icon-button.is-mastered {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+
+.progress-mastered-icon-button.is-mastered svg {
+  fill: currentColor;
 }
 
 .progress-empty {
@@ -288,14 +367,19 @@
     display: grid;
   }
 
-  .progress-status-pill {
-    justify-self: start;
+  .progress-song-actions {
+    justify-content: flex-start;
   }
 }
 
 @media (max-width: 560px) {
   .progress-summary-grid {
     grid-template-columns: 1fr;
+  }
+
+  .progress-song-title {
+    display: grid;
+    gap: 3px;
   }
 
   .progress-song-metrics {

@@ -210,6 +210,17 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
     navigate("/");
   }
 
+  function selectSongForProgressAction(songId) {
+    const progressSong = allSongs.find((song) => song.id === songId);
+
+    if (progressSong?.genre) {
+      selectPath(progressSong.genre);
+    }
+
+    selectSong(songId);
+    setSessionMessage("");
+  }
+
   function handlePathChange(pathName) {
     selectPath(pathName);
     setSessionMessage("");
@@ -219,6 +230,16 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
   function handleSelectSong(songId) {
     selectSong(songId);
     setSessionMessage("");
+  }
+
+  function handlePracticeProgressSong(songId) {
+    selectSongForProgressAction(songId);
+    goToDashboard();
+  }
+
+  function handleViewProgressSongHistory(songId) {
+    selectSongForProgressAction(songId);
+    navigate("/history");
   }
 
   function handleAddCustomSong(song) {
@@ -512,6 +533,9 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
       allSongs,
       completedStepsBySong,
       masteredSongs,
+      onPracticeSong: handlePracticeProgressSong,
+      onToggleMastered: handleToggleMasteredSong,
+      onViewHistory: handleViewProgressSongHistory,
       pathOptions,
       sessionHistory,
     },
