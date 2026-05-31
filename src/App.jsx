@@ -1,42 +1,52 @@
 import * as React from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AppSidebar, DashboardNav } from "./components";
-import { AppSettingsProvider, GuitarJourneyProvider, useAppSettingsContext, useGuitarJourneyContext } from "./context";
+import {
+  AppRuntimeProvider,
+  AppSettingsProvider,
+  GuitarJourneyProvider,
+  useAppSettingsContext,
+  useGuitarJourneyContext,
+} from "./context";
 import { DashboardRoute, EditSongRoute, HistoryRoute, NewSongRoute, SettingsRoute, SongSectionsRoute, TransitionsRoute, WeeklyPlanRoute } from "./routes";
 
 import "./App.css";
 
-const { Fragment, useState } = React;
+const { Fragment, useCallback, useState } = React;
 
 export default function App() {
   const [appRuntimeKey, setAppRuntimeKey] = useState(0);
 
-  function handleProgressImported() {
+  const handleProgressImported = useCallback(() => {
     setAppRuntimeKey((currentKey) => currentKey + 1);
-  }
+  }, []);
 
-  return <AppRuntime key={appRuntimeKey} onProgressImported={handleProgressImported} />;
+  return (
+    <AppRuntimeProvider onProgressImported={handleProgressImported}>
+      <AppRuntime key={appRuntimeKey} />
+    </AppRuntimeProvider>
+  );
 }
 
-function AppRuntime({ onProgressImported }) {
+function AppRuntime() {
   return (
     <AppSettingsProvider>
-      <GuitarJourneyRuntime onProgressImported={onProgressImported} />
+      <GuitarJourneyRuntime />
     </AppSettingsProvider>
   );
 }
 
-function GuitarJourneyRuntime({ onProgressImported }) {
+function GuitarJourneyRuntime() {
   const { settings: appSettings } = useAppSettingsContext();
 
   return (
     <GuitarJourneyProvider audioInputSettings={appSettings.audioInputSettings}>
-      <AppLayout onProgressImported={onProgressImported} />
+      <AppLayout />
     </GuitarJourneyProvider>
   );
 }
 
-function AppLayout({ onProgressImported }) {
+function AppLayout() {
   const {
     activeSessionProps,
     sidebarProps,
@@ -66,7 +76,7 @@ function AppLayout({ onProgressImported }) {
 
               <Route path="songs/edit/:songId" element={<EditSongRoute />} />
 
-              <Route path="settings" element={<SettingsRoute onProgressImported={onProgressImported} />} />
+              <Route path="settings" element={<SettingsRoute />} />
 
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
