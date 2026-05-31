@@ -436,6 +436,14 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
     goToDashboard();
   }
 
+  const localProgressProps = {
+    masteredCount,
+    onResetLocalProgress: resetLocalProgress,
+    sessionHistory,
+    totalPracticeMinutes,
+    transitionScores,
+  };
+
   return {
     activeSessionProps: {
       elapsedSessionSeconds,
@@ -456,6 +464,7 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
       isSessionRecording,
       isSessionRecordingPaused,
       isSessionTimerRunning,
+      localProgressProps,
       masteredSongs,
       onCompleteSession: completeSession,
       onDeleteCustomSong: handleDeleteCustomSong,
@@ -503,18 +512,13 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
       allSongs,
       builtInGenreNames,
       customGenres,
-      masteredCount,
       onAddGenre: handleAddCustomGenre,
       onPathChange: handlePathChange,
       onRemoveGenre: handleRemoveCustomGenre,
-      onResetLocalProgress: resetLocalProgress,
       onUpdateGenre: handleUpdateCustomGenre,
       pathCards,
       selectedPath,
       selectedSong,
-      sessionHistory,
-      totalPracticeMinutes,
-      transitionScores,
     },
     songSectionsRouteProps: {
       selectedSong,

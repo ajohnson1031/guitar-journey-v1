@@ -59,21 +59,7 @@ function AppLayout({ onProgressImported }) {
             <DashboardNav activeSession={activeSessionProps} />
 
             <Routes>
-              <Route
-                index
-                element={
-                  <DashboardRoute
-                    {...dashboardRouteProps}
-                    localProgressProps={{
-                      masteredCount: sidebarProps.masteredCount,
-                      onResetLocalProgress: sidebarProps.onResetLocalProgress,
-                      sessionHistory: sidebarProps.sessionHistory,
-                      totalPracticeMinutes: sidebarProps.totalPracticeMinutes,
-                      transitionScores: sidebarProps.transitionScores,
-                    }}
-                  />
-                }
-              />
+              <Route index element={<DashboardRoute {...dashboardRouteProps} />} />
 
               <Route path="transitions" element={<TransitionsRoute {...transitionsRouteProps} />} />
 
