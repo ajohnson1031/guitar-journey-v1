@@ -1,5 +1,4 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import * as React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import RecordingsLibrary from "../RecordingsLibrary";
 
@@ -124,8 +123,11 @@ describe("RecordingsLibrary", () => {
     expect(await screen.findByText("Linked Song")).toBeTruthy();
     expect(screen.getByText("Orphaned Song")).toBeTruthy();
     expect(screen.getByText("Newest Song")).toBeTruthy();
-    expect(screen.getByText("Linked")).toBeTruthy();
-    expect(screen.getAllByText("Orphaned")).toHaveLength(2);
+    expect(screen.getByRole("button", { name: "Linked" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Orphaned" })).toBeTruthy();
+
+    expect(container.querySelectorAll(".recording-status-pill--linked")).toHaveLength(1);
+    expect(container.querySelectorAll(".recording-status-pill--orphaned")).toHaveLength(2);
 
     const dayGroups = Array.from(container.querySelectorAll(".recording-library-day-group"));
 
@@ -140,6 +142,153 @@ describe("RecordingsLibrary", () => {
     expect(dayGroups[1].textContent).toContain("2:06 total");
     expect(dayGroups[1].textContent).toContain("Linked Song");
     expect(dayGroups[1].textContent).toContain("Orphaned Song");
+  });
+
+  it("filters recordings by search and status", async () => {
+    mockRecordingStorageState.recordings = [
+      createRecording({
+        createdAt: "2026-05-30T12:00:00.000Z",
+        recordingId: "recording-linked",
+        sessionId: "session-linked",
+        songTitle: "Stored Linked Title",
+      }),
+      createRecording({
+        createdAt: "2026-05-30T13:00:00.000Z",
+        recordingId: "recording-orphaned",
+        sessionId: "session-orphaned",
+        songTitle: "Orphaned Blues",
+      }),
+    ];
+
+    renderRecordingsLibrary({
+      sessions: [
+        createSession({
+          id: "session-linked",
+          recordingId: "recording-linked",
+          songTitle: "Linked Worship",
+        }),
+      ],
+    });
+
+    expect(await screen.findByText("Linked Worship")).toBeTruthy();
+    expect(screen.getByText("Orphaned Blues")).toBeTruthy();
+
+    fireEvent.change(screen.getByLabelText("Search recordings"), {
+      target: {
+        value: "blues",
+      },
+    });
+
+    expect(screen.queryByText("Linked Worship")).toBeNull();
+    expect(screen.getByText("Orphaned Blues")).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Linked" }));
+
+    expect(screen.getByText("No recordings match this filter")).toBeTruthy();
+  });
+
+  it("sorts recording groups oldest first", async () => {
+    mockRecordingStorageState.recordings = [
+      createRecording({
+        createdAt: "2026-05-31T09:00:00.000Z",
+        recordingId: "recording-newest",
+        songTitle: "Newest Song",
+      }),
+      createRecording({
+        createdAt: "2026-05-29T09:00:00.000Z",
+        recordingId: "recording-oldest",
+        songTitle: "Oldest Song",
+      }),
+    ];
+
+    const { container } = renderRecordingsLibrary();
+
+    expect(await screen.findByText("Newest Song")).toBeTruthy();
+
+    fireEvent.change(screen.getByLabelText("Sort recordings"), {
+      target: {
+        value: "oldest",
+      },
+    });
+
+    const dayGroups = Array.from(container.querySelectorAll(".recording-library-day-group"));
+
+    expect(dayGroups[0].textContent).toContain("May 29, 2026");
+    expect(dayGroups[0].textContent).toContain("Oldest Song");
+    expect(dayGroups[1].textContent).toContain("May 31, 2026");
+    expect(dayGroups[1].textContent).toContain("Newest Song");
+  });
+
+  it("sorts recordings by duration inside each date group", async () => {
+    mockRecordingStorageState.recordings = [
+      createRecording({
+        createdAt: "2026-05-30T12:00:00.000Z",
+        durationSeconds: 120,
+        recordingId: "recording-long",
+        songTitle: "Long Recording",
+      }),
+      createRecording({
+        createdAt: "2026-05-30T13:00:00.000Z",
+        durationSeconds: 30,
+        recordingId: "recording-short",
+        songTitle: "Short Recording",
+      }),
+    ];
+
+    const { container } = renderRecordingsLibrary();
+
+    expect(await screen.findByText("Long Recording")).toBeTruthy();
+
+    fireEvent.change(screen.getByLabelText("Sort recordings"), {
+      target: {
+        value: "shortest",
+      },
+    });
+
+    const cards = Array.from(container.querySelectorAll(".recording-library-card"));
+
+    expect(cards[0].textContent).toContain("Short Recording");
+    expect(cards[1].textContent).toContain("Long Recording");
+
+    fireEvent.change(screen.getByLabelText("Sort recordings"), {
+      target: {
+        value: "longest",
+      },
+    });
+
+    const resortedCards = Array.from(container.querySelectorAll(".recording-library-card"));
+
+    expect(resortedCards[0].textContent).toContain("Long Recording");
+    expect(resortedCards[1].textContent).toContain("Short Recording");
+  });
+
+  it("renders the recording card date and time with a dash separator", async () => {
+    mockRecordingStorageState.recordings = [
+      createRecording({
+        createdAt: "2026-05-30T12:00:00.000Z",
+        recordingId: "recording-date-format",
+        songTitle: "Date Format Song",
+      }),
+    ];
+
+    renderRecordingsLibrary();
+
+    expect(await screen.findByText(/May 30, 2026 -/)).toBeTruthy();
+  });
+
+  it("adds a scrollable class after more than five visible recordings", async () => {
+    mockRecordingStorageState.recordings = Array.from({ length: 6 }, (_, index) =>
+      createRecording({
+        createdAt: `2026-05-30T${String(index + 8).padStart(2, "0")}:00:00.000Z`,
+        recordingId: `recording-${index}`,
+        songTitle: `Recording ${index}`,
+      }),
+    );
+
+    const { container } = renderRecordingsLibrary();
+
+    expect(await screen.findByText("Recording 0")).toBeTruthy();
+    expect(container.querySelector(".recording-library-day-group-list")?.className).toContain("is-scrollable");
   });
 
   it("renders an empty state when there are no local recordings", async () => {

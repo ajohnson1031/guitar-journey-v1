@@ -7,15 +7,53 @@ import ConfirmDialog from "./ConfirmDialog";
 
 const { Fragment, useEffect, useMemo, useState } = React;
 
-function formatRecordingDate(value) {
+const RECORDING_STATUS_FILTERS = [
+  {
+    id: "all",
+    label: "All",
+  },
+  {
+    id: "linked",
+    label: "Linked",
+  },
+  {
+    id: "orphaned",
+    label: "Orphaned",
+  },
+];
+
+const RECORDING_SORT_OPTIONS = [
+  {
+    id: "newest",
+    label: "Newest first",
+  },
+  {
+    id: "oldest",
+    label: "Oldest first",
+  },
+  {
+    id: "shortest",
+    label: "Shortest duration",
+  },
+  {
+    id: "longest",
+    label: "Longest duration",
+  },
+];
+
+function formatRecordingDateTime(value) {
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) return "Unknown date";
 
-  return new Intl.DateTimeFormat("en", {
+  const dateLabel = new Intl.DateTimeFormat("en", {
     dateStyle: "medium",
+  }).format(date);
+  const timeLabel = new Intl.DateTimeFormat("en", {
     timeStyle: "short",
   }).format(date);
+
+  return `${dateLabel} - ${timeLabel}`;
 }
 
 function formatRecordingGroupDate(dateKey) {
@@ -86,7 +124,48 @@ function getRecordingTitle(recording, linkedSession) {
   return linkedSession?.songTitle || recording.songTitle || "Untitled Recording";
 }
 
-function createRecordingGroups(recordingItems = []) {
+function sortRecordingItems(recordingItems = [], sortMode = "newest") {
+  return [...recordingItems].sort((leftItem, rightItem) => {
+    const leftTimestamp = getRecordingTimestamp(leftItem.recording);
+    const rightTimestamp = getRecordingTimestamp(rightItem.recording);
+    const leftDuration = getRecordingDurationSeconds(leftItem.recording);
+    const rightDuration = getRecordingDurationSeconds(rightItem.recording);
+
+    if (sortMode === "oldest") {
+      return leftTimestamp - rightTimestamp;
+    }
+
+    if (sortMode === "shortest") {
+      return leftDuration - rightDuration || rightTimestamp - leftTimestamp;
+    }
+
+    if (sortMode === "longest") {
+      return rightDuration - leftDuration || rightTimestamp - leftTimestamp;
+    }
+
+    return rightTimestamp - leftTimestamp;
+  });
+}
+
+function filterRecordingItems(recordingItems = [], { searchTerm = "", statusFilter = "all" } = {}) {
+  const normalizedSearchTerm = String(searchTerm || "").trim().toLowerCase();
+
+  return recordingItems.filter((item) => {
+    if (statusFilter === "linked" && !item.isLinked) return false;
+    if (statusFilter === "orphaned" && item.isLinked) return false;
+
+    if (!normalizedSearchTerm) return true;
+
+    const searchableText = [item.title, item.recording?.songTitle, item.recording?.songId, item.recording?.mimeType]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+
+    return searchableText.includes(normalizedSearchTerm);
+  });
+}
+
+function createRecordingGroups(recordingItems = [], sortMode = "newest") {
   const groupByDateKey = new Map();
 
   recordingItems.forEach((item) => {
@@ -110,6 +189,10 @@ function createRecordingGroups(recordingItems = []) {
     if (leftGroup.dateKey === "unknown-date") return 1;
     if (rightGroup.dateKey === "unknown-date") return -1;
 
+    if (sortMode === "oldest") {
+      return leftGroup.dateKey.localeCompare(rightGroup.dateKey);
+    }
+
     return rightGroup.dateKey.localeCompare(leftGroup.dateKey);
   });
 }
@@ -120,6 +203,9 @@ export default function RecordingsLibrary({ sessions = [] }) {
   const [isLoadingRecordings, setIsLoadingRecordings] = useState(true);
   const [pendingDeleteRecording, setPendingDeleteRecording] = useState(null);
   const [recordings, setRecordings] = useState([]);
+  const [recordingSearchTerm, setRecordingSearchTerm] = useState("");
+  const [recordingSortMode, setRecordingSortMode] = useState("newest");
+  const [recordingStatusFilter, setRecordingStatusFilter] = useState("all");
 
   const { activeRecordingId, isLoadingRecording, isPlayingRecording, playbackMessage, playbackMessageRecordingId, playbackState, playRecording, stopPlayback } =
     useRecordingPlayback();
@@ -138,7 +224,7 @@ export default function RecordingsLibrary({ sessions = [] }) {
     return nextSessionByRecordingId;
   }, [sessions]);
 
-  const recordingItems = useMemo(() => {
+  const allRecordingItems = useMemo(() => {
     return recordings
       .map((recording) => {
         const recordingId = String(recording?.recordingId || "").trim();
@@ -152,14 +238,25 @@ export default function RecordingsLibrary({ sessions = [] }) {
           title: getRecordingTitle(recording, linkedSession),
         };
       })
-      .filter((item) => item.recordingId)
-      .sort((leftItem, rightItem) => getRecordingTimestamp(rightItem.recording) - getRecordingTimestamp(leftItem.recording));
+      .filter((item) => item.recordingId);
   }, [recordings, sessionByRecordingId]);
 
-  const recordingGroups = useMemo(() => createRecordingGroups(recordingItems), [recordingItems]);
+  const recordingItems = useMemo(() => {
+    const filteredItems = filterRecordingItems(allRecordingItems, {
+      searchTerm: recordingSearchTerm,
+      statusFilter: recordingStatusFilter,
+    });
 
-  const linkedRecordingCount = recordingItems.filter((item) => item.isLinked).length;
-  const orphanedRecordingCount = recordingItems.length - linkedRecordingCount;
+    return sortRecordingItems(filteredItems, recordingSortMode);
+  }, [allRecordingItems, recordingSearchTerm, recordingSortMode, recordingStatusFilter]);
+
+  const recordingGroups = useMemo(() => createRecordingGroups(recordingItems, recordingSortMode), [recordingItems, recordingSortMode]);
+
+  const linkedRecordingCount = allRecordingItems.filter((item) => item.isLinked).length;
+  const orphanedRecordingCount = allRecordingItems.length - linkedRecordingCount;
+  const hasAnyRecordings = allRecordingItems.length > 0;
+  const hasFilteredRecordings = recordingItems.length > 0;
+  const shouldScrollRecordings = recordingItems.length > 5;
 
   useEffect(() => {
     let isMounted = true;
@@ -207,6 +304,14 @@ export default function RecordingsLibrary({ sessions = [] }) {
   function showActionMessage(message, tone = "success") {
     setActionMessage(message);
     setActionTone(tone);
+  }
+
+  function handleRecordingSearchChange(event) {
+    setRecordingSearchTerm(event.target.value);
+  }
+
+  function handleRecordingSortChange(event) {
+    setRecordingSortMode(event.target.value);
   }
 
   async function handleDownloadRecording(item) {
@@ -269,7 +374,7 @@ export default function RecordingsLibrary({ sessions = [] }) {
         <div className="recording-library-card-header">
           <div>
             <strong>{title}</strong>
-            <small>{formatRecordingDate(recording.createdAt || recording.updatedAt)}</small>
+            <small>{formatRecordingDateTime(recording.createdAt || recording.updatedAt)}</small>
           </div>
 
           <span className={`recording-status-pill ${isLinked ? "recording-status-pill--linked" : "recording-status-pill--orphaned"}`}>
@@ -343,10 +448,43 @@ export default function RecordingsLibrary({ sessions = [] }) {
         </div>
 
         <div className="recordings-library-summary-grid">
-          <SummaryCard label="stored" value={recordingItems.length} helper="local recordings" />
+          <SummaryCard label="stored" value={allRecordingItems.length} helper="local recordings" />
           <SummaryCard label="linked" value={linkedRecordingCount} helper="matched to sessions" accent="green" />
           <SummaryCard label="orphaned" value={orphanedRecordingCount} helper="not tied to history" accent={orphanedRecordingCount > 0 ? "danger" : "muted"} />
         </div>
+
+        {hasAnyRecordings ? (
+          <div className="recordings-library-controls" aria-label="Recording library controls">
+            <label className="recordings-search-field">
+              <span>Search recordings</span>
+              <input type="search" value={recordingSearchTerm} onChange={handleRecordingSearchChange} placeholder="Search by song or recording..." />
+            </label>
+
+            <div className="recordings-filter-group" role="group" aria-label="Recording status filter">
+              {RECORDING_STATUS_FILTERS.map((filter) => (
+                <button
+                  key={filter.id}
+                  type="button"
+                  className={`preset-button recordings-filter-button ${recordingStatusFilter === filter.id ? "is-active" : ""}`}
+                  onClick={() => setRecordingStatusFilter(filter.id)}
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
+
+            <label className="recordings-sort-field">
+              <span>Sort recordings</span>
+              <select value={recordingSortMode} onChange={handleRecordingSortChange}>
+                {RECORDING_SORT_OPTIONS.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        ) : null}
 
         {actionMessage ? <p className={`recording-action-message recording-action-message--${actionTone}`}>{actionMessage}</p> : null}
 
@@ -355,8 +493,8 @@ export default function RecordingsLibrary({ sessions = [] }) {
             <h3>Loading recordings...</h3>
             <p>Checking local IndexedDB storage for saved practice audio.</p>
           </div>
-        ) : recordingItems.length ? (
-          <div className="recording-library-day-group-list">
+        ) : hasFilteredRecordings ? (
+          <div className={`recording-library-day-group-list ${shouldScrollRecordings ? "is-scrollable" : ""}`}>
             {recordingGroups.map((group) => (
               <section key={group.dateKey} className="recording-library-day-group">
                 <div className="recording-library-day-header">
@@ -371,6 +509,11 @@ export default function RecordingsLibrary({ sessions = [] }) {
                 <div className="recording-library-list">{group.items.map((item) => renderRecordingCard(item))}</div>
               </section>
             ))}
+          </div>
+        ) : hasAnyRecordings ? (
+          <div className="recordings-empty">
+            <h3>No recordings match this filter</h3>
+            <p>Try a different search term or switch the status filter back to All.</p>
           </div>
         ) : (
           <div className="recordings-empty">

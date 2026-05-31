@@ -6,7 +6,26 @@ import { formatRecordingDuration, getAllRecordings } from "../utils/recordingSto
 import { DownloadIcon, PauseIcon, PlayIcon, ReplayIcon, StopIcon, TrashIcon } from "./AppIcons";
 import ConfirmDialog from "./ConfirmDialog";
 
-const { Fragment, useEffect, useState } = React;
+const { Fragment, useEffect, useMemo, useState } = React;
+
+const PRACTICE_HISTORY_SORT_OPTIONS = [
+  {
+    id: "newest",
+    label: "Newest first",
+  },
+  {
+    id: "oldest",
+    label: "Oldest first",
+  },
+  {
+    id: "shortest",
+    label: "Shortest duration",
+  },
+  {
+    id: "longest",
+    label: "Longest duration",
+  },
+];
 
 function formatPracticeTime(value) {
   const date = new Date(value);
@@ -17,6 +36,28 @@ function formatPracticeTime(value) {
     hour: "numeric",
     minute: "2-digit",
   }).format(date);
+}
+
+function getSessionTimestamp(session) {
+  const timestamp = new Date(session?.completedAt || 0).getTime();
+
+  return Number.isFinite(timestamp) ? timestamp : 0;
+}
+
+function getSessionDurationSeconds(session) {
+  const elapsedSeconds = Number(session?.elapsedSeconds);
+
+  if (Number.isFinite(elapsedSeconds) && elapsedSeconds > 0) {
+    return Math.round(elapsedSeconds);
+  }
+
+  const minutes = Number(session?.minutes);
+
+  if (Number.isFinite(minutes) && minutes > 0) {
+    return Math.round(minutes * 60);
+  }
+
+  return 0;
 }
 
 function getRecordingActionLabel({ isLoading, isPaused, isPlaying, isReplay }) {
@@ -32,14 +73,67 @@ function canStopRecordingPlayback({ isActiveRecording, playbackState }) {
   return isActiveRecording && ["loading", "playing", "paused"].includes(playbackState);
 }
 
+function filterPracticeSessions(sessions = [], searchTerm = "") {
+  const normalizedSearchTerm = String(searchTerm || "").trim().toLowerCase();
+
+  if (!normalizedSearchTerm) return sessions;
+
+  return sessions.filter((session) => {
+    const searchableText = [session?.songTitle, session?.genre, session?.rating].filter(Boolean).join(" ").toLowerCase();
+
+    return searchableText.includes(normalizedSearchTerm);
+  });
+}
+
+function sortSessionsInGroup(sessions = [], sortMode = "newest") {
+  return [...sessions].sort((leftSession, rightSession) => {
+    const leftTimestamp = getSessionTimestamp(leftSession);
+    const rightTimestamp = getSessionTimestamp(rightSession);
+    const leftDuration = getSessionDurationSeconds(leftSession);
+    const rightDuration = getSessionDurationSeconds(rightSession);
+
+    if (sortMode === "oldest") {
+      return leftTimestamp - rightTimestamp;
+    }
+
+    if (sortMode === "shortest") {
+      return leftDuration - rightDuration || rightTimestamp - leftTimestamp;
+    }
+
+    if (sortMode === "longest") {
+      return rightDuration - leftDuration || rightTimestamp - leftTimestamp;
+    }
+
+    return rightTimestamp - leftTimestamp;
+  });
+}
+
+function getVisiblePracticeDayGroups(sessions = [], sortMode = "newest") {
+  const practiceGroups = getPracticeDayGroups(sessions);
+  const sortedGroups = sortMode === "oldest" ? [...practiceGroups].reverse() : practiceGroups;
+
+  return sortedGroups.map((group) => ({
+    ...group,
+    sessions: sortSessionsInGroup(group.sessions, sortMode),
+  }));
+}
+
 export default function SessionHistory({ onDeleteSessionRecording, sessions }) {
   const [availableRecordingIds, setAvailableRecordingIds] = useState(() => new Set());
   const [historyActionMessage, setHistoryActionMessage] = useState("");
   const [historyActionTone, setHistoryActionTone] = useState("success");
   const [pendingDeleteSession, setPendingDeleteSession] = useState(null);
+  const [practiceHistorySearchTerm, setPracticeHistorySearchTerm] = useState("");
+  const [practiceHistorySortMode, setPracticeHistorySortMode] = useState("newest");
 
   const stats = getPracticeHistoryStats(sessions);
-  const recentSessionGroups = getPracticeDayGroups(sessions).slice(0, 8);
+  const filteredSessions = useMemo(() => filterPracticeSessions(sessions, practiceHistorySearchTerm), [practiceHistorySearchTerm, sessions]);
+  const recentSessionGroups = useMemo(
+    () => getVisiblePracticeDayGroups(filteredSessions, practiceHistorySortMode).slice(0, 8),
+    [filteredSessions, practiceHistorySortMode],
+  );
+  const visibleSessionCount = filteredSessions.length;
+  const shouldScrollHistory = visibleSessionCount > 5;
 
   const { activeRecordingId, isLoadingRecording, isPlayingRecording, playbackMessage, playbackMessageRecordingId, playbackState, playRecording, stopPlayback } =
     useRecordingPlayback();
@@ -92,6 +186,14 @@ export default function SessionHistory({ onDeleteSessionRecording, sessions }) {
   function showHistoryActionMessage(message, tone = "success") {
     setHistoryActionMessage(message);
     setHistoryActionTone(tone);
+  }
+
+  function handlePracticeHistorySearchChange(event) {
+    setPracticeHistorySearchTerm(event.target.value);
+  }
+
+  function handlePracticeHistorySortChange(event) {
+    setPracticeHistorySortMode(event.target.value);
   }
 
   function handleRequestDeleteRecording(session) {
@@ -173,10 +275,30 @@ export default function SessionHistory({ onDeleteSessionRecording, sessions }) {
           </div>
         </div>
 
+        {sessions.length ? (
+          <div className="history-controls" aria-label="Practice history controls">
+            <label className="history-search-field">
+              <span>Search sessions</span>
+              <input type="search" value={practiceHistorySearchTerm} onChange={handlePracticeHistorySearchChange} placeholder="Search by song, genre, or rating..." />
+            </label>
+
+            <label className="history-sort-field">
+              <span>Sort sessions</span>
+              <select value={practiceHistorySortMode} onChange={handlePracticeHistorySortChange}>
+                {PRACTICE_HISTORY_SORT_OPTIONS.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        ) : null}
+
         {historyActionMessage ? <p className={`history-action-message history-action-message--${historyActionTone}`}>{historyActionMessage}</p> : null}
 
         {recentSessionGroups.length ? (
-          <div className="history-day-group-list">
+          <div className={`history-day-group-list ${shouldScrollHistory ? "is-scrollable" : ""}`}>
             {recentSessionGroups.map((group) => (
               <section key={group.dateKey} className="history-day-group">
                 <div className="history-day-header">
@@ -293,6 +415,11 @@ export default function SessionHistory({ onDeleteSessionRecording, sessions }) {
                 </div>
               </section>
             ))}
+          </div>
+        ) : sessions.length ? (
+          <div className="history-empty">
+            <h3>No sessions match this filter</h3>
+            <p>Try a different search term or clear the session search.</p>
           </div>
         ) : (
           <div className="history-empty">

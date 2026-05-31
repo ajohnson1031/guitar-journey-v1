@@ -89,6 +89,65 @@
   color: var(--color-text-muted-strong);
 }
 
+.recordings-library-controls {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) auto minmax(180px, 220px);
+  gap: 10px;
+  align-items: end;
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  background: var(--color-surface);
+  padding: 12px;
+}
+
+.recordings-search-field,
+.recordings-sort-field {
+  display: grid;
+  gap: 6px;
+}
+
+.recordings-search-field span,
+.recordings-sort-field span {
+  color: var(--color-text-muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.recordings-search-field input,
+.recordings-sort-field select {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background-color: var(--color-surface-soft);
+  color: var(--color-text);
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.recordings-search-field input:focus,
+.recordings-sort-field select:focus {
+  border-color: var(--color-primary);
+  outline: none;
+}
+
+.recordings-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.recordings-filter-button.is-active {
+  border-color: var(--color-neutral-action-active-bg);
+  background: var(--color-neutral-action-active-bg);
+  color: var(--color-neutral-action-active-text);
+}
+
 .recording-action-message {
   margin: 0;
   border-radius: 999px;
@@ -113,6 +172,13 @@
 .recording-library-day-group-list {
   display: grid;
   gap: 16px;
+}
+
+.recording-library-day-group-list.is-scrollable {
+  max-height: min(76vh, 920px);
+  overflow-y: auto;
+  padding-right: 6px;
+  scrollbar-gutter: stable;
 }
 
 .recording-library-day-group {
@@ -371,7 +437,8 @@
 }
 
 @media (max-width: 900px) {
-  .recordings-library-summary-grid {
+  .recordings-library-summary-grid,
+  .recordings-library-controls {
     grid-template-columns: 1fr;
   }
 
