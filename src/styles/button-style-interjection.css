@@ -1,0 +1,302 @@
+/* =========================
+   Button Style Interjection
+   Follow-up fixes
+========================= */
+
+:root,
+:root[data-theme="dark"] {
+  --color-success-outline: #10b981;
+  --color-success-outline-hover: #10b981;
+  --color-primary-outline: #1b82e6;
+  --color-primary-outline-hover: #176fc4;
+  --color-success-fill: #059669;
+  --color-success-fill-hover: #047857;
+  --color-edit: #7dd3fc;
+}
+
+:root[data-theme="light"] {
+  --color-success-outline: #059669;
+  --color-success-outline-hover: #047857;
+  --color-primary-outline: #0f72d8;
+  --color-primary-outline-hover: #0b5bb0;
+  --color-success-fill: #059669;
+  --color-success-fill-hover: #047857;
+  --color-edit: #0f72d8;
+}
+
+/* Reusable transparent outline actions */
+.green-outline-button,
+.success-outline-button,
+.blue-outline-button {
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: transparent;
+  padding: 10px 14px;
+  font-weight: 900;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.green-outline-button,
+.success-outline-button {
+  border-color: var(--color-success-outline);
+  color: var(--color-success-outline);
+}
+
+.green-outline-button:hover,
+.success-outline-button:hover {
+  border-color: var(--color-success-outline-hover);
+  background: transparent;
+  color: var(--color-success-outline-hover);
+}
+
+.blue-outline-button {
+  border-color: var(--color-primary-outline);
+  color: var(--color-primary-outline);
+}
+
+.blue-outline-button:hover {
+  border-color: var(--color-primary-outline-hover);
+  background: transparent;
+  color: var(--color-primary-outline-hover);
+}
+
+/* Save Custom Song / Save Completed Session */
+.complete-session-button:not(:disabled) {
+  border-color: var(--color-success-fill);
+  background: var(--color-success-fill);
+  color: #ffffff;
+}
+
+.complete-session-button:not(:disabled):hover {
+  border-color: var(--color-success-fill-hover);
+  background: var(--color-success-fill-hover);
+  color: #ffffff;
+}
+
+/* Settings microphone Stop should remain filled destructive in dark mode */
+:root:not([data-theme="light"]) .microphone-test-button.is-testing,
+:root:not([data-theme="light"]) .microphone-test-button.is-testing:hover {
+  border-color: var(--color-destructive);
+  background: var(--color-destructive);
+  color: var(--color-destructive-text);
+}
+
+/* Clear Paste: icon-only red outline, not white in dark mode */
+.clear-paste-button,
+:root:not([data-theme="light"]) .clear-paste-button,
+.clear-paste-button:hover,
+:root:not([data-theme="light"]) .clear-paste-button:hover {
+  border-color: var(--color-danger);
+  background: transparent;
+  color: var(--color-danger);
+}
+
+.clear-paste-button:hover,
+:root:not([data-theme="light"]) .clear-paste-button:hover {
+  background: var(--color-danger-hover);
+}
+
+.clear-paste-button {
+  display: inline-grid;
+  min-width: 46px;
+  place-items: center;
+  padding-inline: 12px;
+}
+
+.clear-paste-button svg {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+}
+
+/* Selected presets: white background, black lettering */
+.preset-button.is-active,
+.preset-button.is-active:hover,
+:root:not([data-theme="light"]) .preset-button.is-active,
+:root:not([data-theme="light"]) .preset-button.is-active:hover {
+  border-color: #ffffff;
+  background: #ffffff;
+  color: #111827;
+}
+
+:root[data-theme="light"] .preset-button.is-active,
+:root[data-theme="light"] .preset-button.is-active:hover {
+  border-color: #111827;
+}
+
+/* Practice History recording playback: neutral inactive, green outline hover */
+.history-recording-button:not(:disabled):not(.is-playing):not(.is-replay) {
+  border-color: var(--color-neutral-action);
+  background: transparent;
+  color: var(--color-neutral-action);
+}
+
+.history-recording-button:not(:disabled):not(.is-playing):not(.is-replay):hover {
+  border-color: var(--color-success-outline);
+  background: transparent;
+  color: var(--color-success-outline);
+}
+
+/* Practice History download: Settings Import / preset styling */
+.history-recording-download-button,
+.history-recording-download-button:hover {
+  border-color: var(--color-neutral-action);
+  background: transparent;
+  color: var(--color-neutral-action);
+}
+
+.history-recording-download-button:hover {
+  border-color: var(--color-neutral-action-hover);
+  background: var(--color-neutral-action-soft-hover);
+  color: var(--color-neutral-action-hover);
+}
+
+/* Stop buttons use Settings Import / preset styling */
+.metronome-stop-button,
+.session-stop-button,
+.history-recording-stop-button:not(:disabled) {
+  border-color: var(--color-neutral-action);
+  background: transparent;
+  color: var(--color-neutral-action);
+}
+
+.metronome-stop-button:hover,
+.session-stop-button:hover,
+.history-recording-stop-button:not(:disabled):hover {
+  border-color: var(--color-neutral-action-hover);
+  background: var(--color-neutral-action-soft-hover);
+  color: var(--color-neutral-action-hover);
+}
+
+.history-recording-stop-button:disabled {
+  border-color: var(--color-border);
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted);
+}
+
+/* Practice History delete recording inactive state should be transparent */
+.history-recording-delete-button {
+  border-color: var(--color-danger);
+  background: transparent;
+  color: var(--color-danger);
+}
+
+.history-recording-delete-button:hover {
+  background: var(--color-danger-hover);
+}
+
+/* Dashboard current song delete should use destructive outline styling */
+.current-song-delete-button,
+.current-song-delete-button:hover {
+  border-color: var(--color-danger);
+  background: transparent;
+  color: var(--color-danger-text);
+}
+
+.current-song-delete-button:hover {
+  background: var(--color-danger-hover);
+}
+
+/* Current Song delete icon should stay red in dark mode */
+.current-song-delete-button,
+.current-song-delete-button:hover,
+:root:not([data-theme="light"]) .current-song-delete-button,
+:root:not([data-theme="light"]) .current-song-delete-button:hover {
+  border-color: var(--color-danger);
+  background: transparent;
+  color: var(--color-danger);
+}
+
+.current-song-delete-button:hover,
+:root:not([data-theme="light"]) .current-song-delete-button:hover {
+  background: var(--color-danger-hover);
+}
+
+/* Revert Genre Manager edit icons back to neutral */
+.genre-edit-button,
+.custom-genre-row.is-editing .genre-edit-button {
+  border-color: var(--color-border);
+  background: transparent;
+  color: var(--color-text-muted);
+}
+
+.genre-edit-button:hover,
+.custom-genre-row.is-editing .genre-edit-button:hover {
+  border-color: var(--color-text-muted-strong);
+  background: var(--color-surface-hover);
+  color: var(--color-text-muted-strong);
+}
+
+/* Active badges should be transparent */
+.settings-active-badge {
+  background: transparent;
+}
+
+/* Today Plan intermediate progress should be yellow/accent */
+.progress-badge.is-active {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+
+.progress-fill.is-active {
+  background: var(--color-accent);
+}
+
+/* Light mode song section cards need stronger contrast */
+:root[data-theme="light"] .song-section-card {
+  border-color: var(--color-border-strong);
+}
+
+:root[data-theme="light"] .song-section-card span {
+  color: var(--color-eyebrow);
+}
+
+/* Current Song mastered badge opposite the Current Song label */
+.song-current-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.song-current-label-row .eyebrow {
+  margin: 0;
+}
+
+.mastered-label {
+  color: var(--color-accent);
+  padding: 5px 0 0 7px;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+/* Navbar active session indicator: transparent with edit token border/text */
+.active-session-indicator.is-recording-ready,
+.active-session-indicator.is-recording-ready:hover,
+.active-session-indicator.is-running,
+.active-session-indicator.is-running:hover {
+  border-color: var(--color-edit);
+  background: transparent;
+  color: var(--color-edit);
+  transform: none;
+}
+
+.active-session-indicator.is-recording-ready .active-session-indicator-icon,
+.active-session-indicator.is-running .active-session-indicator-icon {
+  background: transparent;
+}
+
+/* Weekly Plan day badge: match active session indicator blue in dark mode */
+:root:not([data-theme="light"]) .weekly-day-badge {
+  border-color: var(--color-edit);
+  background: rgba(125, 211, 252, 0.12);
+  color: var(--color-edit);
+}

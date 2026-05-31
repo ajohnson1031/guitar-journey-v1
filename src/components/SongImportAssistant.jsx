@@ -1,5 +1,6 @@
 import * as React from "react";
 import { analyzeSongText } from "../utils/songImportUtils";
+import { TrashIcon } from "./AppIcons";
 
 const { useMemo, useState } = React;
 
@@ -68,16 +69,22 @@ export default function SongImportAssistant({ onApplyAnalysis }) {
       </label>
 
       <div className="custom-song-button-group">
-        <button type="button" className="destructive-outline-button" onClick={handleClearText}>
-          Clear Paste
-        </button>
-
         <button type="button" className="preset-button analyze-paste-button" onClick={handleAnalyzeSongText}>
           Analyze Paste
         </button>
 
         <button type="button" className="selected-button" onClick={handleApplyAnalysis}>
           Apply Analysis
+        </button>
+
+        <button
+          type="button"
+          className="destructive-outline-button clear-paste-button"
+          title="Clear Paste"
+          aria-label="Clear Paste"
+          onClick={handleClearText}
+        >
+          <TrashIcon />
         </button>
       </div>
 
