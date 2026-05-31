@@ -6,37 +6,72 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --bg: #0a0a0b;
-  --body-bg:
-    radial-gradient(circle at top left, rgba(30, 144, 255, 0.18), transparent 34rem),
-    radial-gradient(circle at bottom right, rgba(255, 179, 71, 0.12), transparent 30rem),
-    #0a0a0b;
-  --panel: rgba(24, 24, 27, 0.82);
-  --panel-strong: rgba(18, 18, 20, 0.96);
-  --surface: rgba(10, 10, 11, 0.42);
-  --surface-soft: rgba(10, 10, 11, 0.38);
-  --surface-subtle: rgba(10, 10, 11, 0.5);
-  --border: #2d2d33;
-  --border-strong: #52525b;
-  --text: #f4f4f5;
-  --muted: #a1a1aa;
-  --muted-strong: #d4d4d8;
-  --eyebrow: #38bdf8;
-  --blue: #1b82e6;
-  --blue-soft: rgba(27, 130, 230, 0.14);
-  --green: #34d399;
-  --green-soft: rgba(52, 211, 153, 0.12);
-  --mango: #ffb347;
-  --mango-soft: rgba(255, 179, 71, 0.14);
-  --danger: #f87171;
-  --danger-soft: rgba(248, 113, 113, 0.1);
-  --danger-hover: rgba(248, 113, 113, 0.16);
-  --danger-text: #fca5a5;
-  --stop: #972020;
-  --track: #27272a;
-  --shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
-  --shadow-soft: 0 20px 60px rgba(0, 0, 0, 0.16);
-  --dialog-backdrop: rgba(0, 0, 0, 0.68);
+  /* App/base surfaces */
+  --color-app-bg: #0a0a0b;
+  --color-body-bg:
+    radial-gradient(circle at top left, rgba(30, 144, 255, 0.18), transparent 34rem), radial-gradient(circle at bottom right, rgba(255, 179, 71, 0.12), transparent 30rem), #0a0a0b;
+  --color-panel: rgba(24, 24, 27, 0.82);
+  --color-panel-strong: rgba(18, 18, 20, 0.96);
+  --color-surface: rgba(10, 10, 11, 0.42);
+  --color-surface-soft: rgba(10, 10, 11, 0.38);
+  --color-surface-subtle: rgba(10, 10, 11, 0.5);
+
+  /* Borders/text */
+  --color-border: #2d2d33;
+  --color-border-strong: #52525b;
+  --color-text: #f4f4f5;
+  --color-text-muted: #a1a1aa;
+  --color-text-muted-strong: #d4d4d8;
+  --color-eyebrow: #38bdf8;
+
+  /* Intent/brand colors */
+  --color-primary: #1b82e6;
+  --color-primary-soft: rgba(27, 130, 230, 0.14);
+  --color-success: #34d399;
+  --color-success-soft: rgba(52, 211, 153, 0.12);
+  --color-accent: #ffb347;
+  --color-accent-soft: rgba(255, 179, 71, 0.14);
+  --color-danger: #f87171;
+  --color-danger-soft: rgba(248, 113, 113, 0.1);
+  --color-danger-hover: rgba(248, 113, 113, 0.16);
+  --color-danger-text: #fca5a5;
+  --color-stop: #972020;
+  --color-track: #27272a;
+
+  /* Effects */
+  --shadow-elevated: 0 20px 60px rgba(0, 0, 0, 0.22);
+  --shadow-subtle: 0 20px 60px rgba(0, 0, 0, 0.16);
+  --overlay-dialog-backdrop: rgba(0, 0, 0, 0.68);
+
+  /* Legacy aliases - keep until component styles are migrated */
+  --bg: var(--color-app-bg);
+  --body-bg: var(--color-body-bg);
+  --panel: var(--color-panel);
+  --panel-strong: var(--color-panel-strong);
+  --surface: var(--color-surface);
+  --surface-soft: var(--color-surface-soft);
+  --surface-subtle: var(--color-surface-subtle);
+  --border: var(--color-border);
+  --border-strong: var(--color-border-strong);
+  --text: var(--color-text);
+  --muted: var(--color-text-muted);
+  --muted-strong: var(--color-text-muted-strong);
+  --eyebrow: var(--color-eyebrow);
+  --blue: var(--color-primary);
+  --blue-soft: var(--color-primary-soft);
+  --green: var(--color-success);
+  --green-soft: var(--color-success-soft);
+  --mango: var(--color-accent);
+  --mango-soft: var(--color-accent-soft);
+  --danger: var(--color-danger);
+  --danger-soft: var(--color-danger-soft);
+  --danger-hover: var(--color-danger-hover);
+  --danger-text: var(--color-danger-text);
+  --stop: var(--color-stop);
+  --track: var(--color-track);
+  --shadow: var(--shadow-elevated);
+  --shadow-soft: var(--shadow-subtle);
+  --dialog-backdrop: var(--overlay-dialog-backdrop);
 
   --strum-down: #f4f4f5;
   --strum-down-soft: rgba(244, 244, 245, 0.12);
@@ -55,37 +90,72 @@
 :root[data-theme="light"] {
   color-scheme: light;
 
-  --bg: #f6f8fb;
-  --body-bg:
-    radial-gradient(circle at top left, rgba(27, 130, 230, 0.14), transparent 34rem),
-    radial-gradient(circle at bottom right, rgba(255, 179, 71, 0.18), transparent 30rem),
-    #f6f8fb;
-  --panel: rgba(255, 255, 255, 0.9);
-  --panel-strong: rgba(255, 255, 255, 0.98);
-  --surface: rgba(248, 250, 252, 0.88);
-  --surface-soft: rgba(241, 245, 249, 0.78);
-  --surface-subtle: rgba(255, 255, 255, 0.86);
-  --border: #d7dde7;
-  --border-strong: #94a3b8;
-  --text: #111827;
-  --muted: #64748b;
-  --muted-strong: #334155;
-  --eyebrow: #0f4f9e;
-  --blue: #0f72d8;
-  --blue-soft: rgba(15, 114, 216, 0.12);
-  --green: #059669;
-  --green-soft: rgba(5, 150, 105, 0.12);
-  --mango: #f59e0b;
-  --mango-soft: rgba(245, 158, 11, 0.16);
-  --danger: #dc2626;
-  --danger-soft: rgba(220, 38, 38, 0.1);
-  --danger-hover: rgba(220, 38, 38, 0.16);
-  --danger-text: #b91c1c;
-  --stop: #972020;
-  --track: #dbe3ef;
-  --shadow: 0 20px 60px rgba(15, 23, 42, 0.12);
-  --shadow-soft: 0 20px 60px rgba(15, 23, 42, 0.08);
-  --dialog-backdrop: rgba(15, 23, 42, 0.34);
+  /* App/base surfaces */
+  --color-app-bg: #f6f8fb;
+  --color-body-bg:
+    radial-gradient(circle at top left, rgba(27, 130, 230, 0.14), transparent 34rem), radial-gradient(circle at bottom right, rgba(255, 179, 71, 0.18), transparent 30rem), #f6f8fb;
+  --color-panel: rgba(255, 255, 255, 0.9);
+  --color-panel-strong: rgba(255, 255, 255, 0.98);
+  --color-surface: rgba(248, 250, 252, 0.88);
+  --color-surface-soft: rgba(241, 245, 249, 0.78);
+  --color-surface-subtle: rgba(255, 255, 255, 0.86);
+
+  /* Borders/text */
+  --color-border: #d7dde7;
+  --color-border-strong: #94a3b8;
+  --color-text: #111827;
+  --color-text-muted: #475569;
+  --color-text-muted-strong: #1f2937;
+  --color-eyebrow: #0f4f9e;
+
+  /* Intent/brand colors */
+  --color-primary: #0f72d8;
+  --color-primary-soft: rgba(15, 114, 216, 0.12);
+  --color-success: #059669;
+  --color-success-soft: rgba(5, 150, 105, 0.12);
+  --color-accent: #f59e0b;
+  --color-accent-soft: rgba(245, 158, 11, 0.16);
+  --color-danger: #dc2626;
+  --color-danger-soft: rgba(220, 38, 38, 0.1);
+  --color-danger-hover: rgba(220, 38, 38, 0.16);
+  --color-danger-text: #b91c1c;
+  --color-stop: #972020;
+  --color-track: #dbe3ef;
+
+  /* Effects */
+  --shadow-elevated: 0 20px 60px rgba(15, 23, 42, 0.12);
+  --shadow-subtle: 0 20px 60px rgba(15, 23, 42, 0.08);
+  --overlay-dialog-backdrop: rgba(15, 23, 42, 0.34);
+
+  /* Legacy aliases - keep until component styles are migrated */
+  --bg: var(--color-app-bg);
+  --body-bg: var(--color-body-bg);
+  --panel: var(--color-panel);
+  --panel-strong: var(--color-panel-strong);
+  --surface: var(--color-surface);
+  --surface-soft: var(--color-surface-soft);
+  --surface-subtle: var(--color-surface-subtle);
+  --border: var(--color-border);
+  --border-strong: var(--color-border-strong);
+  --text: var(--color-text);
+  --muted: var(--color-text-muted);
+  --muted-strong: var(--color-text-muted-strong);
+  --eyebrow: var(--color-eyebrow);
+  --blue: var(--color-primary);
+  --blue-soft: var(--color-primary-soft);
+  --green: var(--color-success);
+  --green-soft: var(--color-success-soft);
+  --mango: var(--color-accent);
+  --mango-soft: var(--color-accent-soft);
+  --danger: var(--color-danger);
+  --danger-soft: var(--color-danger-soft);
+  --danger-hover: var(--color-danger-hover);
+  --danger-text: var(--color-danger-text);
+  --stop: var(--color-stop);
+  --track: var(--color-track);
+  --shadow: var(--shadow-elevated);
+  --shadow-soft: var(--shadow-subtle);
+  --dialog-backdrop: var(--overlay-dialog-backdrop);
 
   --strum-down: #1f2937;
   --strum-down-soft: rgba(31, 41, 55, 0.08);
