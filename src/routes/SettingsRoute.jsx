@@ -1,24 +1,26 @@
 import * as React from "react";
 import { SettingsPanel } from "../components";
+import { useAppSettingsContext } from "../context";
 
 const { Fragment } = React;
 
-export default function SettingsRoute({
-  appSettings,
-  onAudioInputModeChange,
-  onAudioInputSettingChange,
-  onProgressImported,
-  onThemeModeChange,
-  resolvedThemeMode,
-}) {
+export default function SettingsRoute({ onProgressImported }) {
+  const {
+    settings: appSettings,
+    resolvedThemeMode,
+    updateAudioInputMode,
+    updateAudioInputSetting,
+    updateThemeMode,
+  } = useAppSettingsContext();
+
   return (
     <Fragment>
       <SettingsPanel
         appSettings={appSettings}
-        onAudioInputModeChange={onAudioInputModeChange}
-        onAudioInputSettingChange={onAudioInputSettingChange}
+        onAudioInputModeChange={updateAudioInputMode}
+        onAudioInputSettingChange={updateAudioInputSetting}
         onProgressImported={onProgressImported}
-        onThemeModeChange={onThemeModeChange}
+        onThemeModeChange={updateThemeMode}
         resolvedThemeMode={resolvedThemeMode}
       />
     </Fragment>

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AppSidebar, DashboardNav } from "./components";
-import { useAppSettings, useGuitarJourneyApp } from "./hooks";
+import { AppSettingsProvider, GuitarJourneyProvider, useAppSettingsContext, useGuitarJourneyContext } from "./context";
 import {
   DashboardRoute,
   EditSongRoute,
@@ -28,14 +28,24 @@ export default function App() {
 }
 
 function AppRuntime({ onProgressImported }) {
-  const {
-    settings: appSettings,
-    resolvedThemeMode,
-    updateAudioInputMode,
-    updateAudioInputSetting,
-    updateThemeMode,
-  } = useAppSettings();
+  return (
+    <AppSettingsProvider>
+      <GuitarJourneyRuntime onProgressImported={onProgressImported} />
+    </AppSettingsProvider>
+  );
+}
 
+function GuitarJourneyRuntime({ onProgressImported }) {
+  const { settings: appSettings } = useAppSettingsContext();
+
+  return (
+    <GuitarJourneyProvider audioInputSettings={appSettings.audioInputSettings}>
+      <AppLayout onProgressImported={onProgressImported} />
+    </GuitarJourneyProvider>
+  );
+}
+
+function AppLayout({ onProgressImported }) {
   const {
     activeSessionProps,
     dashboardRouteProps,
@@ -46,9 +56,7 @@ function AppRuntime({ onProgressImported }) {
     songSectionsRouteProps,
     transitionsRouteProps,
     weeklyPlanRouteProps,
-  } = useGuitarJourneyApp({
-    audioInputSettings: appSettings.audioInputSettings,
-  });
+  } = useGuitarJourneyContext();
 
   return (
     <Fragment>
@@ -74,19 +82,7 @@ function AppRuntime({ onProgressImported }) {
 
               <Route path="songs/edit/:songId" element={<EditSongRoute {...editSongRouteProps} />} />
 
-              <Route
-                path="settings"
-                element={
-                  <SettingsRoute
-                    appSettings={appSettings}
-                    onAudioInputModeChange={updateAudioInputMode}
-                    onAudioInputSettingChange={updateAudioInputSetting}
-                    onProgressImported={onProgressImported}
-                    onThemeModeChange={updateThemeMode}
-                    resolvedThemeMode={resolvedThemeMode}
-                  />
-                }
-              />
+              <Route path="settings" element={<SettingsRoute onProgressImported={onProgressImported} />} />
 
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

@@ -444,7 +444,8 @@
   align-items: center;
   align-self: center;
   justify-content: center;
-  gap: 7px;
+  gap: 4px;
+  padding: 10px 14px 10px 12px;
 }
 
 .microphone-test-button svg {
