@@ -10,12 +10,25 @@ const ACCENT_COLOR_TEAL = "teal";
 const ACCENT_COLOR_ROSE = "rose";
 const ACCENT_COLOR_AMBER = "amber";
 const ACCENT_COLOR_GREEN = "green";
+const ACCENT_COLOR_CHARTREUSE = "chartreuse";
+const ACCENT_COLOR_CYAN = "cyan";
+const ACCENT_COLOR_MAGENTA = "magenta";
 
 const AUDIO_INPUT_MODE_STANDARD = "standard";
 const AUDIO_INPUT_MODE_ADVANCED = "advanced";
 
 const AUDIO_INPUT_SETTING_KEYS = ["echoCancellation", "noiseSuppression", "autoGainControl"];
-const ACCENT_COLOR_IDS = [ACCENT_COLOR_BLUE, ACCENT_COLOR_PURPLE, ACCENT_COLOR_TEAL, ACCENT_COLOR_ROSE, ACCENT_COLOR_AMBER, ACCENT_COLOR_GREEN];
+const ACCENT_COLOR_IDS = [
+  ACCENT_COLOR_BLUE,
+  ACCENT_COLOR_PURPLE,
+  ACCENT_COLOR_TEAL,
+  ACCENT_COLOR_ROSE,
+  ACCENT_COLOR_AMBER,
+  ACCENT_COLOR_GREEN,
+  ACCENT_COLOR_CHARTREUSE,
+  ACCENT_COLOR_CYAN,
+  ACCENT_COLOR_MAGENTA,
+];
 
 const THEME_MODE_OPTIONS = [
   {
@@ -71,6 +84,24 @@ const ACCENT_COLOR_OPTIONS = [
     label: "Green",
     description: "A growth-focused accent.",
     swatch: "#16a34a",
+  },
+  {
+    id: ACCENT_COLOR_CHARTREUSE,
+    label: "Chartreuse",
+    description: "A bright electric accent.",
+    swatch: "#a3e635",
+  },
+  {
+    id: ACCENT_COLOR_CYAN,
+    label: "Cyan",
+    description: "A vivid neon-blue accent.",
+    swatch: "#06b6d4",
+  },
+  {
+    id: ACCENT_COLOR_MAGENTA,
+    label: "Magenta",
+    description: "A bold hot-pink accent.",
+    swatch: "#d946ef",
   },
 ];
 
@@ -221,7 +252,10 @@ function clearAppSettings() {
 export {
   ACCENT_COLOR_AMBER,
   ACCENT_COLOR_BLUE,
+  ACCENT_COLOR_CHARTREUSE,
+  ACCENT_COLOR_CYAN,
   ACCENT_COLOR_GREEN,
+  ACCENT_COLOR_MAGENTA,
   ACCENT_COLOR_OPTIONS,
   ACCENT_COLOR_PURPLE,
   ACCENT_COLOR_ROSE,
