@@ -3,7 +3,10 @@ import * as React from "react";
 const { useMemo, useState } = React;
 
 function removeRecordingFields(session) {
-  const nextSession = { ...session };
+  const nextSession = {
+    ...session,
+    recordingRemovedAt: new Date().toISOString(),
+  };
 
   delete nextSession.recordingDurationSeconds;
   delete nextSession.recordingId;
