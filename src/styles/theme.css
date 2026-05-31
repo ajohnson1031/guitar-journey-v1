@@ -32,6 +32,7 @@
   --color-primary-soft-hover: rgba(27, 130, 230, 0.24);
   --color-primary-outline: #1b82e6;
   --color-primary-outline-hover: #176fc4;
+  --color-primary-contrast: #ffffff;
   --color-success: #34d399;
   --color-success-hover: #10b981;
   --color-success-soft: rgba(52, 211, 153, 0.12);
@@ -153,6 +154,7 @@
   --color-primary-soft-hover: rgba(15, 114, 216, 0.2);
   --color-primary-outline: #0f72d8;
   --color-primary-outline-hover: #0b5bb0;
+  --color-primary-contrast: #ffffff;
   --color-success: #059669;
   --color-success-hover: #047857;
   --color-success-soft: rgba(5, 150, 105, 0.12);
@@ -343,6 +345,10 @@
   --color-edit-soft: rgba(217, 249, 157, 0.12);
   --color-edit-soft-hover: rgba(217, 249, 157, 0.18);
   --diagram-open-string: #d9f99d;
+}
+
+:root:not([data-theme="light"])[data-accent="chartreuse"] {
+  --color-primary-contrast: #111827;
 }
 
 :root[data-accent="cyan"] {
