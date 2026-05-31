@@ -40,12 +40,8 @@ function AppLayout({ onProgressImported }) {
   const {
     activeSessionProps,
     editSongRouteProps,
-    historyRouteProps,
     newSongRouteProps,
     sidebarProps,
-    songSectionsRouteProps,
-    transitionsRouteProps,
-    weeklyPlanRouteProps,
   } = useGuitarJourneyContext();
 
   return (
@@ -60,13 +56,13 @@ function AppLayout({ onProgressImported }) {
             <Routes>
               <Route index element={<DashboardRoute />} />
 
-              <Route path="transitions" element={<TransitionsRoute {...transitionsRouteProps} />} />
+              <Route path="transitions" element={<TransitionsRoute />} />
 
-              <Route path="sections" element={<SongSectionsRoute {...songSectionsRouteProps} />} />
+              <Route path="sections" element={<SongSectionsRoute />} />
 
-              <Route path="history" element={<HistoryRoute {...historyRouteProps} />} />
+              <Route path="history" element={<HistoryRoute />} />
 
-              <Route path="weekly-plan" element={<WeeklyPlanRoute {...weeklyPlanRouteProps} />} />
+              <Route path="weekly-plan" element={<WeeklyPlanRoute />} />
 
               <Route path="songs/new" element={<NewSongRoute {...newSongRouteProps} />} />
 
