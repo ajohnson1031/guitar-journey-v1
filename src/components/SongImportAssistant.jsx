@@ -68,11 +68,11 @@ export default function SongImportAssistant({ onApplyAnalysis }) {
       </label>
 
       <div className="custom-song-button-group">
-        <button type="button" className="ghost-button" onClick={handleClearText}>
+        <button type="button" className="destructive-outline-button" onClick={handleClearText}>
           Clear Paste
         </button>
 
-        <button type="button" className="ghost-button" onClick={handleAnalyzeSongText}>
+        <button type="button" className="primary-outline-button" onClick={handleAnalyzeSongText}>
           Analyze Paste
         </button>
 

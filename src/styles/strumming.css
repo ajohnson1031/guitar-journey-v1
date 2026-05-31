@@ -149,6 +149,7 @@
 
 .strum-arrow-button:hover {
   border-color: var(--blue);
+  background: var(--blue-soft);
 }
 
 .strum-arrow-button.is-selected {
@@ -173,6 +174,7 @@
 
 .strum-up-button:hover {
   border-color: var(--strum-up);
+  background: var(--strum-up-soft);
 }
 
 .inline-strumming-display {
