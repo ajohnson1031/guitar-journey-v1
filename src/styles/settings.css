@@ -314,6 +314,14 @@
   gap: 12px;
 }
 
+.settings-recording-cleanup-helper {
+  margin: 0 !important;
+  color: var(--color-text-muted);
+  font-size: 12px !important;
+  font-weight: 800;
+  line-height: 1.45 !important;
+}
+
 .settings-recording-cleanup-actions {
   display: flex;
   align-items: center;

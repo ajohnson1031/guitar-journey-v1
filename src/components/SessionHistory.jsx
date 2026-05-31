@@ -192,7 +192,9 @@ export default function SessionHistory({ onDeleteSessionRecording, sessions }) {
 
                 <div className="history-list">
                   {group.sessions.map((session) => {
-                    const hasStoredRecording = Boolean(session.recordingId && availableRecordingIds.has(session.recordingId));
+                    const hasRecordingReference = Boolean(session.recordingId);
+                    const hasStoredRecording = hasRecordingReference && availableRecordingIds.has(session.recordingId);
+                    const hasMissingRecording = hasRecordingReference && !hasStoredRecording;
                     const isActiveRecording = hasStoredRecording && activeRecordingId === session.recordingId;
                     const isLoadingThisRecording = isActiveRecording && isLoadingRecording;
                     const isPlayingThisRecording = isActiveRecording && isPlayingRecording;
@@ -233,6 +235,7 @@ export default function SessionHistory({ onDeleteSessionRecording, sessions }) {
                             <span>{session.rating}</span>
 
                             {hasStoredRecording ? <span>Recording {formatRecordingDuration(session.recordingDurationSeconds)}</span> : null}
+                            {hasMissingRecording ? <span className="history-recording-missing-pill">Recording removed</span> : null}
                           </div>
 
                           {hasStoredRecording ? (

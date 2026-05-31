@@ -157,6 +157,24 @@ describe("SessionHistory", () => {
     expect(screen.queryByLabelText("Delete recording for Silent Song")).toBeNull();
   });
 
+  it("shows a removed recording pill when a session references a missing recording", async () => {
+    renderSessionHistory({
+      sessions: [
+        createSession({
+          id: "missing-recording",
+          songTitle: "Missing Recording Song",
+          recordingDurationSeconds: 62,
+          recordingId: "recording-missing",
+          recordingMimeType: "audio/webm",
+        }),
+      ],
+    });
+
+    expect(await screen.findByText("Recording removed")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Play Recording" })).toBeNull();
+    expect(screen.queryByLabelText("Delete recording for Missing Recording Song")).toBeNull();
+  });
+
   it("uses Pause Playback text while a stored recording is playing", async () => {
     mockRecordingStorageState.recordings = [
       {
