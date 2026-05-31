@@ -39,8 +39,6 @@ function GuitarJourneyRuntime({ onProgressImported }) {
 function AppLayout({ onProgressImported }) {
   const {
     activeSessionProps,
-    editSongRouteProps,
-    newSongRouteProps,
     sidebarProps,
   } = useGuitarJourneyContext();
 
@@ -64,9 +62,9 @@ function AppLayout({ onProgressImported }) {
 
               <Route path="weekly-plan" element={<WeeklyPlanRoute />} />
 
-              <Route path="songs/new" element={<NewSongRoute {...newSongRouteProps} />} />
+              <Route path="songs/new" element={<NewSongRoute />} />
 
-              <Route path="songs/edit/:songId" element={<EditSongRoute {...editSongRouteProps} />} />
+              <Route path="songs/edit/:songId" element={<EditSongRoute />} />
 
               <Route path="settings" element={<SettingsRoute onProgressImported={onProgressImported} />} />
 

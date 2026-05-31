@@ -8,6 +8,7 @@ const { Fragment, useMemo, useState } = React;
 export default function CurrentSongCard({ filteredSongs, masteredSongs, onDeleteCustomSong, onSelectSong, onStartEditCustomSong, onToggleMastered, selectedSong }) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const isMastered = Boolean(masteredSongs[selectedSong.id]);
+  const artistByline = selectedSong.artist?.trim();
 
   const songSelectOptions = useMemo(() => {
     const options = filteredSongs.length ? filteredSongs : selectedSong ? [selectedSong] : [];
@@ -69,13 +70,7 @@ export default function CurrentSongCard({ filteredSongs, masteredSongs, onDelete
                     <EditIcon />
                   </button>
 
-                  <button
-                    type="button"
-                    className="icon-button danger-button"
-                    title="Delete Custom Song"
-                    aria-label="Delete Custom Song"
-                    onClick={handleRequestDeleteCustomSong}
-                  >
+                  <button type="button" className="icon-button danger-button" title="Delete Custom Song" aria-label="Delete Custom Song" onClick={handleRequestDeleteCustomSong}>
                     <TrashIcon />
                   </button>
                 </Fragment>
@@ -96,6 +91,7 @@ export default function CurrentSongCard({ filteredSongs, masteredSongs, onDelete
         <div className="song-header-main">
           <p className="eyebrow">Current Song</p>
           <h2>{selectedSong.title}</h2>
+          {artistByline ? <p className="song-artist">{artistByline}</p> : null}
           <p className="goal">{selectedSong.goal}</p>
         </div>
 

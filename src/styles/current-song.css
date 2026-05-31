@@ -59,6 +59,13 @@
   letter-spacing: -0.06em;
 }
 
+.song-header-main .song-artist {
+  margin: -4px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+}
+
 .song-header-main .goal {
   margin: 6px 0 0;
   color: var(--muted);
