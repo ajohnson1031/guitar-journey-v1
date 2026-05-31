@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  ACCENT_COLOR_CHARTREUSE,
   ACCENT_COLOR_PURPLE,
   AUDIO_INPUT_MODE_ADVANCED,
   AUDIO_INPUT_MODE_STANDARD,
@@ -33,6 +34,7 @@ describe("settingsStorageUtils", () => {
 
   it("normalizes valid accent colors", () => {
     expect(normalizeAccentColor("Purple")).toBe(ACCENT_COLOR_PURPLE);
+    expect(normalizeAccentColor("Chartreuse")).toBe(ACCENT_COLOR_CHARTREUSE);
   });
 
   it("creates audio input settings with boolean fallbacks", () => {
@@ -100,7 +102,7 @@ describe("settingsStorageUtils", () => {
   it("includes accent and audio settings when creating app settings", () => {
     const settings = createAppSettings({
       themeMode: "system",
-      accentColor: "purple",
+      accentColor: "chartreuse",
       audioInputSettings: {
         inputMode: AUDIO_INPUT_MODE_ADVANCED,
         echoCancellation: false,
@@ -111,7 +113,7 @@ describe("settingsStorageUtils", () => {
 
     expect(settings).toEqual({
       themeMode: "system",
-      accentColor: "purple",
+      accentColor: "chartreuse",
       audioInputSettings: {
         inputMode: AUDIO_INPUT_MODE_ADVANCED,
         echoCancellation: false,
