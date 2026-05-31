@@ -19,7 +19,7 @@
 .step-card {
   width: 100%;
   padding: 14px;
-  color: var(--text);
+  color: var(--color-text);
   text-align: left;
 }
 
@@ -42,7 +42,7 @@
   display: block;
   max-height: 0;
   overflow: hidden;
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 12px;
   line-height: 1.45;
   opacity: 0;
@@ -55,8 +55,8 @@
 }
 
 .path-card.is-active {
-  border-color: var(--blue);
-  background: var(--blue-soft);
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
 }
 
 .path-card.is-active .path-card-description {

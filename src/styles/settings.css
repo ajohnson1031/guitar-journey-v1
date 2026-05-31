@@ -446,6 +446,7 @@
   justify-content: center;
   gap: 4px;
   padding: 10px 14px 10px 12px;
+  min-width: 87px;
 }
 
 .microphone-test-button svg {
