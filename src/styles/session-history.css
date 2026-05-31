@@ -250,6 +250,12 @@
   font-weight: 800;
 }
 
+.history-card-metrics .history-recording-missing-pill {
+  border-color: var(--color-danger);
+  background: var(--color-danger-soft);
+  color: var(--color-danger-text);
+}
+
 .history-recording-actions {
   display: grid;
   flex: 0 0 auto;

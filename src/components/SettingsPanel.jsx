@@ -121,7 +121,9 @@ export default function SettingsPanel({
   const [pendingRecordingCleanup, setPendingRecordingCleanup] = useState(null);
 
   const storedRecordingCount = Math.max(0, Number(recordingStorageSummary.storedCount ?? recordingStorageSummary.count ?? 0) || 0);
+  const linkedStoredRecordingCount = Math.max(0, Number(recordingStorageSummary.linkedStoredCount ?? 0) || 0);
   const orphanedRecordingCount = Math.max(0, Number(recordingStorageSummary.orphanedCount ?? 0) || 0);
+  const missingLinkedRecordingCount = Math.max(0, Number(recordingStorageSummary.missingLinkedCount ?? 0) || 0);
 
   useEffect(() => {
     let isMounted = true;
@@ -160,7 +162,6 @@ export default function SettingsPanel({
       });
     }
   }
-
 
   useEffect(() => {
     const importSuccessFlash = readImportSuccessFlash();
@@ -303,9 +304,7 @@ export default function SettingsPanel({
         const deletedCount = await clearUnlinkedRecordings(loadStoredProgress().sessionHistory);
 
         showBackupMessage(
-          deletedCount
-            ? `Deleted ${formatRecordingCount(deletedCount)} that were not linked to session history.`
-            : "No orphaned recordings were found.",
+          deletedCount ? `Deleted ${formatRecordingCount(deletedCount)} that were not linked to session history.` : "No orphaned recordings were found.",
           "success",
         );
       } else {
@@ -438,7 +437,10 @@ export default function SettingsPanel({
             <div className="settings-status-grid">
               <StatusCard label="Recording support" value={audioSupport.isSupported ? "Supported" : "Unavailable"} tone={audioSupport.isSupported ? "success" : "danger"} />
               <StatusCard label="Detected format" value={audioSupport.supportedMimeTypeLabel} />
-              <StatusCard label="Local recordings" value={recordingStorageSummary.label} tone={recordingStorageSummary.count > 0 ? "success" : "neutral"} />
+              <StatusCard label="Stored recordings" value={formatRecordingCount(storedRecordingCount)} tone={storedRecordingCount > 0 ? "success" : "neutral"} />
+              <StatusCard label="Linked recordings" value={`${linkedStoredRecordingCount} linked`} tone={linkedStoredRecordingCount > 0 ? "success" : "neutral"} />
+              <StatusCard label="Orphaned recordings" value={`${orphanedRecordingCount} orphaned`} tone={orphanedRecordingCount > 0 ? "danger" : "neutral"} />
+              <StatusCard label="Missing recordings" value={`${missingLinkedRecordingCount} missing`} tone={missingLinkedRecordingCount > 0 ? "danger" : "neutral"} />
             </div>
 
             <div className="settings-action-panel settings-recording-cleanup-panel">
@@ -446,6 +448,16 @@ export default function SettingsPanel({
                 <strong>Recording cleanup</strong>
                 <p>Remove local audio files without changing session history. Orphaned recordings are saved files that no longer match a session.</p>
               </div>
+
+              <p className="settings-recording-cleanup-helper">
+                {!recordingStorageSummary.isSupported
+                  ? "Recording storage is unavailable in this browser."
+                  : storedRecordingCount < 1
+                    ? "No local recordings are currently stored."
+                    : orphanedRecordingCount > 0
+                      ? `${formatRecordingCount(orphanedRecordingCount)} can be safely removed because they are not linked to session history.`
+                      : "No orphaned recordings were found. Use Delete all recordings only if you want to remove every saved local audio file."}
+              </p>
 
               <div className="settings-recording-cleanup-actions">
                 <button
