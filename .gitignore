@@ -2,6 +2,7 @@
 /node_modules
 package-lock.json
 netlify.toml
+*/**/*.bak
 
 # Local Netlify folder
 .netlify

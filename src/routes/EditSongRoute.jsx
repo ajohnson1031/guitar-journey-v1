@@ -1,18 +1,23 @@
 import * as React from "react";
 import { Navigate, useParams } from "react-router-dom";
 import { CustomSongForm } from "../components";
+import { useGuitarJourneyContext } from "../context";
 
 const { Fragment, useMemo } = React;
 
 const noop = () => {};
 
-export default function EditSongRoute({
-  customSongs,
-  genres,
-  onCancelEdit,
-  onClose,
-  onUpdateSong,
-}) {
+export default function EditSongRoute() {
+  const { editSongRouteProps = {} } = useGuitarJourneyContext();
+
+  const {
+    customSongs = [],
+    genres,
+    onCancelEdit,
+    onClose,
+    onUpdateSong,
+  } = editSongRouteProps;
+
   const { songId } = useParams();
 
   const songToEdit = useMemo(() => {

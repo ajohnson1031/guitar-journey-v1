@@ -1,15 +1,20 @@
 import * as React from "react";
 import { CustomSongForm } from "../components";
+import { useGuitarJourneyContext } from "../context";
 
 const { Fragment } = React;
 
-export default function NewSongRoute({
-  genres,
-  onAddSong,
-  onCancelEdit,
-  onClose,
-  onUpdateSong,
-}) {
+export default function NewSongRoute() {
+  const { newSongRouteProps = {} } = useGuitarJourneyContext();
+
+  const {
+    genres,
+    onAddSong,
+    onCancelEdit,
+    onClose,
+    onUpdateSong,
+  } = newSongRouteProps;
+
   return (
     <Fragment>
       <CustomSongForm
