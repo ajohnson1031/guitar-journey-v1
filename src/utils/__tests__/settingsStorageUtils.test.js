@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  ACCENT_COLOR_PURPLE,
   AUDIO_INPUT_MODE_ADVANCED,
   AUDIO_INPUT_MODE_STANDARD,
   DEFAULT_APP_SETTINGS,
@@ -8,23 +9,30 @@ import {
   getAudioInputConstraints,
   getResolvedAudioInputSettings,
   migrateAppSettings,
+  normalizeAccentColor,
   normalizeAudioInputMode,
   normalizeThemeMode,
 } from "../settingsStorageUtils";
 
 describe("settingsStorageUtils", () => {
-  it("migrates legacy settings with default audio settings", () => {
+  it("migrates legacy settings with default audio settings and default accent color", () => {
     const settings = migrateAppSettings({
       themeMode: "light",
     });
 
     expect(settings.themeMode).toBe("light");
+    expect(settings.accentColor).toBe(DEFAULT_APP_SETTINGS.accentColor);
     expect(settings.audioInputSettings).toEqual(DEFAULT_APP_SETTINGS.audioInputSettings);
   });
 
-  it("normalizes invalid theme and audio input modes", () => {
+  it("normalizes invalid theme, accent, and audio input modes", () => {
     expect(normalizeThemeMode("bad-mode")).toBe(DEFAULT_APP_SETTINGS.themeMode);
+    expect(normalizeAccentColor("neon")).toBe(DEFAULT_APP_SETTINGS.accentColor);
     expect(normalizeAudioInputMode("raw")).toBe(AUDIO_INPUT_MODE_STANDARD);
+  });
+
+  it("normalizes valid accent colors", () => {
+    expect(normalizeAccentColor("Purple")).toBe(ACCENT_COLOR_PURPLE);
   });
 
   it("creates audio input settings with boolean fallbacks", () => {
@@ -89,9 +97,10 @@ describe("settingsStorageUtils", () => {
     });
   });
 
-  it("includes audio settings when creating app settings", () => {
+  it("includes accent and audio settings when creating app settings", () => {
     const settings = createAppSettings({
       themeMode: "system",
+      accentColor: "purple",
       audioInputSettings: {
         inputMode: AUDIO_INPUT_MODE_ADVANCED,
         echoCancellation: false,
@@ -102,6 +111,7 @@ describe("settingsStorageUtils", () => {
 
     expect(settings).toEqual({
       themeMode: "system",
+      accentColor: "purple",
       audioInputSettings: {
         inputMode: AUDIO_INPUT_MODE_ADVANCED,
         echoCancellation: false,

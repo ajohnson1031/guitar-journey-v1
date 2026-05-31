@@ -4,10 +4,18 @@ const THEME_MODE_SYSTEM = "system";
 const THEME_MODE_DARK = "dark";
 const THEME_MODE_LIGHT = "light";
 
+const ACCENT_COLOR_BLUE = "blue";
+const ACCENT_COLOR_PURPLE = "purple";
+const ACCENT_COLOR_TEAL = "teal";
+const ACCENT_COLOR_ROSE = "rose";
+const ACCENT_COLOR_AMBER = "amber";
+const ACCENT_COLOR_GREEN = "green";
+
 const AUDIO_INPUT_MODE_STANDARD = "standard";
 const AUDIO_INPUT_MODE_ADVANCED = "advanced";
 
 const AUDIO_INPUT_SETTING_KEYS = ["echoCancellation", "noiseSuppression", "autoGainControl"];
+const ACCENT_COLOR_IDS = [ACCENT_COLOR_BLUE, ACCENT_COLOR_PURPLE, ACCENT_COLOR_TEAL, ACCENT_COLOR_ROSE, ACCENT_COLOR_AMBER, ACCENT_COLOR_GREEN];
 
 const THEME_MODE_OPTIONS = [
   {
@@ -24,6 +32,45 @@ const THEME_MODE_OPTIONS = [
     id: THEME_MODE_LIGHT,
     label: "Light",
     description: "Use a brighter theme for daytime practice.",
+  },
+];
+
+const ACCENT_COLOR_OPTIONS = [
+  {
+    id: ACCENT_COLOR_BLUE,
+    label: "Blue",
+    description: "Classic Guitar Journey blue.",
+    swatch: "#1b82e6",
+  },
+  {
+    id: ACCENT_COLOR_PURPLE,
+    label: "Purple",
+    description: "A creative violet accent.",
+    swatch: "#8b5cf6",
+  },
+  {
+    id: ACCENT_COLOR_TEAL,
+    label: "Teal",
+    description: "A calm blue-green accent.",
+    swatch: "#14b8a6",
+  },
+  {
+    id: ACCENT_COLOR_ROSE,
+    label: "Rose",
+    description: "A warm rose accent.",
+    swatch: "#e11d48",
+  },
+  {
+    id: ACCENT_COLOR_AMBER,
+    label: "Amber",
+    description: "A golden practice accent.",
+    swatch: "#d97706",
+  },
+  {
+    id: ACCENT_COLOR_GREEN,
+    label: "Green",
+    description: "A growth-focused accent.",
+    swatch: "#16a34a",
   },
 ];
 
@@ -49,6 +96,7 @@ const DEFAULT_AUDIO_INPUT_SETTINGS = {
 
 const DEFAULT_APP_SETTINGS = {
   themeMode: THEME_MODE_DARK,
+  accentColor: ACCENT_COLOR_BLUE,
   audioInputSettings: DEFAULT_AUDIO_INPUT_SETTINGS,
 };
 
@@ -64,6 +112,16 @@ function normalizeThemeMode(value) {
   }
 
   return DEFAULT_APP_SETTINGS.themeMode;
+}
+
+function normalizeAccentColor(value) {
+  const normalizedValue = String(value || "").trim().toLowerCase();
+
+  if (ACCENT_COLOR_IDS.includes(normalizedValue)) {
+    return normalizedValue;
+  }
+
+  return DEFAULT_APP_SETTINGS.accentColor;
 }
 
 function normalizeAudioInputMode(value) {
@@ -125,6 +183,7 @@ function migrateAppSettings(settings) {
     ...DEFAULT_APP_SETTINGS,
     ...parsed,
     themeMode: normalizeThemeMode(parsed.themeMode),
+    accentColor: normalizeAccentColor(parsed.accentColor),
     audioInputSettings: createAudioInputSettings(parsed.audioInputSettings),
   };
 }
@@ -160,6 +219,13 @@ function clearAppSettings() {
 }
 
 export {
+  ACCENT_COLOR_AMBER,
+  ACCENT_COLOR_BLUE,
+  ACCENT_COLOR_GREEN,
+  ACCENT_COLOR_OPTIONS,
+  ACCENT_COLOR_PURPLE,
+  ACCENT_COLOR_ROSE,
+  ACCENT_COLOR_TEAL,
   APP_SETTINGS_KEY,
   AUDIO_INPUT_MODE_ADVANCED,
   AUDIO_INPUT_MODE_OPTIONS,
@@ -178,6 +244,7 @@ export {
   getResolvedAudioInputSettings,
   loadAppSettings,
   migrateAppSettings,
+  normalizeAccentColor,
   normalizeAudioInputMode,
   normalizeThemeMode,
   saveAppSettings,

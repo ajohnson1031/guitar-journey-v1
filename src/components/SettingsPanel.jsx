@@ -5,6 +5,7 @@ import { getLevelBarStates, getLevelMeterTone } from "../utils/microphoneTestUti
 import { applyProgressBackupWithRecordings, createProgressBackupWithRecordings, getProgressBackupSummary, parseProgressBackup } from "../utils/progressBackupUtils";
 import { getRecordingStorageSummary } from "../utils/recordingStorageUtils";
 import {
+  ACCENT_COLOR_OPTIONS,
   AUDIO_INPUT_MODE_ADVANCED,
   AUDIO_INPUT_MODE_OPTIONS,
   createAudioInputSettings,
@@ -93,7 +94,14 @@ function readImportSuccessFlash() {
   }
 }
 
-export default function SettingsPanel({ appSettings, onAudioInputModeChange, onAudioInputSettingChange, onProgressImported = () => {}, onThemeModeChange }) {
+export default function SettingsPanel({
+  appSettings,
+  onAccentColorChange = () => {},
+  onAudioInputModeChange,
+  onAudioInputSettingChange,
+  onProgressImported = () => {},
+  onThemeModeChange,
+}) {
   const audioInputSettings = createAudioInputSettings(appSettings.audioInputSettings);
   const resolvedAudioInputSettings = getResolvedAudioInputSettings(audioInputSettings);
   const isAdvancedAudioMode = audioInputSettings.inputMode === AUDIO_INPUT_MODE_ADVANCED;
@@ -264,7 +272,7 @@ export default function SettingsPanel({ appSettings, onAudioInputModeChange, onA
         </div>
 
         <div className="settings-grid">
-          <SettingsSection title="Appearance" eyebrow="Theme" description="Choose how the app should look. System follows this device’s light or dark preference.">
+          <SettingsSection title="Appearance" eyebrow="Theme" description="Choose how the app should look, then pick an accent color for the active UI theme.">
             <div className="settings-option-grid" role="group" aria-label="Theme mode">
               {THEME_MODE_OPTIONS.map((option) => (
                 <button
@@ -282,6 +290,37 @@ export default function SettingsPanel({ appSettings, onAudioInputModeChange, onA
                   <small>{option.description}</small>
                 </button>
               ))}
+            </div>
+
+            <div className="settings-accent-block">
+              <p className="settings-mini-label">Accent color</p>
+
+              <div className="settings-accent-grid" role="group" aria-label="Accent color">
+                {ACCENT_COLOR_OPTIONS.map((option) => {
+                  const isSelected = appSettings.accentColor === option.id;
+
+                  return (
+                    <button
+                      key={option.id}
+                      type="button"
+                      className={`settings-accent-card ${isSelected ? "is-selected" : ""}`}
+                      style={{ "--settings-accent-swatch": option.swatch }}
+                      onClick={() => onAccentColorChange(option.id)}
+                    >
+                      <div className="settings-accent-header">
+                        <span className="settings-accent-title">
+                          <span className="settings-accent-swatch" aria-hidden="true" />
+                          <span>{option.label}</span>
+                        </span>
+
+                        {isSelected ? <strong className="settings-active-badge">Active</strong> : null}
+                      </div>
+
+                      <small>{option.description}</small>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </SettingsSection>
 

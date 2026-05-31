@@ -5,6 +5,7 @@ import {
   THEME_MODE_SYSTEM,
   createAudioInputSettings,
   loadAppSettings,
+  normalizeAccentColor,
   normalizeAudioInputMode,
   saveAppSettings,
 } from "../utils/settingsStorageUtils";
@@ -68,13 +69,21 @@ export default function useAppSettings() {
 
     document.documentElement.dataset.theme = resolvedThemeMode;
     document.documentElement.dataset.themePreference = settings.themeMode;
+    document.documentElement.dataset.accent = settings.accentColor;
     document.documentElement.style.colorScheme = resolvedThemeMode;
-  }, [resolvedThemeMode, settings.themeMode]);
+  }, [resolvedThemeMode, settings.accentColor, settings.themeMode]);
 
   function updateThemeMode(themeMode) {
     setSettings((currentSettings) => ({
       ...currentSettings,
       themeMode,
+    }));
+  }
+
+  function updateAccentColor(accentColor) {
+    setSettings((currentSettings) => ({
+      ...currentSettings,
+      accentColor: normalizeAccentColor(accentColor),
     }));
   }
 
@@ -113,6 +122,7 @@ export default function useAppSettings() {
   return {
     settings,
     resolvedThemeMode,
+    updateAccentColor,
     updateAudioInputMode,
     updateAudioInputSetting,
     updateThemeMode,
