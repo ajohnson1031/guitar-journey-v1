@@ -13,6 +13,7 @@ import {
   EditSongRoute,
   HistoryRoute,
   NewSongRoute,
+  ProgressRoute,
   RecordingsRoute,
   SettingsRoute,
   SongSectionsRoute,
@@ -79,6 +80,8 @@ function AppLayout() {
               <Route path="sections" element={<SongSectionsRoute />} />
 
               <Route path="history" element={<HistoryRoute />} />
+
+              <Route path="progress" element={<ProgressRoute />} />
 
               <Route path="recordings" element={<RecordingsRoute />} />
 

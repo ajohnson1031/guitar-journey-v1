@@ -1,7 +1,6 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import * as React from "react";
-import { afterEach, describe, expect, it } from "vitest";
 import { MemoryRouter } from "react-router-dom";
+import { afterEach, describe, expect, it } from "vitest";
 import DashboardNav from "../DashboardNav";
 
 function renderDashboardNav(route = "/") {
@@ -27,7 +26,7 @@ describe("DashboardNav", () => {
     renderDashboardNav();
 
     expect(screen.getByRole("link", { name: "Dashboard" })).toBeTruthy();
-    expect(screen.getByRole("link", { name: "Practice History" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Progress" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Open navigation menu" })).toBeTruthy();
     expect(screen.queryByRole("link", { name: "Settings" })).toBeNull();
   });

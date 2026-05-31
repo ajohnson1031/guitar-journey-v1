@@ -1,10 +1,16 @@
-const PRIMARY_NAV_SECTION_IDS = ["dashboard", "history"];
-const MORE_NAV_SECTION_IDS = ["transitions", "sections", "weekly-plan"];
+const PRIMARY_NAV_SECTION_IDS = ["dashboard"];
+const MORE_NAV_SECTION_IDS = ["transitions", "sections", "weekly-plan", "history"];
 
 const ADD_SONG_NAV_ITEM = {
   id: "add-song",
   label: "Add Song",
   route: "/songs/new",
+};
+
+const PROGRESS_NAV_ITEM = {
+  id: "progress",
+  label: "Progress",
+  route: "/progress",
 };
 
 const RECORDINGS_NAV_ITEM = {
@@ -34,7 +40,7 @@ function splitDashboardNavSections(navSections = []) {
 
   return {
     moreSections: [...moreSections, RECORDINGS_NAV_ITEM, ADD_SONG_NAV_ITEM, SETTINGS_NAV_ITEM],
-    primarySections,
+    primarySections: [...primarySections, PROGRESS_NAV_ITEM],
   };
 }
 
@@ -60,12 +66,13 @@ function isAnyNavItemActive({ currentPathname = "/", getSectionRoute, items = []
 
 export {
   ADD_SONG_NAV_ITEM,
-  MORE_NAV_SECTION_IDS,
-  PRIMARY_NAV_SECTION_IDS,
-  RECORDINGS_NAV_ITEM,
-  SETTINGS_NAV_ITEM,
   getNavItemRoute,
   isAnyNavItemActive,
   isRouteActiveForNavItem,
+  MORE_NAV_SECTION_IDS,
+  PRIMARY_NAV_SECTION_IDS,
+  PROGRESS_NAV_ITEM,
+  RECORDINGS_NAV_ITEM,
+  SETTINGS_NAV_ITEM,
   splitDashboardNavSections,
 };

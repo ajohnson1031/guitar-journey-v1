@@ -23,13 +23,14 @@ describe("navigationUtils", () => {
   it("splits dashboard nav into primary and hamburger menu sections", () => {
     const result = splitDashboardNavSections(navSections);
 
-    expect(result.primarySections.map((section) => section.id)).toEqual(["dashboard", "history"]);
-    expect(result.moreSections.map((section) => section.id)).toEqual(["transitions", "sections", "weekly-plan", "recordings", "add-song", "settings"]);
+    expect(result.primarySections.map((section) => section.id)).toEqual(["dashboard", "progress"]);
+    expect(result.moreSections.map((section) => section.id)).toEqual(["transitions", "sections", "weekly-plan", "history", "recordings", "add-song", "settings"]);
   });
 
   it("resolves explicit and section routes", () => {
     expect(getNavItemRoute({ id: "history" }, getSectionRoute)).toBe("/history");
     expect(getNavItemRoute({ id: "add-song", route: "/songs/new" }, getSectionRoute)).toBe("/songs/new");
+    expect(getNavItemRoute({ id: "progress", route: "/progress" }, getSectionRoute)).toBe("/progress");
     expect(getNavItemRoute({ id: "settings", route: "/settings" }, getSectionRoute)).toBe("/settings");
   });
 
