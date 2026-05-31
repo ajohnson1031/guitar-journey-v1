@@ -28,9 +28,9 @@
 }
 
 .progress-badge.is-active {
-  border-color: var(--color-primary);
-  background: var(--color-primary-soft);
-  color: #7dd3fc;
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
 }
 
 .progress-badge.is-complete {
@@ -135,7 +135,7 @@
 }
 
 .progress-fill.is-active {
-  background: var(--color-primary);
+  background: var(--color-accent);
 }
 
 .progress-fill.is-complete {
@@ -292,29 +292,6 @@
 .step-card.is-complete:not(.is-expanded) {
   border-color: var(--color-success);
   background: var(--color-success-soft);
-}
-
-.step-complete-button {
-  display: inline-grid;
-  width: 28px;
-  height: 28px;
-  flex: 0 0 28px;
-  place-items: center;
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  background: var(--color-surface);
-  color: var(--color-text-muted);
-  padding: 0;
-  transition:
-    background 160ms ease,
-    border-color 160ms ease,
-    color 160ms ease,
-    transform 160ms ease;
-}
-
-.step-complete-button svg {
-  width: 15px;
-  height: 15px;
 }
 
 /* Inactive/default hover suggests completion */

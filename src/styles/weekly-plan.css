@@ -99,6 +99,12 @@
   font-weight: 900;
 }
 
+:root:not([data-theme="light"]) .weekly-day-badge {
+  border-color: var(--color-edit);
+  background: rgba(125, 211, 252, 0.12);
+  color: var(--color-edit);
+}
+
 .weekly-day-title-row {
   display: flex;
   align-items: flex-start;

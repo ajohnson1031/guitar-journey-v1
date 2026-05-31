@@ -61,20 +61,35 @@
 
 .song-header-main .song-artist {
   margin: -4px 0 0;
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 14px;
   letter-spacing: 0.04em;
 }
 
 .song-header-main .goal {
   margin: 6px 0 0;
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 16px;
   line-height: 1.45;
 }
 
 .compact-song-card .song-header h2 {
   margin-bottom: 8px;
+}
+
+.song-current-label {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.mastered-label {
+  color: var(--color-accent);
+  font-size: inherit;
+  font-weight: 900;
+  letter-spacing: inherit;
+  line-height: inherit;
+  text-transform: uppercase;
 }
 
 .song-detail-grid-wrap {
@@ -112,7 +127,7 @@
 }
 
 .info-card span {
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 11px;
   font-weight: 900;
   letter-spacing: 0.1em;
@@ -181,22 +196,33 @@
 }
 
 .edit-icon-button {
-  border-color: rgba(125, 211, 252, 0.45);
-  background: rgba(125, 211, 252, 0.12);
-  color: #7dd3fc;
+  border-color: var(--color-edit);
+  background: var(--color-edit-soft);
+  color: var(--color-edit);
 }
 
 .edit-icon-button:hover {
-  border-color: #7dd3fc;
-  background: rgba(125, 211, 252, 0.18);
-  color: #7dd3fc;
+  border-color: var(--color-edit);
+  background: var(--color-edit-soft-hover);
+  color: var(--color-edit);
+}
+
+.current-song-delete-button,
+.current-song-delete-button:hover {
+  border-color: var(--color-danger);
+  background: transparent;
+  color: var(--color-danger);
+}
+
+.current-song-delete-button:hover {
+  background: var(--color-danger-hover);
 }
 
 .mastered-icon-button {
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 999px;
-  background: var(--surface-subtle);
-  color: var(--muted);
+  background: var(--color-surface-subtle);
+  color: var(--color-text-muted);
 }
 
 .mastered-icon-button svg {
@@ -204,16 +230,16 @@
 }
 
 .mastered-icon-button:hover {
-  border-color: var(--mango);
-  background: var(--mango-soft);
-  color: var(--mango);
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
 }
 
 .mastered-icon-button.is-mastered {
-  border-color: var(--mango);
+  border-color: var(--color-accent);
   border-radius: 999px;
-  background: var(--mango-soft);
-  color: var(--mango);
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
 }
 
 .mastered-icon-button.is-mastered svg {

@@ -270,17 +270,19 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  border: 1px solid var(--color-primary);
+  border: 1px solid var(--color-neutral-action);
   border-radius: 999px;
-  background: var(--color-primary-soft);
-  color: var(--color-primary);
+  background: transparent;
+  color: var(--color-neutral-action);
   padding: 7px 11px;
   font-size: 12px;
   font-weight: 900;
 }
 
-.history-recording-button:hover {
-  background: rgba(27, 130, 230, 0.18);
+.history-recording-button:not(:disabled):not(.is-playing):not(.is-replay):hover {
+  border-color: var(--color-success-outline);
+  background: transparent;
+  color: var(--color-success-outline);
 }
 
 .history-recording-button:disabled,
@@ -325,25 +327,21 @@
   color: var(--color-text-muted-strong);
 }
 
-.history-recording-stop-button:not(:disabled):hover {
-  border-color: var(--color-stop);
-  background: transparent;
-  color: var(--color-stop);
-}
-
 .history-recording-download-button {
-  border: 1px solid var(--color-primary);
-  background: var(--color-primary-soft);
-  color: var(--color-primary);
+  border: 1px solid var(--color-neutral-action);
+  background: transparent;
+  color: var(--color-neutral-action);
 }
 
 .history-recording-download-button:hover {
-  background: rgba(27, 130, 230, 0.18);
+  border-color: var(--color-neutral-action-hover);
+  background: var(--color-neutral-action-soft-hover);
+  color: var(--color-neutral-action-hover);
 }
 
 .history-recording-delete-button {
   border: 1px solid var(--color-danger);
-  background: var(--color-danger-soft);
+  background: transparent;
   color: var(--color-danger);
 }
 

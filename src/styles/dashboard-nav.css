@@ -184,10 +184,13 @@
 }
 
 .active-session-indicator.is-recording-ready,
-.active-session-indicator.is-running {
-  border-color: var(--color-primary);
+.active-session-indicator.is-recording-ready:hover,
+.active-session-indicator.is-running,
+.active-session-indicator.is-running:hover {
+  border-color: var(--color-edit);
   background: transparent;
-  color: var(--color-primary);
+  color: var(--color-edit);
+  transform: none;
 }
 
 .active-session-indicator-icon {
@@ -198,6 +201,11 @@
   border-radius: 999px;
   background: var(--color-surface);
   color: currentColor;
+}
+
+.active-session-indicator.is-recording-ready .active-session-indicator-icon,
+.active-session-indicator.is-running .active-session-indicator-icon {
+  background: transparent;
 }
 
 .active-session-indicator-icon svg {

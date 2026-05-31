@@ -44,12 +44,20 @@
   gap: 8px;
 }
 
+:root[data-theme="light"] .song-section-card {
+  border-color: var(--color-border-strong);
+}
+
 .song-section-card span {
   color: #7dd3fc;
   font-size: 12px;
   font-weight: 900;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+}
+
+:root[data-theme="light"] .song-section-card span {
+  color: var(--color-eyebrow);
 }
 
 .song-section-card strong {
