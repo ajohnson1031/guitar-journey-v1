@@ -1,10 +1,12 @@
 import * as React from "react";
 import { SettingsPanel } from "../components";
-import { useAppSettingsContext } from "../context";
+import { useAppRuntimeContext, useAppSettingsContext } from "../context";
 
 const { Fragment } = React;
 
-export default function SettingsRoute({ onProgressImported }) {
+export default function SettingsRoute() {
+  const { onProgressImported } = useAppRuntimeContext();
+
   const {
     settings: appSettings,
     resolvedThemeMode,
