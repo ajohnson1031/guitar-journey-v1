@@ -1,0 +1,346 @@
+/* =========================
+   Recordings Library
+========================= */
+
+.recordings-library-card {
+  display: grid;
+  gap: 18px;
+}
+
+.recordings-library-hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.recordings-library-hero h2 {
+  margin: 0;
+  font-size: 42px;
+  line-height: 1;
+  letter-spacing: -0.06em;
+}
+
+.recordings-library-hero p:not(.eyebrow) {
+  margin: 10px 0 0;
+  max-width: 720px;
+  color: var(--color-text-muted);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.recordings-library-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.recordings-summary-card {
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  background: var(--color-surface);
+  padding: 14px;
+}
+
+.recordings-summary-card strong {
+  display: block;
+  color: var(--color-text);
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.recordings-summary-card span {
+  color: var(--color-text-muted-strong);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.recordings-summary-card small {
+  color: var(--color-text-muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.recordings-summary-card--green {
+  border-color: var(--color-success);
+  background: var(--color-success-soft);
+}
+
+.recordings-summary-card--green strong {
+  color: var(--color-success);
+}
+
+.recordings-summary-card--danger {
+  border-color: var(--color-danger);
+  background: var(--color-danger-soft);
+}
+
+.recordings-summary-card--danger strong {
+  color: var(--color-danger-text);
+}
+
+.recordings-summary-card--muted strong {
+  color: var(--color-text-muted-strong);
+}
+
+.recording-action-message {
+  margin: 0;
+  border-radius: 999px;
+  padding: 9px 12px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.recording-action-message--success {
+  border: 1px solid var(--color-success);
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.recording-action-message--danger {
+  border: 1px solid var(--color-danger);
+  background: var(--color-danger-soft);
+  color: var(--color-danger-text);
+}
+
+.recording-library-list {
+  display: grid;
+  gap: 10px;
+}
+
+.recording-library-card {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  background: var(--color-surface);
+  padding: 14px;
+}
+
+.recording-library-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.recording-library-card-header > div {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.recording-library-card-header strong {
+  color: var(--color-text);
+  font-size: 17px;
+}
+
+.recording-library-card-header small {
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.recording-status-pill {
+  flex: 0 0 auto;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted-strong);
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.recording-status-pill--linked {
+  border-color: var(--color-success);
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.recording-status-pill--orphaned {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+
+.recording-library-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.recording-library-meta span {
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted-strong);
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.recording-library-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.recording-playback-button {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--color-neutral-action);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-neutral-action);
+  padding: 7px 11px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.recording-playback-button:not(:disabled):not(.is-playing):not(.is-replay):hover {
+  border-color: var(--color-success-outline);
+  background: transparent;
+  color: var(--color-success-outline);
+}
+
+.recording-playback-button:disabled,
+.recording-stop-button:disabled {
+  border-color: var(--color-border);
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.recording-playback-button:disabled {
+  cursor: wait;
+}
+
+.recording-playback-button.is-playing {
+  border-color: var(--color-success);
+  background: transparent;
+  color: var(--color-success);
+}
+
+.recording-playback-button.is-replay,
+.recording-playback-button.is-paused {
+  border-color: var(--color-accent);
+  background: transparent;
+  color: var(--color-accent);
+}
+
+.recording-stop-button,
+.recording-download-button,
+.recording-delete-button {
+  display: inline-grid;
+  width: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  place-items: center;
+  border-radius: 999px;
+  padding: 0;
+}
+
+.recording-stop-button {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-subtle);
+  color: var(--color-text-muted-strong);
+}
+
+.recording-download-button {
+  border: 1px solid var(--color-neutral-action);
+  background: transparent;
+  color: var(--color-neutral-action);
+}
+
+.recording-delete-button {
+  border: 1px solid var(--color-danger);
+  background: transparent;
+  color: var(--color-danger);
+}
+
+.recording-delete-button:hover {
+  background: var(--color-danger-hover);
+}
+
+.recording-playback-button svg,
+.recording-stop-button svg,
+.recording-download-button svg,
+.recording-delete-button svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+}
+
+.recording-playback-button svg.recording-replay-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.recording-stop-button svg {
+  stroke: none;
+}
+
+.recording-playback-message {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+.recordings-empty {
+  display: grid;
+  gap: 8px;
+  border: 1px dashed var(--color-border);
+  border-radius: 18px;
+  background: var(--color-surface-soft);
+  padding: 18px;
+}
+
+.recordings-empty h3 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 20px;
+  letter-spacing: -0.03em;
+}
+
+.recordings-empty p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+@media (max-width: 900px) {
+  .recordings-library-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .recording-library-card-header {
+    display: grid;
+  }
+
+  .recording-status-pill {
+    justify-self: start;
+  }
+
+  .recording-library-actions {
+    align-items: stretch;
+  }
+
+  .recording-playback-button {
+    flex: 1 1 100%;
+  }
+}

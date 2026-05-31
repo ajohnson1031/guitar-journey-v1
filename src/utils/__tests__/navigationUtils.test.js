@@ -1,10 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  getNavItemRoute,
-  isAnyNavItemActive,
-  isRouteActiveForNavItem,
-  splitDashboardNavSections,
-} from "../navigationUtils";
+import { getNavItemRoute, isAnyNavItemActive, isRouteActiveForNavItem, splitDashboardNavSections } from "../navigationUtils";
 
 const navSections = [
   { id: "dashboard", label: "Dashboard" },
@@ -29,7 +24,7 @@ describe("navigationUtils", () => {
     const result = splitDashboardNavSections(navSections);
 
     expect(result.primarySections.map((section) => section.id)).toEqual(["dashboard", "history"]);
-    expect(result.moreSections.map((section) => section.id)).toEqual(["transitions", "sections", "weekly-plan", "add-song", "settings"]);
+    expect(result.moreSections.map((section) => section.id)).toEqual(["transitions", "sections", "weekly-plan", "recordings", "add-song", "settings"]);
   });
 
   it("resolves explicit and section routes", () => {

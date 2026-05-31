@@ -8,7 +8,17 @@ import {
   useAppSettingsContext,
   useGuitarJourneyContext,
 } from "./context";
-import { DashboardRoute, EditSongRoute, HistoryRoute, NewSongRoute, SettingsRoute, SongSectionsRoute, TransitionsRoute, WeeklyPlanRoute } from "./routes";
+import {
+  DashboardRoute,
+  EditSongRoute,
+  HistoryRoute,
+  NewSongRoute,
+  RecordingsRoute,
+  SettingsRoute,
+  SongSectionsRoute,
+  TransitionsRoute,
+  WeeklyPlanRoute,
+} from "./routes";
 
 import "./App.css";
 
@@ -69,6 +79,8 @@ function AppLayout() {
               <Route path="sections" element={<SongSectionsRoute />} />
 
               <Route path="history" element={<HistoryRoute />} />
+
+              <Route path="recordings" element={<RecordingsRoute />} />
 
               <Route path="weekly-plan" element={<WeeklyPlanRoute />} />
 

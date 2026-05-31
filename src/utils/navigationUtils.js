@@ -7,6 +7,12 @@ const ADD_SONG_NAV_ITEM = {
   route: "/songs/new",
 };
 
+const RECORDINGS_NAV_ITEM = {
+  id: "recordings",
+  label: "Recordings",
+  route: "/recordings",
+};
+
 const SETTINGS_NAV_ITEM = {
   id: "settings",
   label: "Settings",
@@ -27,7 +33,7 @@ function splitDashboardNavSections(navSections = []) {
   const moreSections = MORE_NAV_SECTION_IDS.map((sectionId) => sectionById.get(sectionId)).filter(Boolean);
 
   return {
-    moreSections: [...moreSections, ADD_SONG_NAV_ITEM, SETTINGS_NAV_ITEM],
+    moreSections: [...moreSections, RECORDINGS_NAV_ITEM, ADD_SONG_NAV_ITEM, SETTINGS_NAV_ITEM],
     primarySections,
   };
 }
@@ -56,6 +62,7 @@ export {
   ADD_SONG_NAV_ITEM,
   MORE_NAV_SECTION_IDS,
   PRIMARY_NAV_SECTION_IDS,
+  RECORDINGS_NAV_ITEM,
   SETTINGS_NAV_ITEM,
   getNavItemRoute,
   isAnyNavItemActive,
