@@ -1,44 +1,49 @@
 import * as React from "react";
 import { CurrentSongCard, LocalProgressCard, RequiredChords, TodayPlan } from "../components";
+import { useGuitarJourneyContext } from "../context";
 
 const { Fragment } = React;
 
-export default function DashboardRoute({
-  actualPracticeMinutes,
-  canCompleteSession,
-  completedSteps,
-  elapsedSessionSeconds,
-  filteredSongs,
-  hasPendingRecording,
-  isSessionRecording,
-  isSessionRecordingPaused,
-  isSessionTimerRunning,
-  localProgressProps = {},
-  masteredSongs,
-  onCompleteSession,
-  onDeleteCustomSong,
-  onPauseSessionRecording,
-  onResetSessionTimer,
-  onResumeSessionRecording,
-  onSelectSong,
-  onSessionMinutesChange,
-  onSessionRatingChange,
-  onStartEditCustomSong,
-  onToggleMastered,
-  onToggleSessionRecording,
-  onToggleSessionTimer,
-  onToggleStep,
-  plan,
-  progressPercent,
-  recordingDurationSeconds,
-  recordingInputLevel,
-  recordingMessage,
-  selectedSong,
-  sessionHistory,
-  sessionMessage,
-  sessionMinutes,
-  sessionRating,
-}) {
+export default function DashboardRoute() {
+  const { dashboardRouteProps = {} } = useGuitarJourneyContext();
+
+  const {
+    actualPracticeMinutes,
+    canCompleteSession,
+    completedSteps,
+    elapsedSessionSeconds,
+    filteredSongs,
+    hasPendingRecording,
+    isSessionRecording,
+    isSessionRecordingPaused,
+    isSessionTimerRunning,
+    localProgressProps = {},
+    masteredSongs,
+    onCompleteSession,
+    onDeleteCustomSong,
+    onPauseSessionRecording,
+    onResetSessionTimer,
+    onResumeSessionRecording,
+    onSelectSong,
+    onSessionMinutesChange,
+    onSessionRatingChange,
+    onStartEditCustomSong,
+    onToggleMastered,
+    onToggleSessionRecording,
+    onToggleSessionTimer,
+    onToggleStep,
+    plan,
+    progressPercent,
+    recordingDurationSeconds,
+    recordingInputLevel,
+    recordingMessage,
+    selectedSong,
+    sessionHistory,
+    sessionMessage,
+    sessionMinutes,
+    sessionRating,
+  } = dashboardRouteProps;
+
   return (
     <Fragment>
       <div className="top-grid dashboard-top-grid">

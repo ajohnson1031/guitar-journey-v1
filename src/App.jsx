@@ -39,7 +39,6 @@ function GuitarJourneyRuntime({ onProgressImported }) {
 function AppLayout({ onProgressImported }) {
   const {
     activeSessionProps,
-    dashboardRouteProps,
     editSongRouteProps,
     historyRouteProps,
     newSongRouteProps,
@@ -59,7 +58,7 @@ function AppLayout({ onProgressImported }) {
             <DashboardNav activeSession={activeSessionProps} />
 
             <Routes>
-              <Route index element={<DashboardRoute {...dashboardRouteProps} />} />
+              <Route index element={<DashboardRoute />} />
 
               <Route path="transitions" element={<TransitionsRoute {...transitionsRouteProps} />} />
 
