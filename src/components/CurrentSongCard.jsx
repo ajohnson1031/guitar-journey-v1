@@ -70,7 +70,13 @@ export default function CurrentSongCard({ filteredSongs, masteredSongs, onDelete
                     <EditIcon />
                   </button>
 
-                  <button type="button" className="icon-button danger-button" title="Delete Custom Song" aria-label="Delete Custom Song" onClick={handleRequestDeleteCustomSong}>
+                  <button
+                    type="button"
+                    className="icon-button destructive-outline-button current-song-delete-button"
+                    title="Delete Custom Song"
+                    aria-label="Delete Custom Song"
+                    onClick={handleRequestDeleteCustomSong}
+                  >
                     <TrashIcon />
                   </button>
                 </Fragment>
@@ -88,8 +94,12 @@ export default function CurrentSongCard({ filteredSongs, masteredSongs, onDelete
             </div>
           </div>
         </div>
+
         <div className="song-header-main">
-          <p className="eyebrow">Current Song</p>
+          <p className="eyebrow song-current-label">
+            Current Song
+            {isMastered ? <span className="mastered-label">(Mastered)</span> : null}
+          </p>
           <h2>{selectedSong.title}</h2>
           {artistByline ? <p className="song-artist">{artistByline}</p> : null}
           <p className="goal">{selectedSong.goal}</p>
