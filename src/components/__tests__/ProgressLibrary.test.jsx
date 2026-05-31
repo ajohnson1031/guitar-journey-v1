@@ -1,6 +1,6 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import * as React from "react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import ProgressLibrary from "../ProgressLibrary";
 
 function createSong(overrides = {}) {
@@ -50,7 +50,7 @@ describe("ProgressLibrary", () => {
     cleanup();
   });
 
-  it("renders mastered and in-progress songs with summary cards", () => {
+  it("renders mastered and in-progress songs with title labels and summary cards", () => {
     renderProgressLibrary({
       allSongs: [
         createSong({
@@ -79,8 +79,8 @@ describe("ProgressLibrary", () => {
     expect(screen.getByText("tracked")).toBeTruthy();
     expect(screen.getByText("mastered")).toBeTruthy();
     expect(screen.getByText("in progress")).toBeTruthy();
-    expect(screen.getAllByText("Mastered").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("In Progress").length).toBeGreaterThan(0);
+    expect(screen.getByText("(Mastered)")).toBeTruthy();
+    expect(screen.getByText("(In Progress)")).toBeTruthy();
   });
 
   it("filters songs by search, status, and genre", () => {
@@ -172,6 +172,55 @@ describe("ProgressLibrary", () => {
 
     expect(cards[0].textContent).toContain("Long Song");
     expect(cards[1].textContent).toContain("Short Song");
+  });
+
+  it("fires progress card actions", () => {
+    const onPracticeSong = vi.fn();
+    const onToggleMastered = vi.fn();
+    const onViewHistory = vi.fn();
+
+    renderProgressLibrary({
+      allSongs: [
+        createSong({
+          id: "action-song",
+          title: "Action Song",
+        }),
+      ],
+      onPracticeSong,
+      onToggleMastered,
+      onViewHistory,
+      sessionHistory: [
+        createSession({
+          songId: "action-song",
+          songTitle: "Action Song",
+        }),
+      ],
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Practice Action Song" }));
+    fireEvent.click(screen.getByRole("button", { name: "View History for Action Song" }));
+    fireEvent.click(screen.getByRole("button", { name: "Mark Mastered" }));
+
+    expect(onPracticeSong).toHaveBeenCalledWith("action-song");
+    expect(onViewHistory).toHaveBeenCalledWith("action-song");
+    expect(onToggleMastered).toHaveBeenCalledWith("action-song");
+  });
+
+  it("renders mastered star as selected for mastered songs", () => {
+    renderProgressLibrary({
+      allSongs: [
+        createSong({
+          id: "mastered-song",
+          title: "Mastered Song",
+        }),
+      ],
+      masteredSongs: {
+        "mastered-song": true,
+      },
+    });
+
+    expect(screen.getByRole("button", { name: "Marked Mastered" }).className).toContain("is-mastered");
+    expect(screen.getByText("(Mastered)")).toBeTruthy();
   });
 
   it("renders the empty state when there is no progress yet", () => {
