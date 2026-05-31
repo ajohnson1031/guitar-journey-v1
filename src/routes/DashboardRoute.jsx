@@ -39,8 +39,6 @@ export default function DashboardRoute({
   sessionMinutes,
   sessionRating,
 }) {
-  const fallbackMasteredCount = Object.values(masteredSongs || {}).filter(Boolean).length;
-
   return (
     <Fragment>
       <div className="top-grid dashboard-top-grid">
@@ -88,7 +86,7 @@ export default function DashboardRoute({
             sessionRating={sessionRating}
           />
 
-          <LocalProgressCard masteredCount={fallbackMasteredCount} sessionHistory={sessionHistory} {...localProgressProps} />
+          <LocalProgressCard {...localProgressProps} />
         </div>
       </div>
     </Fragment>
