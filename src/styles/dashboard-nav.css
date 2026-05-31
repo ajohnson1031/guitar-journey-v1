@@ -185,9 +185,9 @@
 
 .active-session-indicator.is-recording-ready,
 .active-session-indicator.is-running {
-  border-color: var(--green);
-  background: var(--green-soft);
-  color: var(--green);
+  border-color: var(--blue);
+  background: transparent;
+  color: var(--blue);
 }
 
 .active-session-indicator-icon {
