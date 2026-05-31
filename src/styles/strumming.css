@@ -5,14 +5,14 @@
 .strumming-builder {
   display: grid;
   gap: 14px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 20px;
-  background: var(--surface);
+  background: var(--color-surface);
   padding: 14px;
 }
 
 .strumming-builder > div:first-child > span {
-  color: var(--eyebrow);
+  color: var(--color-eyebrow);
   font-size: 11px;
   font-weight: 900;
   letter-spacing: 0.1em;
@@ -21,7 +21,7 @@
 
 .strumming-builder > div:first-child > p {
   margin: 4px 0 0;
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 12px;
   line-height: 1.45;
 }
@@ -42,9 +42,9 @@
   display: grid;
   gap: 4px;
   overflow-x: auto;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 18px;
-  background: var(--panel-strong);
+  background: var(--color-panel-strong);
   padding: 12px;
 }
 
@@ -61,7 +61,7 @@
   display: grid;
   min-height: 34px;
   place-items: center;
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 28px;
   font-weight: 900;
   line-height: 1;
@@ -76,7 +76,7 @@
 }
 
 .strumming-beat-row span {
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 13px;
   font-weight: 900;
 }
@@ -116,14 +116,14 @@
 .strumming-slot-card {
   display: grid;
   gap: 7px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 16px;
-  background: var(--surface-soft);
+  background: var(--color-surface-soft);
   padding: 8px;
 }
 
 .strumming-slot-card > span {
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 12px;
   font-weight: 900;
   text-align: center;
@@ -138,23 +138,23 @@
   display: grid;
   min-height: 44px;
   place-items: center;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 14px;
-  background: var(--surface-subtle);
-  color: var(--text);
+  background: var(--color-surface-subtle);
+  color: var(--color-text);
   font-size: 28px;
   font-weight: 900;
   line-height: 1;
 }
 
 .strum-arrow-button:hover {
-  border-color: var(--blue);
-  background: var(--blue-soft);
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
 }
 
 .strum-arrow-button.is-selected {
-  border-color: var(--blue);
-  background: var(--blue-soft);
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
 }
 
 .strum-down-button {

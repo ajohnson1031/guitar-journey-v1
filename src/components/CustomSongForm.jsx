@@ -254,7 +254,7 @@ export default function CustomSongForm({
 
       {isOpen ? (
         <form className="custom-song-form" onSubmit={handleSubmit}>
-          <div className="import-link-card">
+          <div className="import-link-card import-link-url-card">
             <label>
               <span>Import from Ultimate Guitar link</span>
               <input
@@ -274,7 +274,7 @@ export default function CustomSongForm({
 
           <SongImportAssistant onApplyAnalysis={applySongAnalysis} />
 
-          <div className="form-grid two">
+          <div className="form-grid three">
             <label>
               <span>Song Title</span>
               <input type="text" value={form.title} placeholder="Example: I Want You Around" onChange={(event) => updateField("title", event.target.value)} />
@@ -353,12 +353,14 @@ export default function CustomSongForm({
             }}
           />
 
-          <label>
-            <span>Chords</span>
-            <input type="text" value={form.chords} placeholder="G, C, Em, D" onChange={(event) => updateField("chords", event.target.value)} />
-          </label>
+          <div className="form-grid two custom-song-chord-transition-row">
+            <label>
+              <span>Chords</span>
+              <input type="text" value={form.chords} placeholder="G, C, Em, D" onChange={(event) => updateField("chords", event.target.value)} />
+            </label>
 
-          <TransitionInput value={form.transitions} onChange={(nextTransitions) => updateField("transitions", nextTransitions)} />
+            <TransitionInput value={form.transitions} onChange={(nextTransitions) => updateField("transitions", nextTransitions)} />
+          </div>
 
           <label>
             <span>Song Sections</span>

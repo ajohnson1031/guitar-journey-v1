@@ -79,27 +79,46 @@
 }
 
 .preset-button {
-  border-color: var(--color-neutral-action);
+  border-color: #1f2937;
   background: transparent;
-  color: var(--color-neutral-action);
+  color: #1f2937;
 }
 
 .preset-button:hover {
-  border-color: var(--color-neutral-action-hover);
-  background: var(--color-neutral-action-soft-hover);
-  color: var(--color-neutral-action-hover);
+  border-color: #111827;
+  background: rgba(31, 41, 55, 0.08);
+  color: #111827;
 }
 
 .preset-button.is-active {
-  border-color: var(--color-neutral-action);
-  background: var(--color-neutral-action);
-  color: var(--color-neutral-action-contrast);
+  border-color: #1f2937;
+  background: #1f2937;
+  color: #ffffff;
 }
 
 .preset-button.is-active:hover {
-  border-color: var(--color-neutral-action-hover);
-  background: var(--color-neutral-action-hover);
-  color: var(--color-neutral-action-contrast);
+  border-color: #111827;
+  background: #111827;
+  color: #ffffff;
+}
+
+:root:not([data-theme="light"]) .preset-button {
+  border-color: #f4f4f5;
+  background: transparent;
+  color: #f4f4f5;
+}
+
+:root:not([data-theme="light"]) .preset-button:hover {
+  border-color: #ffffff;
+  background: rgba(244, 244, 245, 0.1);
+  color: #ffffff;
+}
+
+:root:not([data-theme="light"]) .preset-button.is-active,
+:root:not([data-theme="light"]) .preset-button.is-active:hover {
+  border-color: #1f2937;
+  background: #1f2937;
+  color: #ffffff;
 }
 
 .destructive-outline-button {
