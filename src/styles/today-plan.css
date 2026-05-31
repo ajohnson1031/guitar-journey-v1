@@ -14,51 +14,51 @@
   width: 64px;
   height: 64px;
   place-items: center;
-  border: 1px solid var(--blue);
+  border: 1px solid var(--color-primary);
   border-radius: 999px;
-  background: var(--blue-soft);
+  background: var(--color-primary-soft);
   color: #7dd3fc;
   font-weight: 900;
 }
 
 .progress-badge.is-empty {
   border-color: rgba(248, 113, 113, 0.45);
-  background: var(--danger-soft);
-  color: var(--danger-text);
+  background: var(--color-danger-soft);
+  color: var(--color-danger-text);
 }
 
 .progress-badge.is-active {
-  border-color: var(--blue);
-  background: var(--blue-soft);
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
   color: #7dd3fc;
 }
 
 .progress-badge.is-complete {
-  border-color: var(--green);
-  background: var(--green-soft);
-  color: var(--green);
+  border-color: var(--color-success);
+  background: var(--color-success-soft);
+  color: var(--color-success);
 }
 
 .practice-summary-card {
   display: grid;
   gap: 12px;
   margin-top: 18px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 20px;
-  background: var(--surface);
+  background: var(--color-surface);
   padding: 14px;
 }
 
 .practice-summary-card h3 {
   margin: 0;
-  color: var(--text);
+  color: var(--color-text);
   font-size: 18px;
   letter-spacing: -0.03em;
 }
 
 .practice-summary-card p:not(.eyebrow) {
   margin: 6px 0 0;
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 13px;
   line-height: 1.45;
 }
@@ -72,14 +72,14 @@
 .practice-summary-stat {
   display: grid;
   gap: 4px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 16px;
-  background: var(--surface-soft);
+  background: var(--color-surface-soft);
   padding: 10px;
 }
 
 .practice-summary-stat span {
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 10px;
   font-weight: 900;
   letter-spacing: 0.1em;
@@ -87,18 +87,17 @@
 }
 
 .practice-summary-stat strong {
-  color: var(--text);
+  color: var(--color-text);
   font-size: 16px;
   line-height: 1;
 }
 
 .session-length-card {
   display: grid;
-  gap: 10px;
   margin-top: 18px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 20px;
-  background: var(--surface);
+  background: var(--color-surface);
   padding: 14px;
 }
 
@@ -119,28 +118,28 @@
   margin: 18px 0;
   overflow: hidden;
   border-radius: 999px;
-  background: var(--track);
+  background: var(--color-track);
 }
 
 .progress-fill {
   height: 100%;
   border-radius: inherit;
-  background: var(--blue);
+  background: var(--color-primary);
   transition:
     width 180ms ease,
     background 180ms ease;
 }
 
 .progress-fill.is-empty {
-  background: var(--danger);
+  background: var(--color-danger);
 }
 
 .progress-fill.is-active {
-  background: var(--blue);
+  background: var(--color-primary);
 }
 
 .progress-fill.is-complete {
-  background: var(--green);
+  background: var(--color-success);
 }
 
 .step-card {
@@ -148,7 +147,7 @@
   gap: 0;
   width: 100%;
   padding: 14px;
-  color: var(--text);
+  color: var(--color-text);
   text-align: left;
   cursor: pointer;
   transition:
@@ -158,27 +157,27 @@
 }
 
 .step-card:focus-visible {
-  outline: 2px solid var(--blue);
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
 .step-card:hover {
-  border-color: var(--border-strong);
+  border-color: var(--color-border-strong);
 }
 
 .step-card.is-expanded {
-  border-color: var(--blue);
-  background: var(--blue-soft);
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
 }
 
 .step-card.is-complete {
-  border-color: var(--green);
-  background: var(--green-soft);
+  border-color: var(--color-success);
+  background: var(--color-success-soft);
 }
 
 .step-card.is-complete.is-expanded {
-  border-color: var(--green);
-  background: var(--green-soft);
+  border-color: var(--color-success);
+  background: var(--color-success-soft);
 }
 
 .step-card-header,
@@ -209,7 +208,7 @@
 .step-card small,
 .transition-card span,
 .chord-card span {
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 12px;
 }
 
@@ -219,10 +218,10 @@
   height: 28px;
   flex: 0 0 28px;
   place-items: center;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 999px;
-  background: var(--surface);
-  color: var(--muted);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
   padding: 0;
   transition:
     background 160ms ease,
@@ -232,15 +231,15 @@
 }
 
 .step-complete-button:hover {
-  border-color: var(--green);
-  background: var(--green-soft);
-  color: var(--green);
+  border-color: var(--color-success);
+  background: var(--color-success-soft);
+  color: var(--color-success);
   transform: scale(1.03);
 }
 
 .step-complete-button.is-complete {
-  border-color: var(--green);
-  background: var(--green);
+  border-color: var(--color-success);
+  background: var(--color-success);
   color: #ffffff;
 }
 
@@ -253,7 +252,7 @@
   max-height: 0;
   margin: 0;
   overflow: hidden;
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 13px;
   line-height: 1.45;
   opacity: 0;
@@ -277,7 +276,7 @@
 ========================= */
 
 .step-card:hover {
-  border-color: var(--border-strong);
+  border-color: var(--color-border-strong);
 }
 
 /* Expanded/active card always owns the blue visual state */
@@ -285,14 +284,14 @@
 .step-card.is-expanded:hover,
 .step-card.is-complete.is-expanded,
 .step-card.is-complete.is-expanded:hover {
-  border-color: var(--blue);
-  background: var(--blue-soft);
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
 }
 
 /* Completed collapsed cards can still use green */
 .step-card.is-complete:not(.is-expanded) {
-  border-color: var(--green);
-  background: var(--green-soft);
+  border-color: var(--color-success);
+  background: var(--color-success-soft);
 }
 
 .step-complete-button {
@@ -301,10 +300,10 @@
   height: 28px;
   flex: 0 0 28px;
   place-items: center;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 999px;
-  background: var(--surface);
-  color: var(--muted);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
   padding: 0;
   transition:
     background 160ms ease,
@@ -320,39 +319,39 @@
 
 /* Inactive/default hover suggests completion */
 .step-card:not(.is-expanded) .step-complete-button:hover {
-  border-color: var(--green);
-  background: var(--green-soft);
-  color: var(--green);
+  border-color: var(--color-success);
+  background: var(--color-success-soft);
+  color: var(--color-success);
   transform: scale(1.03);
 }
 
 /* Completed inactive button: green circle + white check */
 .step-card:not(.is-expanded) .step-complete-button.is-complete {
-  border-color: var(--green);
-  background: var(--green);
+  border-color: var(--color-success);
+  background: var(--color-success);
   color: #ffffff;
 }
 
 /* Active incomplete button: blue outline, transparent fill */
 .step-card.is-expanded .step-complete-button:not(.is-complete) {
-  border-color: var(--blue);
+  border-color: var(--color-primary);
   background: transparent;
-  color: var(--blue);
+  color: var(--color-primary);
 }
 
 /* Active incomplete button hover: soft blue */
 .step-card.is-expanded .step-complete-button:not(.is-complete):hover {
-  border-color: var(--blue);
-  background: var(--blue-soft);
-  color: var(--blue);
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
   transform: none;
 }
 
 /* Active completed button: blue circle + white check */
 .step-card.is-expanded .step-complete-button.is-complete,
 .step-card.is-expanded .step-complete-button.is-complete:hover {
-  border-color: var(--blue);
-  background: var(--blue);
+  border-color: var(--color-primary);
+  background: var(--color-primary);
   color: #ffffff;
   transform: none;
 }
