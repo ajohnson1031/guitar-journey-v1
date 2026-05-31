@@ -9,11 +9,11 @@
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 10px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 24px;
-  background: var(--panel);
+  background: var(--color-panel);
   padding: 10px;
-  box-shadow: var(--shadow-soft);
+  box-shadow: var(--shadow-subtle);
   backdrop-filter: blur(18px);
 }
 
@@ -36,23 +36,23 @@
 .dashboard-nav-button,
 .dashboard-nav-more-button {
   min-height: 44px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 999px;
-  background: var(--surface-subtle);
-  color: var(--muted-strong);
+  background: var(--color-surface-subtle);
+  color: var(--color-text-muted-strong);
   padding: 10px 14px;
   font-weight: 900;
 }
 
 .dashboard-nav-button:hover,
 .dashboard-nav-more-button:hover {
-  border-color: var(--border-strong);
+  border-color: var(--color-border-strong);
 }
 
 .dashboard-nav-button.is-active,
 .dashboard-nav-more-button.is-open {
-  border-color: var(--blue);
-  background: var(--blue);
+  border-color: var(--color-primary);
+  background: var(--color-primary);
   color: #ffffff;
 }
 
@@ -105,11 +105,11 @@
   display: grid;
   gap: 6px;
   min-width: 230px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 18px;
-  background: var(--panel);
+  background: var(--color-panel);
   padding: 8px;
-  box-shadow: var(--shadow-soft);
+  box-shadow: var(--shadow-subtle);
   backdrop-filter: blur(18px);
 }
 
@@ -122,22 +122,22 @@
   border: 1px solid transparent;
   border-radius: 14px;
   background: transparent;
-  color: var(--muted-strong);
+  color: var(--color-text-muted-strong);
   padding: 10px 12px;
   font-size: 13px;
   font-weight: 900;
 }
 
 .dashboard-nav-more-link:hover {
-  border-color: var(--border);
-  background: var(--surface-subtle);
-  color: var(--text);
+  border-color: var(--color-border);
+  background: var(--color-surface-subtle);
+  color: var(--color-text);
 }
 
 .dashboard-nav-more-link.is-active {
-  border-color: var(--blue);
-  background: var(--blue-soft);
-  color: var(--blue);
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
 }
 
 .dashboard-nav-more-link svg {
@@ -149,10 +149,10 @@
 .active-session-indicator {
   gap: 8px;
   min-height: 44px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 999px;
-  background: var(--surface-subtle);
-  color: var(--muted-strong);
+  background: var(--color-surface-subtle);
+  color: var(--color-text-muted-strong);
   padding: 7px 10px;
   transition:
     border-color 160ms ease,
@@ -162,15 +162,15 @@
 }
 
 .active-session-indicator:hover {
-  border-color: var(--blue);
-  background: var(--blue-soft);
-  color: var(--blue);
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
 }
 
 .active-session-indicator.is-recording {
-  border-color: var(--danger);
-  background: var(--danger-soft);
-  color: var(--danger);
+  border-color: var(--color-danger);
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
 }
 
 .active-session-indicator.is-recording:hover {
@@ -178,16 +178,16 @@
 }
 
 .active-session-indicator.is-recording-paused {
-  border-color: var(--mango);
-  background: var(--mango-soft);
-  color: var(--mango);
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
 }
 
 .active-session-indicator.is-recording-ready,
 .active-session-indicator.is-running {
-  border-color: var(--blue);
+  border-color: var(--color-primary);
   background: transparent;
-  color: var(--blue);
+  color: var(--color-primary);
 }
 
 .active-session-indicator-icon {
@@ -196,7 +196,7 @@
   width: 26px;
   height: 26px;
   border-radius: 999px;
-  background: var(--surface);
+  background: var(--color-surface);
   color: currentColor;
 }
 
