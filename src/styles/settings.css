@@ -22,7 +22,7 @@
 
 .settings-hero p:not(.eyebrow) {
   margin: 0;
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 16px;
   line-height: 1.5;
 }
@@ -35,9 +35,9 @@
 .settings-section-card {
   display: grid;
   gap: 18px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 22px;
-  background: var(--surface);
+  background: var(--color-surface);
   padding: 18px;
 }
 
@@ -49,7 +49,7 @@
 
 .settings-section-card p:not(.eyebrow) {
   margin: 8px 0 0;
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 14px;
   line-height: 1.5;
 }
@@ -71,26 +71,26 @@
   display: grid;
   gap: 6px;
   min-height: 64px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 18px;
-  background: var(--surface-soft);
-  color: var(--text);
+  background: var(--color-surface-soft);
+  color: var(--color-text);
   padding: 8px 14px;
   text-align: left;
 }
 
 .settings-option-card:hover {
-  border-color: var(--border-strong);
+  border-color: var(--color-border-strong);
 }
 
 .settings-option-card.is-selected {
-  border-color: var(--blue);
-  background: var(--blue-soft);
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
 }
 
 .settings-option-card span,
 .settings-status-card span {
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 12px;
   font-weight: 900;
   letter-spacing: 0.08em;
@@ -99,14 +99,14 @@
 }
 
 .settings-option-card span {
-  color: var(--text);
+  color: var(--color-text);
   font-size: 15px;
   letter-spacing: 0;
   text-transform: none;
 }
 
 .settings-option-card small {
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 12px;
   line-height: 1.4;
 }
@@ -119,10 +119,10 @@
 }
 
 .settings-active-badge {
-  border: 1px solid var(--blue);
+  border: 1px solid var(--color-primary);
   border-radius: 999px;
-  background: var(--blue-soft);
-  color: var(--blue);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
   padding: 4px 8px;
   font-size: 10px;
   font-weight: 900;
@@ -132,27 +132,27 @@
 }
 
 .settings-status-card strong {
-  color: var(--muted-strong);
+  color: var(--color-text-muted-strong);
   font-size: 15px;
   line-height: 1.35;
 }
 
 .settings-status-card--success {
-  border-color: var(--green);
-  background: var(--green-soft);
+  border-color: var(--color-success);
+  background: var(--color-success-soft);
 }
 
 .settings-status-card--success strong {
-  color: var(--green);
+  color: var(--color-success);
 }
 
 .settings-status-card--danger {
-  border-color: var(--danger);
-  background: var(--danger-soft);
+  border-color: var(--color-danger);
+  background: var(--color-danger-soft);
 }
 
 .settings-status-card--danger strong {
-  color: var(--danger-text);
+  color: var(--color-danger-text);
 }
 
 .settings-placeholder-row,
@@ -161,20 +161,20 @@
   align-items: center;
   justify-content: space-between;
   gap: 14px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 16px;
-  background: var(--surface-soft);
+  background: var(--color-surface-soft);
   padding: 12px 14px;
 }
 
 .settings-placeholder-row span {
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 13px;
   font-weight: 800;
 }
 
 .settings-placeholder-row strong {
-  color: var(--muted-strong);
+  color: var(--color-text-muted-strong);
   font-size: 13px;
 }
 
@@ -188,13 +188,13 @@
 }
 
 .settings-action-panel strong {
-  color: var(--text);
+  color: var(--color-text);
   font-size: 14px;
 }
 
 .settings-action-panel p {
   margin: 6px 0 0 !important;
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 13px !important;
   line-height: 1.45 !important;
 }
@@ -244,22 +244,22 @@
 
 .settings-backup-message--success {
   border: 1px solid rgba(52, 211, 153, 0.32);
-  background: var(--green-soft);
-  color: var(--green) !important;
+  background: var(--color-success-soft);
+  color: var(--color-success) !important;
 }
 
 .settings-backup-message--danger {
-  border: 1px solid var(--danger);
-  background: var(--danger-soft);
-  color: var(--danger-text) !important;
+  border: 1px solid var(--color-danger);
+  background: var(--color-danger-soft);
+  color: var(--color-danger-text) !important;
 }
 
 .settings-audio-options-panel {
   display: grid;
   gap: 12px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 16px;
-  background: var(--surface-soft);
+  background: var(--color-surface-soft);
   padding: 12px 14px;
 }
 
@@ -271,23 +271,23 @@
 }
 
 .settings-audio-options-copy strong {
-  color: var(--text);
+  color: var(--color-text);
   font-size: 14px;
 }
 
 .settings-audio-options-copy p {
   margin: 6px 0 0 !important;
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 13px !important;
   line-height: 1.45 !important;
 }
 
 .settings-audio-options-copy > span {
   flex: 0 0 auto;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 999px;
-  background: var(--surface);
-  color: var(--muted-strong);
+  background: var(--color-surface);
+  color: var(--color-text-muted-strong);
   padding: 5px 9px;
   font-size: 11px;
   font-weight: 900;
@@ -313,9 +313,9 @@
   display: grid;
   gap: 8px;
   min-height: 156px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 16px;
-  background: var(--surface);
+  background: var(--color-surface);
   padding: 12px;
 }
 
@@ -325,7 +325,7 @@
 }
 
 .settings-audio-setting-header span {
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 10px;
   font-weight: 900;
   letter-spacing: 0.1em;
@@ -334,14 +334,14 @@
 }
 
 .settings-audio-setting-header strong {
-  color: var(--text);
+  color: var(--color-text);
   font-size: 15px;
   line-height: 1.2;
 }
 
 .settings-audio-setting-card p {
   margin: 0 !important;
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 12px !important;
   line-height: 1.4 !important;
 }
@@ -353,10 +353,10 @@
 }
 
 .settings-audio-setting-footer small {
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 999px;
-  background: var(--surface-soft);
-  color: var(--muted-strong);
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted-strong);
   padding: 5px 8px;
   font-size: 10px;
   font-weight: 900;
@@ -366,25 +366,25 @@
 
 .settings-audio-toggle {
   width: 100%;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 999px;
-  background: var(--surface-soft);
-  color: var(--muted-strong);
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted-strong);
   padding: 8px 10px;
   font-size: 12px;
   font-weight: 900;
 }
 
 .settings-audio-toggle:not(:disabled):hover {
-  border-color: var(--blue);
-  background: var(--blue-soft);
-  color: var(--blue);
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
 }
 
 .settings-audio-toggle.is-enabled:not(:disabled) {
-  border-color: var(--green);
-  background: var(--green-soft);
-  color: var(--green);
+  border-color: var(--color-success);
+  background: var(--color-success-soft);
+  color: var(--color-success);
 }
 
 .settings-audio-toggle:disabled {
@@ -398,9 +398,9 @@
   grid-template-columns: repeat(10, minmax(0, 1fr));
   gap: 2px;
   overflow: hidden;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
-  background: var(--surface);
+  background: var(--color-surface);
   min-height: 34px;
   padding: 3px;
 }
@@ -425,17 +425,17 @@
 }
 
 .microphone-level-meter.is-active.is-level-low .microphone-level-bar.is-level-active {
-  background: var(--danger);
+  background: var(--color-danger);
   transform: scaleY(1.02);
 }
 
 .microphone-level-meter.is-active.is-level-medium .microphone-level-bar.is-level-active {
-  background: var(--mango);
+  background: var(--color-accent);
   transform: scaleY(1.02);
 }
 
 .microphone-level-meter.is-active.is-level-high .microphone-level-bar.is-level-active {
-  background: var(--green);
+  background: var(--color-success);
   transform: scaleY(1.02);
 }
 
@@ -455,26 +455,26 @@
 }
 
 .microphone-test-button.is-testing {
-  border-color: var(--danger);
-  background: var(--danger-soft);
+  border-color: var(--color-danger);
+  background: var(--color-danger-soft);
   color: white;
 }
 
 .microphone-test-button.is-testing:hover {
-  border-color: var(--danger);
-  background: var(--danger-soft);
+  border-color: var(--color-danger);
+  background: var(--color-danger-soft);
   color: white;
 }
 
 html[data-theme="light"] .microphone-test-button.is-testing {
-  border-color: var(--danger);
-  background: var(--danger);
+  border-color: var(--color-danger);
+  background: var(--color-danger);
   color: white;
 }
 
 html[data-theme="light"] .microphone-test-button.is-testing:hover {
-  border-color: var(--danger);
-  background: var(--danger);
+  border-color: var(--color-danger);
+  background: var(--color-danger);
   color: white;
   filter: brightness(0.92);
 }
@@ -488,14 +488,14 @@ html[data-theme="light"] .microphone-test-button.is-testing:hover {
 }
 
 .settings-local-audio-note strong {
-  color: var(--text);
+  color: var(--color-text);
   font-size: 13px;
 }
 
 .settings-local-audio-note strong::before {
   content: "*";
   margin-right: 3px;
-  color: var(--danger-text);
+  color: var(--color-danger-text);
 }
 
 .settings-local-audio-note strong:after {
@@ -504,13 +504,13 @@ html[data-theme="light"] .microphone-test-button.is-testing:hover {
 
 .settings-local-audio-note p {
   margin: -1px 0 0 !important;
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 13px !important;
   line-height: 1.45 !important;
 }
 
 .settings-danger-text {
-  color: var(--danger-text);
+  color: var(--color-danger-text);
   font-weight: 900;
 }
 
@@ -519,7 +519,7 @@ html[data-theme="light"] .microphone-test-button.is-testing:hover {
 }
 
 .settings-inline-message-stopped {
-  color: var(--danger);
+  color: var(--color-danger);
 }
 
 @media (max-width: 980px) {
