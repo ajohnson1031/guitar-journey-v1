@@ -13,9 +13,7 @@ function GuitarJourneyProvider({ audioInputSettings, children }) {
   return <GuitarJourneyContext.Provider value={guitarJourneyState}>{children}</GuitarJourneyContext.Provider>;
 }
 
-function useGuitarJourneyContext() {
-  const context = useContext(GuitarJourneyContext);
-
+function requireGuitarJourneyContext(context) {
   if (!context) {
     throw new Error("useGuitarJourneyContext must be used inside GuitarJourneyProvider.");
   }
@@ -23,4 +21,8 @@ function useGuitarJourneyContext() {
   return context;
 }
 
-export { GuitarJourneyContext, GuitarJourneyProvider, useGuitarJourneyContext };
+function useGuitarJourneyContext() {
+  return requireGuitarJourneyContext(useContext(GuitarJourneyContext));
+}
+
+export { GuitarJourneyContext, GuitarJourneyProvider, requireGuitarJourneyContext, useGuitarJourneyContext };

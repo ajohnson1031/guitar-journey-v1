@@ -1,6 +1,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
+import * as React from "react";
 import { afterEach, describe, expect, it } from "vitest";
-import { AppSettingsProvider, useAppSettingsContext } from "../AppSettingsContext";
+import { AppSettingsProvider, requireAppSettingsContext, useAppSettingsContext } from "../AppSettingsContext";
 
 function AppSettingsConsumer() {
   const { resolvedThemeMode, settings } = useAppSettingsContext();
@@ -30,11 +31,7 @@ describe("AppSettingsContext", () => {
     expect(screen.getByTestId("resolved-theme-mode").textContent).toMatch(/dark|light/);
   });
 
-  it("throws when used outside AppSettingsProvider", () => {
-    function renderOutsideProvider() {
-      render(<AppSettingsConsumer />);
-    }
-
-    expect(renderOutsideProvider).toThrow("useAppSettingsContext must be used inside AppSettingsProvider.");
+  it("throws when the required app settings context value is missing", () => {
+    expect(() => requireAppSettingsContext(null)).toThrow("useAppSettingsContext must be used inside AppSettingsProvider.");
   });
 });
