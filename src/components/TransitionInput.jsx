@@ -39,9 +39,11 @@ export default function TransitionInput({ value, onChange }) {
   }
 
   return (
-    <label>
-      <span>Transitions</span>
-      <input type="text" value={value} placeholder="e.g., G → C, C → G, G → D, Em → C" onKeyDown={handleKeyDown} onChange={handleChange} onBlur={handleBlur} />
-    </label>
+    <Fragment>
+      <label>
+        <span>Transitions</span>
+        <input type="text" value={value} placeholder="e.g., G → C, C → G, G → D, Em → C" onKeyDown={handleKeyDown} onChange={handleChange} onBlur={handleBlur} />
+      </label>
+    </Fragment>
   );
 }

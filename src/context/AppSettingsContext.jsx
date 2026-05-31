@@ -11,9 +11,7 @@ function AppSettingsProvider({ children }) {
   return <AppSettingsContext.Provider value={appSettingsState}>{children}</AppSettingsContext.Provider>;
 }
 
-function useAppSettingsContext() {
-  const context = useContext(AppSettingsContext);
-
+function requireAppSettingsContext(context) {
   if (!context) {
     throw new Error("useAppSettingsContext must be used inside AppSettingsProvider.");
   }
@@ -21,4 +19,8 @@ function useAppSettingsContext() {
   return context;
 }
 
-export { AppSettingsContext, AppSettingsProvider, useAppSettingsContext };
+function useAppSettingsContext() {
+  return requireAppSettingsContext(useContext(AppSettingsContext));
+}
+
+export { AppSettingsContext, AppSettingsProvider, requireAppSettingsContext, useAppSettingsContext };

@@ -2,7 +2,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import * as React from "react";
 import { afterEach, describe, expect, it } from "vitest";
 import { MemoryRouter } from "react-router-dom";
-import { GuitarJourneyProvider, useGuitarJourneyContext } from "../GuitarJourneyContext";
+import { GuitarJourneyProvider, requireGuitarJourneyContext, useGuitarJourneyContext } from "../GuitarJourneyContext";
 
 function GuitarJourneyConsumer() {
   const { activeSessionProps, dashboardRouteProps } = useGuitarJourneyContext();
@@ -34,11 +34,7 @@ describe("GuitarJourneyContext", () => {
     expect(screen.getByText("idle")).toBeTruthy();
   });
 
-  it("throws when used outside GuitarJourneyProvider", () => {
-    function renderOutsideProvider() {
-      render(<GuitarJourneyConsumer />);
-    }
-
-    expect(renderOutsideProvider).toThrow("useGuitarJourneyContext must be used inside GuitarJourneyProvider.");
+  it("throws when the required guitar journey context value is missing", () => {
+    expect(() => requireGuitarJourneyContext(null)).toThrow("useGuitarJourneyContext must be used inside GuitarJourneyProvider.");
   });
 });
