@@ -52,6 +52,8 @@ function createSession(overrides = {}) {
 
 function renderSessionHistory(props = {}) {
   const mergedProps = {
+    historySongFilter: null,
+    onClearHistorySongFilter: vi.fn(),
     onDeleteSessionRecording: vi.fn(),
     sessions: [],
     ...props,
@@ -152,6 +154,48 @@ describe("SessionHistory", () => {
 
     expect(screen.getByText("Worship Song")).toBeTruthy();
     expect(screen.queryByText("Blues Song")).toBeNull();
+  });
+
+  it("filters sessions by selected history song before applying search", () => {
+    const onClearHistorySongFilter = vi.fn();
+
+    renderSessionHistory({
+      historySongFilter: {
+        songId: "song-worship",
+        songTitle: "Worship Song",
+      },
+      onClearHistorySongFilter,
+      sessions: [
+        createSession({
+          id: "worship",
+          songId: "song-worship",
+          songTitle: "Worship Song",
+          genre: "Worship",
+        }),
+        createSession({
+          id: "blues",
+          songId: "song-blues",
+          songTitle: "Blues Song",
+          genre: "Blues",
+        }),
+      ],
+    });
+
+    expect(screen.getByText("Viewing song history")).toBeTruthy();
+    expect(screen.getAllByText("Worship Song").length).toBeGreaterThan(0);
+    expect(screen.queryByText("Blues Song")).toBeNull();
+
+    fireEvent.change(screen.getByLabelText("Search sessions"), {
+      target: {
+        value: "blues",
+      },
+    });
+
+    expect(screen.getByText("No sessions match this filter")).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Clear Filter" }));
+
+    expect(onClearHistorySongFilter).toHaveBeenCalledTimes(1);
   });
 
   it("sorts sessions oldest first when selected", () => {
