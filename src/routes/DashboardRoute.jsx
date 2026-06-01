@@ -26,6 +26,7 @@ export default function DashboardRoute() {
     onResumeSessionRecording,
     onSelectSong,
     onSessionMinutesChange,
+    onSessionNotesChange,
     onSessionRatingChange,
     onStartEditCustomSong,
     onToggleMastered,
@@ -41,6 +42,7 @@ export default function DashboardRoute() {
     sessionHistory,
     sessionMessage,
     sessionMinutes,
+    sessionNotes,
     sessionRating,
   } = dashboardRouteProps;
 
@@ -76,6 +78,7 @@ export default function DashboardRoute() {
             onResetSessionTimer={onResetSessionTimer}
             onResumeSessionRecording={onResumeSessionRecording}
             onSessionMinutesChange={onSessionMinutesChange}
+            onSessionNotesChange={onSessionNotesChange}
             onSessionRatingChange={onSessionRatingChange}
             onToggleSessionRecording={onToggleSessionRecording}
             onToggleSessionTimer={onToggleSessionTimer}
@@ -88,6 +91,7 @@ export default function DashboardRoute() {
             sessionHistory={sessionHistory}
             sessionMessage={sessionMessage}
             sessionMinutes={sessionMinutes}
+            sessionNotes={sessionNotes}
             sessionRating={sessionRating}
           />
 

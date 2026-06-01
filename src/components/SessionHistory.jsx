@@ -89,7 +89,7 @@ function filterPracticeSessions(sessions = [], searchTerm = "") {
   if (!normalizedSearchTerm) return sessions;
 
   return sessions.filter((session) => {
-    const searchableText = [session?.songTitle, session?.genre, session?.rating].filter(Boolean).join(" ").toLowerCase();
+    const searchableText = [session?.songTitle, session?.genre, session?.rating, session?.notes].filter(Boolean).join(" ").toLowerCase();
 
     return searchableText.includes(normalizedSearchTerm);
   });
@@ -146,7 +146,10 @@ export default function SessionHistory({ historySongFilter = null, onClearHistor
   const songFilteredSessions = useMemo(() => filterSessionsBySong(sessions, historySongFilter), [historySongFilter, sessions]);
   const activeSongStats = useMemo(() => getPracticeHistoryStats(songFilteredSessions), [songFilteredSessions]);
   const hasSongFilteredSessions = songFilteredSessions.length > 0;
-  const filteredSessions = useMemo(() => filterPracticeSessions(songFilteredSessions, practiceHistorySearchTerm), [practiceHistorySearchTerm, songFilteredSessions]);
+  const filteredSessions = useMemo(
+    () => filterPracticeSessions(songFilteredSessions, practiceHistorySearchTerm),
+    [practiceHistorySearchTerm, songFilteredSessions],
+  );
   const recentSessionGroups = useMemo(() => getVisiblePracticeDayGroups(filteredSessions, practiceHistorySortMode).slice(0, 8), [filteredSessions, practiceHistorySortMode]);
   const visibleSessionCount = filteredSessions.length;
   const shouldScrollHistory = visibleSessionCount > 5;
@@ -454,6 +457,8 @@ export default function SessionHistory({ historySongFilter = null, onClearHistor
                             </div>
                           ) : null}
                         </div>
+
+                        {session.notes ? <p className="history-session-notes">{session.notes}</p> : null}
                       </article>
                     );
                   })}
