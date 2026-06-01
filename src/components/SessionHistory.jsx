@@ -146,10 +146,7 @@ export default function SessionHistory({ historySongFilter = null, onClearHistor
   const songFilteredSessions = useMemo(() => filterSessionsBySong(sessions, historySongFilter), [historySongFilter, sessions]);
   const activeSongStats = useMemo(() => getPracticeHistoryStats(songFilteredSessions), [songFilteredSessions]);
   const hasSongFilteredSessions = songFilteredSessions.length > 0;
-  const filteredSessions = useMemo(
-    () => filterPracticeSessions(songFilteredSessions, practiceHistorySearchTerm),
-    [practiceHistorySearchTerm, songFilteredSessions],
-  );
+  const filteredSessions = useMemo(() => filterPracticeSessions(songFilteredSessions, practiceHistorySearchTerm), [practiceHistorySearchTerm, songFilteredSessions]);
   const recentSessionGroups = useMemo(() => getVisiblePracticeDayGroups(filteredSessions, practiceHistorySortMode).slice(0, 8), [filteredSessions, practiceHistorySortMode]);
   const visibleSessionCount = filteredSessions.length;
   const shouldScrollHistory = visibleSessionCount > 5;
@@ -326,7 +323,7 @@ export default function SessionHistory({ historySongFilter = null, onClearHistor
           <div className="history-controls" aria-label="Practice history controls">
             <label className="history-search-field">
               <span>Search sessions</span>
-              <input type="search" value={practiceHistorySearchTerm} onChange={handlePracticeHistorySearchChange} placeholder="Search by song, genre, or rating..." />
+              <input type="search" value={practiceHistorySearchTerm} onChange={handlePracticeHistorySearchChange} placeholder="Search by song, genre, rating, or notes..." />
             </label>
 
             <label className="history-sort-field">

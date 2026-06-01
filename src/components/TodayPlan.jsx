@@ -61,7 +61,7 @@ export default function TodayPlan({
   const didPauseRecordingForStopRef = useRef(false);
 
   const progressState = getProgressState(progressPercent);
-  const hasStartedSession = elapsedSessionSeconds > 0;
+  const hasStartedSession = elapsedSessionSeconds > 0 || isSessionTimerRunning;
   const isSessionActive = hasStartedSession || isSessionTimerRunning || isSessionRecording;
   const sessionActionLabel = hasStartedSession ? "Resume Session" : "Start Session";
   const canRecordSession = typeof onToggleSessionRecording === "function";
