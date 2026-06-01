@@ -144,6 +144,8 @@ export default function SessionHistory({ historySongFilter = null, onClearHistor
   const hasActiveSongFilter = Boolean(historySongFilter?.songId);
   const historySongFilterLabel = getHistorySongFilterLabel(historySongFilter);
   const songFilteredSessions = useMemo(() => filterSessionsBySong(sessions, historySongFilter), [historySongFilter, sessions]);
+  const activeSongStats = useMemo(() => getPracticeHistoryStats(songFilteredSessions), [songFilteredSessions]);
+  const hasSongFilteredSessions = songFilteredSessions.length > 0;
   const filteredSessions = useMemo(() => filterPracticeSessions(songFilteredSessions, practiceHistorySearchTerm), [practiceHistorySearchTerm, songFilteredSessions]);
   const recentSessionGroups = useMemo(() => getVisiblePracticeDayGroups(filteredSessions, practiceHistorySortMode).slice(0, 8), [filteredSessions, practiceHistorySortMode]);
   const visibleSessionCount = filteredSessions.length;
@@ -297,9 +299,18 @@ export default function SessionHistory({ historySongFilter = null, onClearHistor
 
         {hasActiveSongFilter ? (
           <div className="history-active-song-filter">
-            <div>
+            <div className="history-active-song-filter-main">
               <span>Viewing song history</span>
               <strong>{historySongFilterLabel}</strong>
+            </div>
+
+            <div className="history-active-song-filter-stats" aria-label={`${historySongFilterLabel} history summary`}>
+              <span>
+                {activeSongStats.totalSessions} session{activeSongStats.totalSessions === 1 ? "" : "s"}
+              </span>
+              <span>{activeSongStats.totalPracticeLabel} practiced</span>
+              <span>Last: {activeSongStats.lastPracticedLabel}</span>
+              <span>Avg: {activeSongStats.averageRating}</span>
             </div>
 
             <button type="button" className="danger-button history-clear-song-filter-button" onClick={handleClearHistorySongFilter}>
@@ -452,8 +463,14 @@ export default function SessionHistory({ historySongFilter = null, onClearHistor
           </div>
         ) : sessions.length ? (
           <div className="history-empty">
-            <h3>No sessions match this filter</h3>
-            <p>{hasActiveSongFilter ? `No saved sessions match ${historySongFilterLabel} with the current search.` : "Try a different search term or clear the session search."}</p>
+            <h3>{hasActiveSongFilter && !hasSongFilteredSessions ? "No sessions for this song yet" : "No sessions match this filter"}</h3>
+            <p>
+              {hasActiveSongFilter && !hasSongFilteredSessions
+                ? `No saved sessions for ${historySongFilterLabel} yet.`
+                : hasActiveSongFilter
+                  ? `No saved sessions match ${historySongFilterLabel} with the current search.`
+                  : "Try a different search term or clear the session search."}
+            </p>
           </div>
         ) : (
           <div className="history-empty">
