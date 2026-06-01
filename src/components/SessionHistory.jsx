@@ -73,6 +73,14 @@ function canStopRecordingPlayback({ isActiveRecording, playbackState }) {
   return isActiveRecording && ["loading", "playing", "paused"].includes(playbackState);
 }
 
+function filterSessionsBySong(sessions = [], historySongFilter = null) {
+  const songId = String(historySongFilter?.songId || "").trim();
+
+  if (!songId) return sessions;
+
+  return sessions.filter((session) => session?.songId === songId);
+}
+
 function filterPracticeSessions(sessions = [], searchTerm = "") {
   const normalizedSearchTerm = String(searchTerm || "")
     .trim()
@@ -120,7 +128,11 @@ function getVisiblePracticeDayGroups(sessions = [], sortMode = "newest") {
   }));
 }
 
-export default function SessionHistory({ onDeleteSessionRecording, sessions }) {
+function getHistorySongFilterLabel(historySongFilter) {
+  return String(historySongFilter?.songTitle || "").trim() || "selected song";
+}
+
+export default function SessionHistory({ historySongFilter = null, onClearHistorySongFilter, onDeleteSessionRecording, sessions }) {
   const [availableRecordingIds, setAvailableRecordingIds] = useState(() => new Set());
   const [historyActionMessage, setHistoryActionMessage] = useState("");
   const [historyActionTone, setHistoryActionTone] = useState("success");
@@ -129,7 +141,10 @@ export default function SessionHistory({ onDeleteSessionRecording, sessions }) {
   const [practiceHistorySortMode, setPracticeHistorySortMode] = useState("newest");
 
   const stats = getPracticeHistoryStats(sessions);
-  const filteredSessions = useMemo(() => filterPracticeSessions(sessions, practiceHistorySearchTerm), [practiceHistorySearchTerm, sessions]);
+  const hasActiveSongFilter = Boolean(historySongFilter?.songId);
+  const historySongFilterLabel = getHistorySongFilterLabel(historySongFilter);
+  const songFilteredSessions = useMemo(() => filterSessionsBySong(sessions, historySongFilter), [historySongFilter, sessions]);
+  const filteredSessions = useMemo(() => filterPracticeSessions(songFilteredSessions, practiceHistorySearchTerm), [practiceHistorySearchTerm, songFilteredSessions]);
   const recentSessionGroups = useMemo(() => getVisiblePracticeDayGroups(filteredSessions, practiceHistorySortMode).slice(0, 8), [filteredSessions, practiceHistorySortMode]);
   const visibleSessionCount = filteredSessions.length;
   const shouldScrollHistory = visibleSessionCount > 5;
@@ -193,6 +208,12 @@ export default function SessionHistory({ onDeleteSessionRecording, sessions }) {
 
   function handlePracticeHistorySortChange(event) {
     setPracticeHistorySortMode(event.target.value);
+  }
+
+  function handleClearHistorySongFilter() {
+    if (onClearHistorySongFilter) {
+      onClearHistorySongFilter();
+    }
   }
 
   function handleRequestDeleteRecording(session) {
@@ -273,6 +294,19 @@ export default function SessionHistory({ onDeleteSessionRecording, sessions }) {
             <small>Last practiced: {stats.lastPracticedLabel}</small>
           </div>
         </div>
+
+        {hasActiveSongFilter ? (
+          <div className="history-active-song-filter">
+            <div>
+              <span>Viewing song history</span>
+              <strong>{historySongFilterLabel}</strong>
+            </div>
+
+            <button type="button" className="danger-button history-clear-song-filter-button" onClick={handleClearHistorySongFilter}>
+              Clear Filter
+            </button>
+          </div>
+        ) : null}
 
         {sessions.length ? (
           <div className="history-controls" aria-label="Practice history controls">
@@ -419,7 +453,7 @@ export default function SessionHistory({ onDeleteSessionRecording, sessions }) {
         ) : sessions.length ? (
           <div className="history-empty">
             <h3>No sessions match this filter</h3>
-            <p>Try a different search term or clear the session search.</p>
+            <p>{hasActiveSongFilter ? `No saved sessions match ${historySongFilterLabel} with the current search.` : "Try a different search term or clear the session search."}</p>
           </div>
         ) : (
           <div className="history-empty">

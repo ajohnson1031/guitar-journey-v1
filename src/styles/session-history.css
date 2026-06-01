@@ -113,6 +113,42 @@
   font-size: 12px;
 }
 
+.history-active-song-filter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  background: var(--color-surface-soft);
+  padding: 12px 14px;
+}
+
+.history-active-song-filter > div {
+  display: grid;
+  gap: 3px;
+}
+
+.history-active-song-filter span {
+  color: var(--color-text-muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.history-active-song-filter strong {
+  color: var(--color-edit);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.history-clear-song-filter-button {
+  min-height: 34px;
+  padding: 7px 12px;
+  font-size: 12px;
+}
+
 .history-controls {
   display: grid;
   grid-template-columns: minmax(220px, 1fr) minmax(180px, 220px);
@@ -469,6 +505,14 @@
   .history-streak-card,
   .history-controls {
     grid-template-columns: 1fr;
+  }
+
+  .history-active-song-filter {
+    display: grid;
+  }
+
+  .history-clear-song-filter-button {
+    justify-self: start;
   }
 
   .history-streak-meta {

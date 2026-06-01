@@ -61,6 +61,7 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
   const autoPausedRecordingRef = useRef(false);
   const storedProgress = useMemo(() => loadStoredProgress(), []);
 
+  const [historySongFilter, setHistorySongFilter] = useState(null);
   const [sessionMinutes, setSessionMinutes] = useState(storedProgress.sessionMinutes);
   const [sessionRating, setSessionRating] = useState("");
   const [sessionMessage, setSessionMessage] = useState("");
@@ -210,8 +211,12 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
     navigate("/");
   }
 
+  function getSongById(songId) {
+    return allSongs.find((song) => song.id === songId) || null;
+  }
+
   function selectSongForProgressAction(songId) {
-    const progressSong = allSongs.find((song) => song.id === songId);
+    const progressSong = getSongById(songId);
 
     if (progressSong?.genre) {
       selectPath(progressSong.genre);
@@ -219,6 +224,12 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
 
     selectSong(songId);
     setSessionMessage("");
+
+    return progressSong;
+  }
+
+  function clearHistorySongFilter() {
+    setHistorySongFilter(null);
   }
 
   function handlePathChange(pathName) {
@@ -233,12 +244,19 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
   }
 
   function handlePracticeProgressSong(songId) {
+    clearHistorySongFilter();
     selectSongForProgressAction(songId);
     goToDashboard();
   }
 
   function handleViewProgressSongHistory(songId) {
-    selectSongForProgressAction(songId);
+    const progressSong = selectSongForProgressAction(songId);
+
+    setHistorySongFilter({
+      songId,
+      songTitle: progressSong?.title || "Selected Song",
+    });
+
     navigate("/history");
   }
 
@@ -275,6 +293,11 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
     if (!deletedSong) return;
 
     removeSongProgress(songId);
+
+    if (historySongFilter?.songId === songId) {
+      clearHistorySongFilter();
+    }
+
     goToDashboard();
   }
 
@@ -446,6 +469,7 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
     resetPracticeProgress();
     resetSongLibrary();
 
+    setHistorySongFilter(null);
     setSessionMinutes(DEFAULT_PROGRESS.sessionMinutes);
     setSessionRating("");
     setSessionMessage("");
@@ -519,6 +543,8 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
       onUpdateSong: handleUpdateCustomSong,
     },
     historyRouteProps: {
+      historySongFilter,
+      onClearHistorySongFilter: clearHistorySongFilter,
       onDeleteSessionRecording: handleDeleteSessionRecording,
       sessions: sessionHistory,
     },
