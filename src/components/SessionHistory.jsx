@@ -463,12 +463,12 @@ export default function SessionHistory({ historySongFilter = null, onClearHistor
           </div>
         ) : sessions.length ? (
           <div className="history-empty">
-            <h3>{hasActiveSongFilter && !hasSongFilteredSessions ? "No sessions for this song yet" : "No sessions match this filter"}</h3>
+            <h3>{hasActiveSongFilter && !hasSongFilteredSessions ? "No sessions for this song yet" : "No sessions match this search"}</h3>
             <p>
               {hasActiveSongFilter && !hasSongFilteredSessions
                 ? `No saved sessions for ${historySongFilterLabel} yet.`
                 : hasActiveSongFilter
-                  ? `No saved sessions match ${historySongFilterLabel} with the current search.`
+                  ? `No saved sessions match this search for ${historySongFilterLabel}.`
                   : "Try a different search term or clear the session search."}
             </p>
           </div>

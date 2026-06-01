@@ -191,7 +191,7 @@ describe("SessionHistory", () => {
       },
     });
 
-    expect(screen.getByText("No sessions match this filter")).toBeTruthy();
+    expect(screen.getByText("No sessions match this search")).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: "Clear Filter" }));
 
