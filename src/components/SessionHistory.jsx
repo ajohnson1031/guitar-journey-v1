@@ -89,7 +89,7 @@ function filterPracticeSessions(sessions = [], searchTerm = "") {
   if (!normalizedSearchTerm) return sessions;
 
   return sessions.filter((session) => {
-    const searchableText = [session?.songTitle, session?.genre, session?.rating].filter(Boolean).join(" ").toLowerCase();
+    const searchableText = [session?.songTitle, session?.genre, session?.rating, session?.notes].filter(Boolean).join(" ").toLowerCase();
 
     return searchableText.includes(normalizedSearchTerm);
   });
@@ -323,7 +323,7 @@ export default function SessionHistory({ historySongFilter = null, onClearHistor
           <div className="history-controls" aria-label="Practice history controls">
             <label className="history-search-field">
               <span>Search sessions</span>
-              <input type="search" value={practiceHistorySearchTerm} onChange={handlePracticeHistorySearchChange} placeholder="Search by song, genre, or rating..." />
+              <input type="search" value={practiceHistorySearchTerm} onChange={handlePracticeHistorySearchChange} placeholder="Search by song, genre, rating, or notes..." />
             </label>
 
             <label className="history-sort-field">
@@ -454,6 +454,8 @@ export default function SessionHistory({ historySongFilter = null, onClearHistor
                             </div>
                           ) : null}
                         </div>
+
+                        {session.notes ? <p className="history-session-notes">{session.notes}</p> : null}
                       </article>
                     );
                   })}

@@ -39,6 +39,7 @@ export default function TodayPlan({
   onResetSessionTimer,
   onResumeSessionRecording,
   onSessionMinutesChange,
+  onSessionNotesChange = () => {},
   onSessionRatingChange,
   onToggleSessionRecording,
   onToggleSessionTimer,
@@ -51,6 +52,7 @@ export default function TodayPlan({
   sessionHistory = [],
   sessionMessage,
   sessionMinutes,
+  sessionNotes = "",
   sessionRating,
 }) {
   const [expandedStepLabel, setExpandedStepLabel] = useState(() => plan[0]?.label || "");
@@ -59,7 +61,7 @@ export default function TodayPlan({
   const didPauseRecordingForStopRef = useRef(false);
 
   const progressState = getProgressState(progressPercent);
-  const hasStartedSession = elapsedSessionSeconds > 0;
+  const hasStartedSession = elapsedSessionSeconds > 0 || isSessionTimerRunning;
   const isSessionActive = hasStartedSession || isSessionTimerRunning || isSessionRecording;
   const sessionActionLabel = hasStartedSession ? "Resume Session" : "Start Session";
   const canRecordSession = typeof onToggleSessionRecording === "function";
@@ -306,6 +308,19 @@ export default function TodayPlan({
               ))}
             </div>
           </div>
+
+          {hasStartedSession ? (
+            <label className="session-notes-block" htmlFor="session-notes">
+              <span>Session Notes</span>
+              <textarea
+                id="session-notes"
+                value={sessionNotes}
+                onChange={(event) => onSessionNotesChange(event.target.value)}
+                placeholder="What went well? What needs work?"
+                rows={4}
+              />
+            </label>
+          ) : null}
 
           <button type="button" className="complete-session-button" onClick={onCompleteSession} disabled={!canCompleteSession}>
             Save Completed Session
