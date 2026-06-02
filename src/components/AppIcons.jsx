@@ -14,6 +14,8 @@ import {
   Menu,
   Mic,
   MicOff,
+  NotebookPen,
+  NotebookText,
   Pause,
   PencilOff,
   Play,
@@ -61,6 +63,8 @@ const ListMusicIcon = createIcon(ListMusic);
 const MenuIcon = createIcon(Menu);
 const MicIcon = createIcon(Mic);
 const MicOffIcon = createIcon(MicOff);
+const NotebookPenIcon = createIcon(NotebookPen);
+const NotebookTextIcon = createIcon(NotebookText);
 const PauseIcon = createIcon(Pause);
 const PencilOffIcon = createIcon(PencilOff);
 const PlayIcon = createIcon(Play, {
@@ -97,6 +101,8 @@ export {
   MenuIcon,
   MicIcon,
   MicOffIcon,
+  NotebookPenIcon,
+  NotebookTextIcon,
   PauseIcon,
   PencilOffIcon,
   PlayIcon,

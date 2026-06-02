@@ -517,6 +517,191 @@
   line-height: 1.45;
 }
 
+.history-session-notes-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 42px;
+  align-items: center;
+  gap: 10px;
+}
+
+.history-session-notes {
+  margin: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted);
+  padding: 10px 12px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.history-session-notes::before {
+  content: "Notes";
+  display: block;
+  margin-bottom: 4px;
+  color: var(--color-text-muted-strong);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.history-notes-icon-button,
+.history-cancel-notes-icon-button,
+.history-clear-notes-icon-button {
+  display: inline-grid;
+  width: 20px;
+  min-width: 20px;
+  height: 20px;
+  min-height: 20px;
+  place-items: center;
+  border-radius: 999px;
+  padding: 0;
+}
+
+.history-notes-icon-button svg,
+.history-cancel-notes-icon-button svg,
+.history-clear-notes-icon-button svg {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+}
+
+.history-add-notes-icon-button,
+.history-edit-notes-icon-button {
+  border: 1px solid var(--color-edit);
+  background: var(--color-edit-soft);
+  color: var(--color-edit);
+}
+
+.history-add-notes-icon-button:hover,
+.history-edit-notes-icon-button:hover {
+  border-color: var(--color-primary-hover);
+  background: var(--color-edit-soft-hover);
+  color: var(--color-primary-hover);
+}
+
+.history-edit-notes-icon-button {
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  min-height: 34px;
+}
+
+.history-edit-notes-icon-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.history-save-notes-icon-button {
+  border: 1px solid var(--color-primary);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.history-save-notes-icon-button:hover {
+  border-color: var(--color-primary-hover);
+  background: var(--color-primary-soft-hover);
+  color: var(--color-primary-hover);
+}
+
+:root[data-theme="light"] .history-save-notes-icon-button {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+}
+
+:root[data-theme="light"] .history-save-notes-icon-button:hover {
+  border-color: var(--color-primary-hover);
+  background: var(--color-primary-hover);
+  color: var(--color-primary-contrast);
+}
+
+.history-clear-notes-icon-button {
+  border: 1px solid var(--color-danger);
+  background: transparent;
+  color: var(--color-danger);
+}
+
+.history-clear-notes-icon-button:hover {
+  background: var(--color-danger-hover);
+}
+
+.history-save-notes-icon-button,
+.history-clear-notes-icon-button {
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  min-height: 36px;
+}
+
+.history-save-notes-icon-button svg,
+.history-clear-notes-icon-button svg {
+  width: 18px;
+  height: 18px;
+}
+
+.history-cancel-notes-icon-button {
+  border: 1px solid var(--color-danger);
+  background: transparent;
+  color: var(--color-danger);
+}
+
+.history-cancel-notes-icon-button:hover {
+  background: var(--color-danger-hover);
+}
+
+.history-session-notes-editor {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: var(--color-surface-soft);
+  padding: 12px;
+}
+
+.history-session-notes-editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.history-session-notes-editor-header span {
+  color: var(--color-text-muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.history-session-notes-editor textarea {
+  width: 100%;
+  min-height: 92px;
+  resize: vertical;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.history-session-notes-editor textarea:focus {
+  border-color: var(--color-primary);
+  outline: none;
+}
+
+.history-session-notes-editor-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 @media (max-width: 900px) {
   .history-summary-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -596,28 +781,6 @@
   }
 }
 
-.history-session-notes {
-  margin: 0;
-  border: 1px solid var(--color-border);
-  border-radius: 16px;
-  background: var(--color-surface-soft);
-  color: var(--color-text-muted);
-  padding: 10px 12px;
-  font-size: 13px;
-  line-height: 1.45;
-}
-
-.history-session-notes::before {
-  content: "Notes";
-  display: block;
-  margin-bottom: 4px;
-  color: var(--color-text-muted-strong);
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
 @media (max-width: 560px) {
   .history-summary-grid,
   .practice-summary-grid {
@@ -656,6 +819,20 @@
   .history-card-metrics span {
     justify-content: center;
     text-align: center;
+  }
+
+  .history-session-notes-row {
+    grid-template-columns: 1fr;
+  }
+
+  .history-notes-icon-button,
+  .history-cancel-notes-icon-button,
+  .history-clear-notes-icon-button {
+    width: 42px;
+  }
+
+  .history-session-notes-editor-actions {
+    justify-content: flex-start;
   }
 
   .history-recording-controls {

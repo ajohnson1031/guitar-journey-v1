@@ -59,27 +59,15 @@ export default function CurrentSongCard({ filteredSongs, masteredSongs, onDelete
 
             <div className="song-header-actions song-icon-actions">
               {selectedSong.isCustom ? (
-                <Fragment>
-                  <button
-                    type="button"
-                    className="icon-button ghost-button edit-icon-button"
-                    title="Edit Custom Song"
-                    aria-label="Edit Custom Song"
-                    onClick={() => onStartEditCustomSong(selectedSong.id)}
-                  >
-                    <EditIcon />
-                  </button>
-
-                  <button
-                    type="button"
-                    className="icon-button destructive-outline-button current-song-delete-button"
-                    title="Delete Custom Song"
-                    aria-label="Delete Custom Song"
-                    onClick={handleRequestDeleteCustomSong}
-                  >
-                    <TrashIcon />
-                  </button>
-                </Fragment>
+                <button
+                  type="button"
+                  className="icon-button ghost-button edit-icon-button"
+                  title="Edit Custom Song"
+                  aria-label="Edit Custom Song"
+                  onClick={() => onStartEditCustomSong(selectedSong.id)}
+                >
+                  <EditIcon />
+                </button>
               ) : null}
 
               <button
@@ -91,6 +79,18 @@ export default function CurrentSongCard({ filteredSongs, masteredSongs, onDelete
               >
                 <StarIcon className="star-icon" />
               </button>
+
+              {selectedSong.isCustom ? (
+                <button
+                  type="button"
+                  className="icon-button destructive-outline-button current-song-delete-button"
+                  title="Delete Custom Song"
+                  aria-label="Delete Custom Song"
+                  onClick={handleRequestDeleteCustomSong}
+                >
+                  <TrashIcon />
+                </button>
+              ) : null}
             </div>
           </div>
         </div>
