@@ -40,6 +40,7 @@ export default function TodayPlan({
   onResumeSessionRecording,
   onSessionMinutesChange,
   onSessionNotesChange = () => {},
+  onSessionPracticedSectionChange = () => {},
   onSessionRatingChange,
   onToggleSessionRecording,
   onToggleSessionTimer,
@@ -49,10 +50,12 @@ export default function TodayPlan({
   recordingDurationSeconds = 0,
   recordingInputLevel = 0,
   recordingMessage = "",
+  selectedSong,
   sessionHistory = [],
   sessionMessage,
   sessionMinutes,
   sessionNotes = "",
+  sessionPracticedSection = "",
   sessionRating,
 }) {
   const [expandedStepLabel, setExpandedStepLabel] = useState(() => plan[0]?.label || "");
@@ -66,6 +69,7 @@ export default function TodayPlan({
   const sessionActionLabel = hasStartedSession ? "Resume Session" : "Start Session";
   const canRecordSession = typeof onToggleSessionRecording === "function";
   const shouldShowRecordingStatus = Boolean(recordingMessage || isSessionRecording || hasPendingRecording);
+  const sectionOptions = Array.isArray(selectedSong?.sections) ? selectedSong.sections : [];
   const todaySummary = useMemo(() => getTodayPracticeSummary(sessionHistory), [sessionHistory]);
   const practiceStats = useMemo(() => getPracticeHistoryStats(sessionHistory), [sessionHistory]);
 
@@ -308,6 +312,28 @@ export default function TodayPlan({
               ))}
             </div>
           </div>
+
+          {hasStartedSession && sectionOptions.length ? (
+            <label className="session-practiced-section-block" htmlFor="session-practiced-section">
+              <span>Practice Focus</span>
+              <select
+                id="session-practiced-section"
+                value={sessionPracticedSection}
+                onChange={(event) => onSessionPracticedSectionChange(event.target.value)}
+              >
+                <option value="">Whole song / general practice</option>
+                {sectionOptions.map((section) => {
+                  const sectionName = String(section?.name || "").trim();
+
+                  return sectionName ? (
+                    <option key={sectionName} value={sectionName}>
+                      {sectionName}
+                    </option>
+                  ) : null;
+                })}
+              </select>
+            </label>
+          ) : null}
 
           {hasStartedSession ? (
             <label className="session-notes-block" htmlFor="session-notes">

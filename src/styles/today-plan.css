@@ -364,3 +364,44 @@
   border-color: var(--color-primary);
   outline: none;
 }
+
+/* 6B.1 — Practice Focus selector */
+.session-practiced-section-block {
+  position: relative;
+  display: grid;
+  gap: 8px;
+}
+
+.session-practiced-section-block span {
+  color: var(--color-text-muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.session-practiced-section-block select {
+  width: 100%;
+  min-height: 42px;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background-color: var(--color-surface-soft);
+  background-image: none;
+  color: var(--color-text);
+  padding: 10px 44px 10px 12px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.session-practiced-section-block select::-ms-expand {
+  display: none;
+}
+
+.session-practiced-section-block select:focus {
+  border-color: var(--color-primary);
+  outline: none;
+}

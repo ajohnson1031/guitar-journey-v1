@@ -66,6 +66,7 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
   const [sessionRating, setSessionRating] = useState("");
   const [sessionMessage, setSessionMessage] = useState("");
   const [sessionNotes, setSessionNotes] = useState("");
+  const [sessionPracticedSection, setSessionPracticedSection] = useState("");
 
   const {
     addCustomGenre,
@@ -182,6 +183,7 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
     setSessionMessage("");
     setSessionRating("");
     setSessionNotes("");
+    setSessionPracticedSection("");
     void discardRecording();
   }, [discardRecording, selectedSong.id, sessionMinutes]);
 
@@ -346,6 +348,7 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
     setSessionMessage("");
     setSessionRating("");
     setSessionNotes("");
+    setSessionPracticedSection("");
     await discardRecording();
     stopInputMonitoring();
     resetSessionTimer();
@@ -423,6 +426,7 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
 
     const sessionId = createSessionId();
     const trimmedSessionNotes = sessionNotes.trim();
+    const trimmedPracticedSection = sessionPracticedSection.trim();
     let recordingFields = {};
 
     try {
@@ -444,6 +448,7 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
       completedStepCount: completedCount,
       totalStepCount: plan.length,
       completedAt: new Date().toISOString(),
+      ...(trimmedPracticedSection ? { practicedSection: trimmedPracticedSection } : {}),
       ...(trimmedSessionNotes ? { notes: trimmedSessionNotes } : {}),
       ...recordingFields,
     };
@@ -456,6 +461,7 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
     setSessionMessage(`Session saved: ${selectedSong.title} • ${actualPracticeMinutes} min actual • ${sessionRating}`);
     setSessionRating("");
     setSessionNotes("");
+    setSessionPracticedSection("");
   }
 
   async function handleDeleteSessionRecording(session) {
@@ -485,6 +491,7 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
     setSessionRating("");
     setSessionMessage("");
     setSessionNotes("");
+    setSessionPracticedSection("");
     setIsSessionTimerRunning(false);
     setElapsedSessionSeconds(0);
     await discardRecording();
@@ -531,6 +538,7 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
       onSelectSong: handleSelectSong,
       onSessionMinutesChange: setSessionMinutes,
       onSessionNotesChange: setSessionNotes,
+      onSessionPracticedSectionChange: setSessionPracticedSection,
       onSessionRatingChange: handleSessionRatingChange,
       onStartEditCustomSong: handleStartEditCustomSong,
       onToggleMastered: handleToggleMasteredSong,
@@ -547,6 +555,7 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
       sessionMessage,
       sessionMinutes,
       sessionNotes,
+      sessionPracticedSection,
       sessionRating,
     },
     editSongRouteProps: {
