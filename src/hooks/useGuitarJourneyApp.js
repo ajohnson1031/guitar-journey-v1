@@ -142,6 +142,7 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
     toggleStep: togglePracticeStep,
     totalPracticeMinutes,
     transitionScores,
+    updateSessionNotes: updatePracticeSessionNotes,
     updateTransitionScore: updatePracticeTransitionScore,
   } = usePracticeProgress({
     initialProgress: storedProgress,
@@ -469,6 +470,10 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
     return true;
   }
 
+  function handleUpdateSessionNotes(sessionId, notes) {
+    updatePracticeSessionNotes(sessionId, notes);
+  }
+
   async function resetLocalProgress() {
     clearStoredProgress();
 
@@ -555,6 +560,7 @@ export default function useGuitarJourneyApp({ audioInputSettings } = {}) {
       historySongFilter,
       onClearHistorySongFilter: clearHistorySongFilter,
       onDeleteSessionRecording: handleDeleteSessionRecording,
+      onUpdateSessionNotes: handleUpdateSessionNotes,
       sessions: sessionHistory,
     },
     newSongRouteProps: {

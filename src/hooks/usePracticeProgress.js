@@ -84,6 +84,29 @@ export default function usePracticeProgress({ initialProgress, selectedSong, pla
     );
   }
 
+  function updateSessionNotes(sessionId, notes) {
+    const trimmedNotes = String(notes || "").trim();
+
+    setSessionHistory((current) =>
+      current.map((session) => {
+        if (session.id !== sessionId) return session;
+
+        if (!trimmedNotes) {
+          const nextSession = { ...session };
+
+          delete nextSession.notes;
+
+          return nextSession;
+        }
+
+        return {
+          ...session,
+          notes: trimmedNotes,
+        };
+      }),
+    );
+  }
+
   function removeSongProgress(songId) {
     setCompletedStepsBySong((current) => {
       const next = { ...current };
@@ -134,6 +157,7 @@ export default function usePracticeProgress({ initialProgress, selectedSong, pla
     toggleStep,
     totalPracticeMinutes,
     transitionScores,
+    updateSessionNotes,
     updateTransitionScore,
   };
 }

@@ -55,6 +55,7 @@ function renderSessionHistory(props = {}) {
     historySongFilter: null,
     onClearHistorySongFilter: vi.fn(),
     onDeleteSessionRecording: vi.fn(),
+    onUpdateSessionNotes: vi.fn(),
     sessions: [],
     ...props,
   };
@@ -156,6 +157,33 @@ describe("SessionHistory", () => {
     expect(screen.queryByText("Blues Song")).toBeNull();
   });
 
+  it("searches and renders session notes", () => {
+    renderSessionHistory({
+      sessions: [
+        createSession({
+          id: "notes-match",
+          songTitle: "Notes Match Song",
+          notes: "Focused on barre chord cleanup.",
+        }),
+        createSession({
+          id: "notes-miss",
+          songTitle: "Notes Miss Song",
+          notes: "Worked on relaxed strumming.",
+        }),
+      ],
+    });
+
+    fireEvent.change(screen.getByLabelText("Search sessions"), {
+      target: {
+        value: "barre",
+      },
+    });
+
+    expect(screen.getByText("Notes Match Song")).toBeTruthy();
+    expect(screen.getByText("Focused on barre chord cleanup.")).toBeTruthy();
+    expect(screen.queryByText("Notes Miss Song")).toBeNull();
+  });
+
   it("filters sessions by selected history song before applying search", () => {
     const onClearHistorySongFilter = vi.fn();
 
@@ -196,6 +224,70 @@ describe("SessionHistory", () => {
     fireEvent.click(screen.getByRole("button", { name: "Clear Filter" }));
 
     expect(onClearHistorySongFilter).toHaveBeenCalledTimes(1);
+  });
+
+  it("edits, cancels, and clears session notes", () => {
+    const onUpdateSessionNotes = vi.fn();
+
+    renderSessionHistory({
+      onUpdateSessionNotes,
+      sessions: [
+        createSession({
+          id: "notes-session",
+          songTitle: "Notes Song",
+          notes: "Original notes.",
+        }),
+      ],
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Edit notes for Notes Song" }));
+    fireEvent.change(screen.getByLabelText("Edit notes for Notes Song"), {
+      target: {
+        value: "Updated notes.",
+      },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Cancel editing notes" }));
+
+    expect(onUpdateSessionNotes).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Edit notes for Notes Song" }));
+    fireEvent.change(screen.getByLabelText("Edit notes for Notes Song"), {
+      target: {
+        value: "Updated notes.",
+      },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save notes" }));
+
+    expect(onUpdateSessionNotes).toHaveBeenCalledWith("notes-session", "Updated notes.");
+
+    fireEvent.click(screen.getByRole("button", { name: "Edit notes for Notes Song" }));
+    fireEvent.click(screen.getByRole("button", { name: "Clear notes" }));
+
+    expect(onUpdateSessionNotes).toHaveBeenCalledWith("notes-session", "");
+  });
+
+  it("adds notes to a session without existing notes", () => {
+    const onUpdateSessionNotes = vi.fn();
+
+    renderSessionHistory({
+      onUpdateSessionNotes,
+      sessions: [
+        createSession({
+          id: "empty-notes-session",
+          songTitle: "Empty Notes Song",
+        }),
+      ],
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Add notes for Empty Notes Song" }));
+    fireEvent.change(screen.getByLabelText("Edit notes for Empty Notes Song"), {
+      target: {
+        value: "New practice reflection.",
+      },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save notes" }));
+
+    expect(onUpdateSessionNotes).toHaveBeenCalledWith("empty-notes-session", "New practice reflection.");
   });
 
   it("sorts sessions oldest first when selected", () => {

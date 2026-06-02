@@ -3,7 +3,7 @@ import { useRecordingPlayback } from "../hooks";
 import { formatPracticeDate, formatSessionActualDuration, getPracticeDayGroups, getPracticeHistoryStats } from "../utils/practiceStatsUtils";
 import { downloadRecordingForSession } from "../utils/recordingExportUtils";
 import { formatRecordingDuration, getAllRecordings } from "../utils/recordingStorageUtils";
-import { DownloadIcon, PauseIcon, PlayIcon, ReplayIcon, StopIcon, TrashIcon } from "./AppIcons";
+import { DownloadIcon, NotebookPenIcon, NotebookTextIcon, PauseIcon, PlayIcon, ReplayIcon, SaveIcon, StopIcon, TrashIcon, XIcon } from "./AppIcons";
 import ConfirmDialog from "./ConfirmDialog";
 
 const { Fragment, useEffect, useMemo, useState } = React;
@@ -132,8 +132,10 @@ function getHistorySongFilterLabel(historySongFilter) {
   return String(historySongFilter?.songTitle || "").trim() || "selected song";
 }
 
-export default function SessionHistory({ historySongFilter = null, onClearHistorySongFilter, onDeleteSessionRecording, sessions }) {
+export default function SessionHistory({ historySongFilter = null, onClearHistorySongFilter, onDeleteSessionRecording, onUpdateSessionNotes, sessions }) {
   const [availableRecordingIds, setAvailableRecordingIds] = useState(() => new Set());
+  const [editingSessionId, setEditingSessionId] = useState("");
+  const [editingSessionNotes, setEditingSessionNotes] = useState("");
   const [historyActionMessage, setHistoryActionMessage] = useState("");
   const [historyActionTone, setHistoryActionTone] = useState("success");
   const [pendingDeleteSession, setPendingDeleteSession] = useState(null);
@@ -216,6 +218,41 @@ export default function SessionHistory({ historySongFilter = null, onClearHistor
     if (onClearHistorySongFilter) {
       onClearHistorySongFilter();
     }
+  }
+
+  function handleStartEditSessionNotes(session) {
+    setHistoryActionMessage("");
+    setEditingSessionId(session.id);
+    setEditingSessionNotes(session.notes || "");
+  }
+
+  function handleCancelEditSessionNotes() {
+    setEditingSessionId("");
+    setEditingSessionNotes("");
+  }
+
+  function handleSessionNotesDraftChange(event) {
+    setEditingSessionNotes(event.target.value);
+  }
+
+  function handleSaveSessionNotes() {
+    if (!editingSessionId || !onUpdateSessionNotes) return;
+
+    const trimmedNotes = editingSessionNotes.trim();
+
+    onUpdateSessionNotes(editingSessionId, trimmedNotes);
+    setEditingSessionId("");
+    setEditingSessionNotes("");
+    showHistoryActionMessage(trimmedNotes ? "Session notes updated." : "Session notes cleared.");
+  }
+
+  function handleClearSessionNotes() {
+    if (!editingSessionId || !onUpdateSessionNotes) return;
+
+    onUpdateSessionNotes(editingSessionId, "");
+    setEditingSessionId("");
+    setEditingSessionNotes("");
+    showHistoryActionMessage("Session notes cleared.");
   }
 
   function handleRequestDeleteRecording(session) {
@@ -369,6 +406,9 @@ export default function SessionHistory({ historySongFilter = null, onClearHistor
                     const isReplayThisRecording = isActiveRecording && playbackState === "finished";
                     const canStopThisRecording = canStopRecordingPlayback({ isActiveRecording, playbackState });
                     const hasPlaybackMessage = playbackMessageRecordingId === session.recordingId && playbackMessage;
+                    const hasSessionNotes = Boolean(String(session.notes || "").trim());
+                    const isEditingNotes = editingSessionId === session.id;
+                    const canAddNotesInline = !isEditingNotes && !hasSessionNotes;
                     const recordingActionLabel = getRecordingActionLabel({
                       isLoading: isLoadingThisRecording,
                       isPaused: isPausedThisRecording,
@@ -404,6 +444,18 @@ export default function SessionHistory({ historySongFilter = null, onClearHistor
                             {hasStoredRecording ? <span>Recording {formatRecordingDuration(session.recordingDurationSeconds)}</span> : null}
                             {hasMissingRecording ? <span className="history-recording-missing-pill">Recording removed</span> : null}
                           </div>
+
+                          {canAddNotesInline ? (
+                            <button
+                              type="button"
+                              className="history-notes-icon-button history-add-notes-icon-button"
+                              title={`Add notes for ${session.songTitle}`}
+                              aria-label={`Add notes for ${session.songTitle}`}
+                              onClick={() => handleStartEditSessionNotes(session)}
+                            >
+                              <NotebookTextIcon />
+                            </button>
+                          ) : null}
 
                           {hasStoredRecording ? (
                             <div className="history-recording-actions">
@@ -455,7 +507,63 @@ export default function SessionHistory({ historySongFilter = null, onClearHistor
                           ) : null}
                         </div>
 
-                        {session.notes ? <p className="history-session-notes">{session.notes}</p> : null}
+                        {isEditingNotes ? (
+                          <div className="history-session-notes-editor">
+                            <div className="history-session-notes-editor-header">
+                              <span>Session Notes</span>
+
+                              <button
+                                type="button"
+                                className="history-cancel-notes-icon-button"
+                                title="Cancel editing notes"
+                                aria-label="Cancel editing notes"
+                                onClick={handleCancelEditSessionNotes}
+                              >
+                                <XIcon />
+                              </button>
+                            </div>
+
+                            <textarea
+                              value={editingSessionNotes}
+                              onChange={handleSessionNotesDraftChange}
+                              aria-label={`Edit notes for ${session.songTitle}`}
+                              placeholder="What went well? What needs work?"
+                              rows={4}
+                            />
+
+                            <div className="history-session-notes-editor-actions">
+                              <button
+                                type="button"
+                                className="history-notes-icon-button history-save-notes-icon-button"
+                                title="Save notes"
+                                aria-label="Save notes"
+                                onClick={handleSaveSessionNotes}
+                              >
+                                <SaveIcon />
+                              </button>
+
+                              {hasSessionNotes ? (
+                                <button type="button" className="history-clear-notes-icon-button" title="Clear notes" aria-label="Clear notes" onClick={handleClearSessionNotes}>
+                                  <TrashIcon />
+                                </button>
+                              ) : null}
+                            </div>
+                          </div>
+                        ) : hasSessionNotes ? (
+                          <div className="history-session-notes-row">
+                            <p className="history-session-notes">{session.notes}</p>
+
+                            <button
+                              type="button"
+                              className="history-notes-icon-button history-edit-notes-icon-button"
+                              title={`Edit notes for ${session.songTitle}`}
+                              aria-label={`Edit notes for ${session.songTitle}`}
+                              onClick={() => handleStartEditSessionNotes(session)}
+                            >
+                              <NotebookPenIcon />
+                            </button>
+                          </div>
+                        ) : null}
                       </article>
                     );
                   })}

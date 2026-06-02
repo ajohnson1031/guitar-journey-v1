@@ -260,6 +260,10 @@ export default function GenreManager({ builtInGenres, customGenres, songs, selec
                   <PencilOffIcon />
                 </button>
 
+                <button type="submit" className="selected-button genre-form-action-button" title="Save genre" aria-label={`Save ${editingGenre.name}`}>
+                  <SaveIcon />
+                </button>
+
                 <button
                   type="button"
                   className="danger-button genre-form-action-button genre-delete-button"
@@ -268,10 +272,6 @@ export default function GenreManager({ builtInGenres, customGenres, songs, selec
                   onClick={handleRequestRemoveEditingGenre}
                 >
                   <TrashIcon />
-                </button>
-
-                <button type="submit" className="selected-button genre-form-action-button" title="Save genre" aria-label={`Save ${editingGenre.name}`}>
-                  <SaveIcon />
                 </button>
               </div>
             ) : (
