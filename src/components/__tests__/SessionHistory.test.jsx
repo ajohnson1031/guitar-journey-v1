@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import * as React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import SessionHistory from "../SessionHistory";
@@ -198,10 +198,12 @@ describe("SessionHistory", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "View details for Detail Song" }));
 
-    expect(screen.getByRole("dialog", { name: "Detail Song" })).toBeTruthy();
-    expect(screen.getByText("Session Details")).toBeTruthy();
-    expect(screen.getByText("Detail notes.")).toBeTruthy();
-    expect(screen.getByText("No recording saved for this session.")).toBeTruthy();
+    const dialog = screen.getByRole("dialog", { name: "Detail Song" });
+
+    expect(dialog).toBeTruthy();
+    expect(within(dialog).getByText("Session Details")).toBeTruthy();
+    expect(within(dialog).getByText("Detail notes.")).toBeTruthy();
+    expect(within(dialog).getByText("No recording saved for this session.")).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: "Close session details" }));
 
