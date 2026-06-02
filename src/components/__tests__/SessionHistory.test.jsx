@@ -184,6 +184,66 @@ describe("SessionHistory", () => {
     expect(screen.queryByText("Notes Miss Song")).toBeNull();
   });
 
+  it("opens and closes session details", () => {
+    renderSessionHistory({
+      sessions: [
+        createSession({
+          id: "detail-session",
+          songTitle: "Detail Song",
+          notes: "Detail notes.",
+          completedAt: "2026-05-30T12:00:00",
+        }),
+      ],
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "View details for Detail Song" }));
+
+    expect(screen.getByRole("dialog", { name: "Detail Song" })).toBeTruthy();
+    expect(screen.getByText("Session Details")).toBeTruthy();
+    expect(screen.getByText("Detail notes.")).toBeTruthy();
+    expect(screen.getByText("No recording saved for this session.")).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Close session details" }));
+
+    expect(screen.queryByRole("dialog", { name: "Detail Song" })).toBeNull();
+  });
+
+  it("shows removed recording timestamp in session details", () => {
+    renderSessionHistory({
+      sessions: [
+        createSession({
+          id: "removed-detail-session",
+          songTitle: "Removed Recording Detail Song",
+          recordingRemovedAt: "2026-05-31T16:27:15.000Z",
+        }),
+      ],
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "View details for Removed Recording Detail Song" }));
+
+    expect(screen.getByRole("dialog", { name: "Removed Recording Detail Song" })).toBeTruthy();
+    expect(screen.getByText(/Removed at: May 31, 2026 -/)).toBeTruthy();
+  });
+
+  it("shows an unknown removal date for missing local recordings without a removal marker", () => {
+    renderSessionHistory({
+      sessions: [
+        createSession({
+          id: "missing-detail-session",
+          songTitle: "Missing Recording Detail Song",
+          recordingDurationSeconds: 62,
+          recordingId: "recording-missing-detail",
+          recordingMimeType: "audio/webm",
+        }),
+      ],
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "View details for Missing Recording Detail Song" }));
+
+    expect(screen.getByRole("dialog", { name: "Missing Recording Detail Song" })).toBeTruthy();
+    expect(screen.getByText("Removed at: Unknown removal date")).toBeTruthy();
+  });
+
   it("filters sessions by selected history song before applying search", () => {
     const onClearHistorySongFilter = vi.fn();
 
