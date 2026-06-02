@@ -29,6 +29,7 @@ export default function DashboardRoute() {
     onSessionNotesChange,
     onSessionPracticedSectionChange,
     onSessionRatingChange,
+    onSessionTagsChange,
     onStartEditCustomSong,
     onToggleMastered,
     onToggleSessionRecording,
@@ -42,10 +43,12 @@ export default function DashboardRoute() {
     selectedSong,
     sessionHistory,
     sessionMessage,
+    sessionMessageIntent,
     sessionMinutes,
     sessionNotes,
     sessionPracticedSection,
     sessionRating,
+    sessionTags,
   } = dashboardRouteProps;
 
   return (
@@ -83,6 +86,7 @@ export default function DashboardRoute() {
             onSessionNotesChange={onSessionNotesChange}
             onSessionPracticedSectionChange={onSessionPracticedSectionChange}
             onSessionRatingChange={onSessionRatingChange}
+            onSessionTagsChange={onSessionTagsChange}
             onToggleSessionRecording={onToggleSessionRecording}
             onToggleSessionTimer={onToggleSessionTimer}
             onToggleStep={onToggleStep}
@@ -94,10 +98,12 @@ export default function DashboardRoute() {
             selectedSong={selectedSong}
             sessionHistory={sessionHistory}
             sessionMessage={sessionMessage}
+            sessionMessageIntent={sessionMessageIntent}
             sessionMinutes={sessionMinutes}
             sessionNotes={sessionNotes}
             sessionPracticedSection={sessionPracticedSection}
             sessionRating={sessionRating}
+            sessionTags={sessionTags}
           />
 
           <LocalProgressCard {...localProgressProps} />

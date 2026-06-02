@@ -28,6 +28,24 @@ const PRACTICE_HISTORY_SORT_OPTIONS = [
   },
 ];
 
+const SESSION_TAG_DISPLAY_ORDER = ["Timing", "Chord changes", "Strumming", "Rhythm", "Clean tone", "Memorization", "Barre chords", "Lead / melody"];
+
+function getOrderedSessionTags(tags = []) {
+  if (!Array.isArray(tags)) return [];
+
+  const tagOrder = new Map(SESSION_TAG_DISPLAY_ORDER.map((tag, index) => [tag, index]));
+  const uniqueTags = [...new Set(tags.map((tag) => String(tag || "").trim()).filter(Boolean))];
+
+  return uniqueTags.sort((leftTag, rightTag) => {
+    const leftIndex = tagOrder.has(leftTag) ? tagOrder.get(leftTag) : Number.POSITIVE_INFINITY;
+    const rightIndex = tagOrder.has(rightTag) ? tagOrder.get(rightTag) : Number.POSITIVE_INFINITY;
+
+    if (leftIndex !== rightIndex) return leftIndex - rightIndex;
+
+    return leftTag.localeCompare(rightTag);
+  });
+}
+
 function formatPracticeTime(value) {
   const date = new Date(value);
 
@@ -110,7 +128,17 @@ function filterPracticeSessions(sessions = [], searchTerm = "") {
   if (!normalizedSearchTerm) return sessions;
 
   return sessions.filter((session) => {
-    const searchableText = [session?.songTitle, session?.genre, session?.rating, session?.practicedSection, session?.notes].filter(Boolean).join(" ").toLowerCase();
+    const searchableText = [
+      session?.songTitle,
+      session?.genre,
+      session?.rating,
+      session?.practicedSection,
+      ...(Array.isArray(session?.tags) ? session.tags : []),
+      session?.notes,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
 
     return searchableText.includes(normalizedSearchTerm);
   });
@@ -439,6 +467,7 @@ export default function SessionHistory({ historySongFilter = null, onClearHistor
                     const canStopThisRecording = canStopRecordingPlayback({ isActiveRecording, playbackState });
                     const hasPlaybackMessage = playbackMessageRecordingId === session.recordingId && playbackMessage;
                     const hasSessionNotes = Boolean(String(session.notes || "").trim());
+                    const sessionTags = getOrderedSessionTags(session.tags);
                     const isEditingNotes = editingSessionId === session.id;
                     const canAddNotesInline = !isEditingNotes && !hasSessionNotes;
                     const recordingActionLabel = getRecordingActionLabel({
@@ -472,6 +501,10 @@ export default function SessionHistory({ historySongFilter = null, onClearHistor
                             </span>
 
                             {session.practicedSection ? <span>Focus: {session.practicedSection}</span> : null}
+
+                            {sessionTags.map((tag) => (
+                              <span key={tag}>#{tag}</span>
+                            ))}
 
                             <span>{session.rating}</span>
 
@@ -710,6 +743,7 @@ function SessionDetailDialog({
   });
   const formattedDate = formatPracticeDate(new Date(session.completedAt));
   const formattedTime = formatPracticeTime(session.completedAt);
+  const sessionTags = getOrderedSessionTags(session.tags);
 
   return createPortal(
     <div className="history-session-detail-backdrop" role="presentation" onClick={onClose}>
@@ -733,7 +767,32 @@ function SessionDetailDialog({
           <SessionDetailFact label="Planned" value={session.plannedMinutes ? `${session.plannedMinutes} min` : "—"} />
           <SessionDetailFact label="Rating" value={session.rating || "—"} />
           <SessionDetailFact label="Steps" value={`${session.completedStepCount}/${session.totalStepCount}`} />
-          <SessionDetailFact label="Focus" value={session.practicedSection || "Whole song"} />
+        </div>
+
+        <div className="history-session-detail-insight-grid">
+          <div className="history-session-detail-section history-session-detail-focus-section">
+            <div className="history-session-detail-section-header">
+              <strong>Focus</strong>
+            </div>
+
+            <p className="history-session-detail-focus-value">{session.practicedSection || "Whole song"}</p>
+          </div>
+
+          <div className="history-session-detail-section history-session-detail-tags-section">
+            <div className="history-session-detail-section-header">
+              <strong>Tags</strong>
+            </div>
+
+            {sessionTags.length ? (
+              <div className="history-session-detail-tags">
+                {sessionTags.map((tag) => (
+                  <span key={tag}>#{tag}</span>
+                ))}
+              </div>
+            ) : (
+              <p className="history-session-detail-empty">No tags saved for this session.</p>
+            )}
+          </div>
         </div>
 
         <div className="history-session-detail-section">

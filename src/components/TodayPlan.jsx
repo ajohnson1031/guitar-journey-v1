@@ -10,6 +10,21 @@ const { Fragment, useEffect, useMemo, useRef, useState } = React;
 
 const SESSION_RECORDING_LEVEL_BAR_COUNT = 6;
 
+const SESSION_TAG_OPTIONS = ["Timing", "Chord changes", "Strumming", "Rhythm", "Clean tone", "Memorization", "Barre chords", "Lead / melody"];
+
+function getSessionMessageIntent(message, intent) {
+  const normalizedMessage = String(message || "");
+
+  if (normalizedMessage === "Rate this session before saving") return "error";
+  if (normalizedMessage.startsWith("Session saved:")) return "success";
+
+  const allowedIntents = ["error", "success", "info"];
+
+  if (allowedIntents.includes(intent)) return intent;
+
+  return "info";
+}
+
 function formatElapsedTime(totalSeconds) {
   const safeSeconds = Math.max(0, Number(totalSeconds) || 0);
   const minutes = Math.floor(safeSeconds / 60);
@@ -42,6 +57,7 @@ export default function TodayPlan({
   onSessionNotesChange = () => {},
   onSessionPracticedSectionChange = () => {},
   onSessionRatingChange,
+  onSessionTagsChange = () => {},
   onToggleSessionRecording,
   onToggleSessionTimer,
   onToggleStep,
@@ -53,10 +69,12 @@ export default function TodayPlan({
   selectedSong,
   sessionHistory = [],
   sessionMessage,
+  sessionMessageIntent = "info",
   sessionMinutes,
   sessionNotes = "",
   sessionPracticedSection = "",
   sessionRating,
+  sessionTags = [],
 }) {
   const [expandedStepLabel, setExpandedStepLabel] = useState(() => plan[0]?.label || "");
   const [isStopDialogOpen, setIsStopDialogOpen] = useState(false);
@@ -71,6 +89,8 @@ export default function TodayPlan({
   const shouldShowRecordingStatus = Boolean(recordingMessage || isSessionRecording || hasPendingRecording);
   const sectionOptions = Array.isArray(selectedSong?.sections) ? selectedSong.sections : [];
   const todaySummary = useMemo(() => getTodayPracticeSummary(sessionHistory), [sessionHistory]);
+  const normalizedSessionMessageIntent = getSessionMessageIntent(sessionMessage, sessionMessageIntent);
+  const isSessionMessageError = normalizedSessionMessageIntent === "error";
   const practiceStats = useMemo(() => getPracticeHistoryStats(sessionHistory), [sessionHistory]);
 
   useEffect(() => {
@@ -158,6 +178,18 @@ export default function TodayPlan({
     onToggleStep(stepLabel);
   }
 
+  function handleToggleSessionTag(tag) {
+    const normalizedTag = String(tag || "").trim();
+
+    if (!normalizedTag) return;
+
+    const currentTags = Array.isArray(sessionTags) ? sessionTags : [];
+    const hasTag = currentTags.includes(normalizedTag);
+    const nextTags = hasTag ? currentTags.filter((currentTag) => currentTag !== normalizedTag) : [...currentTags, normalizedTag];
+
+    onSessionTagsChange(nextTags);
+  }
+
   return (
     <Fragment>
       <section className="session-card">
@@ -232,7 +264,7 @@ export default function TodayPlan({
         <div className="complete-session-card">
           <div>
             <h3>Practice Session</h3>
-            <p>Start your timer, pause or resume as needed, and stop to reset. After practicing, rate the session before saving it to your history.</p>
+            <p>Start your timer, pause or resume as needed, and stop to reset. Add optional focus, tags, or notes, then rate the session before saving it to your history.</p>
           </div>
 
           <div className="session-timer-display">
@@ -321,7 +353,7 @@ export default function TodayPlan({
                 value={sessionPracticedSection}
                 onChange={(event) => onSessionPracticedSectionChange(event.target.value)}
               >
-                <option value="">Whole song / general practice</option>
+                <option value="">Whole song</option>
                 {sectionOptions.map((section) => {
                   const sectionName = String(section?.name || "").trim();
 
@@ -333,6 +365,30 @@ export default function TodayPlan({
                 })}
               </select>
             </label>
+          ) : null}
+
+          {hasStartedSession ? (
+            <div className="session-tags-block">
+              <span>Session Tags</span>
+
+              <div className="session-tags-row" aria-label="Session tags">
+                {SESSION_TAG_OPTIONS.map((tag) => {
+                  const isSelected = Array.isArray(sessionTags) && sessionTags.includes(tag);
+
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      className={`session-tag-button ${isSelected ? "is-selected" : ""}`}
+                      aria-pressed={isSelected}
+                      onClick={() => handleToggleSessionTag(tag)}
+                    >
+                      {tag}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           ) : null}
 
           {hasStartedSession ? (
@@ -352,7 +408,14 @@ export default function TodayPlan({
             Save Completed Session
           </button>
 
-          {sessionMessage ? <p className="session-message">{sessionMessage}</p> : null}
+          {sessionMessage ? (
+            <p
+              className={`session-message session-message--${normalizedSessionMessageIntent} ${isSessionMessageError ? "is-error" : ""}`}
+              data-intent={normalizedSessionMessageIntent}
+            >
+              {sessionMessage}
+            </p>
+          ) : null}
         </div>
       </section>
 

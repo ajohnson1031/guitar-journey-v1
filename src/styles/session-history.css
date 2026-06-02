@@ -353,15 +353,11 @@
 
 .history-card-metrics {
   display: flex;
-  align-items: center;
   flex-wrap: wrap;
   gap: 8px;
 }
 
 .history-card-metrics span {
-  display: inline-flex;
-  min-height: 34px;
-  align-items: center;
   border: 1px solid var(--color-border);
   border-radius: 999px;
   background: var(--color-surface-soft);
@@ -369,7 +365,6 @@
   padding: 6px 10px;
   font-size: 12px;
   font-weight: 800;
-  line-height: 1;
 }
 
 .history-card-metrics .history-recording-missing-pill {
@@ -379,6 +374,7 @@
 }
 
 .history-card-metrics .history-notes-icon-button,
+.history-card-metrics .history-add-notes-icon-button,
 .history-card-metrics .history-session-detail-icon-button {
   align-self: center;
 }
@@ -603,6 +599,10 @@
 }
 
 .history-edit-notes-icon-button {
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  min-height: 34px;
   border: 1px solid var(--color-edit);
   background: var(--color-edit-soft);
   color: var(--color-edit);
@@ -615,23 +615,19 @@
 }
 
 .history-add-notes-icon-button {
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  min-height: 34px;
   border: 1px solid var(--color-success);
   background: var(--color-success-soft);
   color: var(--color-success);
 }
 
 .history-add-notes-icon-button:hover {
-  border-color: var(--color-success-hover);
-  background: var(--color-success-soft-hover);
-  color: var(--color-success-hover);
-}
-
-.history-add-notes-icon-button,
-.history-edit-notes-icon-button {
-  width: 34px;
-  min-width: 34px;
-  height: 34px;
-  min-height: 34px;
+  border-color: var(--color-success-outline, var(--color-success));
+  background: var(--color-success-soft);
+  color: var(--color-success-outline, var(--color-success));
 }
 
 .history-add-notes-icon-button svg,
@@ -639,6 +635,7 @@
   width: 16px;
   height: 16px;
 }
+
 .history-save-notes-icon-button {
   border: 1px solid var(--color-primary);
   background: var(--color-primary-soft);
@@ -748,6 +745,7 @@
   flex-wrap: wrap;
 }
 
+
 .history-session-detail-backdrop {
   position: fixed;
   inset: 0;
@@ -757,6 +755,7 @@
   background: var(--overlay-dialog-backdrop);
   padding: 24px;
 }
+
 
 .history-session-detail-dialog {
   display: grid;
@@ -899,71 +898,6 @@
 
 .history-session-detail-recording-pill {
   justify-self: start;
-}
-
-.history-session-detail-recording-removed {
-  display: grid;
-  justify-items: start;
-  gap: 8px;
-}
-
-.history-session-detail-recording-removed p {
-  margin: 0;
-  color: var(--color-text-muted);
-  font-size: 14px;
-  line-height: 1.45;
-}
-
-.history-session-detail-recording-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.history-session-detail-recording-duration {
-  display: inline-flex;
-  min-height: 36px;
-  align-items: center;
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  background: var(--color-surface-soft);
-  color: var(--color-text-muted-strong);
-  padding: 7px 11px;
-  font-size: 12px;
-  font-weight: 800;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.history-session-detail-recording-removed-line {
-  margin: 0;
-  color: var(--color-text-muted);
-  font-size: 14px;
-  line-height: 1.45;
-  font-weight: 600;
-  color: var(--color-danger-text);
-}
-
-.history-session-detail-recording-playback-message {
-  margin: 0;
-  color: var(--color-text-muted);
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 1.35;
-  text-align: left;
-}
-
-@media (max-width: 560px) {
-  .history-session-detail-recording-row {
-    display: grid;
-    grid-template-columns: 1fr;
-    align-items: start;
-  }
-
-  .history-session-detail-recording-duration {
-    justify-self: start;
-  }
 }
 
 @media (max-width: 900px) {
@@ -1140,5 +1074,109 @@
   .history-recording-button {
     grid-column: 1 / -1;
     width: 100%;
+  }
+}
+
+/* 6A.4f — Session detail recording layout */
+.history-session-detail-recording-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.history-session-detail-recording-duration {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted-strong);
+  padding: 7px 11px;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.history-session-detail-recording-removed-line {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+
+@media (max-width: 560px) {
+  .history-session-detail-recording-row,
+  .history-session-detail-focus-tags {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .history-session-detail-recording-duration,
+  .history-session-detail-focus {
+    justify-self: start;
+  }
+}
+
+/* 6B.2e — Session detail Focus and Tags cards */
+.history-session-detail-insight-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.history-session-detail-focus-section {
+  grid-column: span 1;
+}
+
+.history-session-detail-tags-section {
+  grid-column: span 3;
+}
+
+.history-session-detail-focus-value {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.history-session-detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.history-session-detail-tags span {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted-strong);
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.history-card-metrics span {
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .history-session-detail-insight-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .history-session-detail-focus-section,
+  .history-session-detail-tags-section {
+    grid-column: auto;
   }
 }
