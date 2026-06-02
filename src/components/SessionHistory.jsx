@@ -110,7 +110,7 @@ function filterPracticeSessions(sessions = [], searchTerm = "") {
   if (!normalizedSearchTerm) return sessions;
 
   return sessions.filter((session) => {
-    const searchableText = [session?.songTitle, session?.genre, session?.rating, session?.notes].filter(Boolean).join(" ").toLowerCase();
+    const searchableText = [session?.songTitle, session?.genre, session?.rating, session?.practicedSection, session?.notes].filter(Boolean).join(" ").toLowerCase();
 
     return searchableText.includes(normalizedSearchTerm);
   });
@@ -471,6 +471,8 @@ export default function SessionHistory({ historySongFilter = null, onClearHistor
                               {session.completedStepCount}/{session.totalStepCount} steps
                             </span>
 
+                            {session.practicedSection ? <span>Focus: {session.practicedSection}</span> : null}
+
                             <span>{session.rating}</span>
 
                             {hasStoredRecording ? <span>Recording {formatRecordingDuration(session.recordingDurationSeconds)}</span> : null}
@@ -584,7 +586,13 @@ export default function SessionHistory({ historySongFilter = null, onClearHistor
                               </button>
 
                               {hasSessionNotes ? (
-                                <button type="button" className="history-clear-notes-icon-button" title="Clear notes" aria-label="Clear notes" onClick={handleClearSessionNotes}>
+                                <button
+                                  type="button"
+                                  className="history-clear-notes-icon-button"
+                                  title="Clear notes"
+                                  aria-label="Clear notes"
+                                  onClick={handleClearSessionNotes}
+                                >
                                   <TrashIcon />
                                 </button>
                               ) : null}
@@ -661,6 +669,7 @@ export default function SessionHistory({ historySongFilter = null, onClearHistor
   );
 }
 
+
 function SessionDetailDialog({
   activeRecordingId,
   availableRecordingIds,
@@ -704,13 +713,7 @@ function SessionDetailDialog({
 
   return createPortal(
     <div className="history-session-detail-backdrop" role="presentation" onClick={onClose}>
-      <section
-        className="history-session-detail-dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="history-session-detail-title"
-        onClick={(event) => event.stopPropagation()}
-      >
+      <section className="history-session-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="history-session-detail-title" onClick={(event) => event.stopPropagation()}>
         <header className="history-session-detail-header">
           <div>
             <p className="eyebrow">Session Details</p>
@@ -730,6 +733,7 @@ function SessionDetailDialog({
           <SessionDetailFact label="Planned" value={session.plannedMinutes ? `${session.plannedMinutes} min` : "—"} />
           <SessionDetailFact label="Rating" value={session.rating || "—"} />
           <SessionDetailFact label="Steps" value={`${session.completedStepCount}/${session.totalStepCount}`} />
+          <SessionDetailFact label="Focus" value={session.practicedSection || "Whole song"} />
         </div>
 
         <div className="history-session-detail-section">
@@ -794,7 +798,7 @@ function SessionDetailDialog({
                 </div>
               </div>
 
-              {hasPlaybackMessage ? <p className="history-session-detail-recording-playback-message">{playbackMessage}</p> : null}
+              {hasPlaybackMessage ? <p className="history-playback-message">{playbackMessage}</p> : null}
             </div>
           ) : hasRemovedRecording || hasMissingRecording ? (
             <p className="history-session-detail-recording-removed-line">
