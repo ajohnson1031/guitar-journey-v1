@@ -353,11 +353,15 @@
 
 .history-card-metrics {
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
   gap: 8px;
 }
 
 .history-card-metrics span {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
   border: 1px solid var(--color-border);
   border-radius: 999px;
   background: var(--color-surface-soft);
@@ -365,12 +369,43 @@
   padding: 6px 10px;
   font-size: 12px;
   font-weight: 800;
+  line-height: 1;
 }
 
 .history-card-metrics .history-recording-missing-pill {
   border-color: var(--color-danger);
   background: var(--color-danger-soft);
   color: var(--color-danger-text);
+}
+
+.history-card-metrics .history-notes-icon-button,
+.history-card-metrics .history-session-detail-icon-button {
+  align-self: center;
+}
+
+.history-session-detail-icon-button {
+  display: inline-grid;
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  min-height: 34px;
+  place-items: center;
+  border: 1px solid var(--color-edit);
+  border-radius: 999px;
+  background: var(--color-edit-soft);
+  color: var(--color-edit);
+  padding: 0;
+}
+
+.history-session-detail-icon-button:hover {
+  border-color: var(--color-primary-hover);
+  background: var(--color-edit-soft-hover);
+  color: var(--color-primary-hover);
+}
+
+.history-session-detail-icon-button svg {
+  width: 16px;
+  height: 16px;
 }
 
 .history-recording-actions {
@@ -567,20 +602,31 @@
   flex: 0 0 auto;
 }
 
-.history-add-notes-icon-button,
 .history-edit-notes-icon-button {
   border: 1px solid var(--color-edit);
   background: var(--color-edit-soft);
   color: var(--color-edit);
 }
 
-.history-add-notes-icon-button:hover,
 .history-edit-notes-icon-button:hover {
   border-color: var(--color-primary-hover);
   background: var(--color-edit-soft-hover);
   color: var(--color-primary-hover);
 }
 
+.history-add-notes-icon-button {
+  border: 1px solid var(--color-success);
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.history-add-notes-icon-button:hover {
+  border-color: var(--color-success-hover);
+  background: var(--color-success-soft-hover);
+  color: var(--color-success-hover);
+}
+
+.history-add-notes-icon-button,
 .history-edit-notes-icon-button {
   width: 34px;
   min-width: 34px;
@@ -588,11 +634,11 @@
   min-height: 34px;
 }
 
+.history-add-notes-icon-button svg,
 .history-edit-notes-icon-button svg {
   width: 16px;
   height: 16px;
 }
-
 .history-save-notes-icon-button {
   border: 1px solid var(--color-primary);
   background: var(--color-primary-soft);
@@ -700,6 +746,224 @@
   justify-content: flex-end;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.history-session-detail-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  background: var(--overlay-dialog-backdrop);
+  padding: 24px;
+}
+
+.history-session-detail-dialog {
+  display: grid;
+  width: min(760px, 100%);
+  max-height: min(760px, calc(100vh - 48px));
+  overflow-y: auto;
+  gap: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 24px;
+  background: var(--color-panel-strong);
+  box-shadow: var(--shadow-elevated);
+  padding: 18px;
+}
+
+.history-session-detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.history-session-detail-header h3 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 26px;
+  letter-spacing: -0.04em;
+}
+
+.history-session-detail-header span {
+  display: inline-flex;
+  margin-top: 6px;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.history-session-detail-close-button {
+  display: inline-grid;
+  width: 30px;
+  min-width: 30px;
+  height: 30px;
+  min-height: 30px;
+  place-items: center;
+  border: 1px solid var(--color-danger);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-danger);
+  padding: 0;
+}
+
+.history-session-detail-close-button:hover {
+  background: var(--color-danger-hover);
+}
+
+.history-session-detail-close-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.history-session-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.history-session-detail-fact {
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: var(--color-surface-soft);
+  padding: 12px;
+}
+
+.history-session-detail-fact span {
+  color: var(--color-text-muted);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.history-session-detail-fact strong {
+  color: var(--color-text);
+  font-size: 15px;
+  line-height: 1.25;
+}
+
+.history-session-detail-section {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  background: var(--color-surface);
+  padding: 14px;
+}
+
+.history-session-detail-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.history-session-detail-section-header strong {
+  color: var(--color-text);
+  font-size: 15px;
+}
+
+.history-session-detail-notes,
+.history-session-detail-empty {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.history-session-detail-recording {
+  display: grid;
+  gap: 10px;
+}
+
+.history-session-detail-recording > span {
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted-strong);
+  justify-self: start;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.history-session-detail-recording-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.history-session-detail-recording-pill {
+  justify-self: start;
+}
+
+.history-session-detail-recording-removed {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+}
+
+.history-session-detail-recording-removed p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.history-session-detail-recording-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.history-session-detail-recording-duration {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted-strong);
+  padding: 7px 11px;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.history-session-detail-recording-removed-line {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  line-height: 1.45;
+  font-weight: 600;
+  color: var(--color-danger-text);
+}
+
+.history-session-detail-recording-playback-message {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.35;
+  text-align: left;
+}
+
+@media (max-width: 560px) {
+  .history-session-detail-recording-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .history-session-detail-recording-duration {
+    justify-self: start;
+  }
 }
 
 @media (max-width: 900px) {
@@ -828,11 +1092,44 @@
   .history-notes-icon-button,
   .history-cancel-notes-icon-button,
   .history-clear-notes-icon-button {
-    width: 42px;
+    width: 20px;
+  }
+
+  .history-edit-notes-icon-button {
+    width: 34px;
+  }
+
+  .history-save-notes-icon-button,
+  .history-clear-notes-icon-button {
+    width: 36px;
   }
 
   .history-session-notes-editor-actions {
     justify-content: flex-start;
+  }
+
+  .history-session-detail-backdrop {
+    padding: 14px;
+  }
+
+  .history-session-detail-dialog {
+    max-height: calc(100vh - 28px);
+    padding: 14px;
+  }
+
+  .history-session-detail-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .history-session-detail-recording-actions {
+    display: grid;
+    grid-template-columns: repeat(3, 42px);
+    justify-content: start;
+  }
+
+  .history-session-detail-recording-actions .history-recording-button {
+    grid-column: 1 / -1;
+    width: 100%;
   }
 
   .history-recording-controls {

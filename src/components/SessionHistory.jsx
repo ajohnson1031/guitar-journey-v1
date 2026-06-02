@@ -1,9 +1,10 @@
 import * as React from "react";
+import { createPortal } from "react-dom";
 import { useRecordingPlayback } from "../hooks";
 import { formatPracticeDate, formatSessionActualDuration, getPracticeDayGroups, getPracticeHistoryStats } from "../utils/practiceStatsUtils";
 import { downloadRecordingForSession } from "../utils/recordingExportUtils";
 import { formatRecordingDuration, getAllRecordings } from "../utils/recordingStorageUtils";
-import { DownloadIcon, NotebookPenIcon, NotebookTextIcon, PauseIcon, PlayIcon, ReplayIcon, SaveIcon, StopIcon, TrashIcon, XIcon } from "./AppIcons";
+import { DownloadIcon, ListMusicIcon, NotebookPenIcon, NotebookTextIcon, PauseIcon, PlayIcon, ReplayIcon, SaveIcon, StopIcon, TrashIcon, XIcon } from "./AppIcons";
 import ConfirmDialog from "./ConfirmDialog";
 
 const { Fragment, useEffect, useMemo, useState } = React;
@@ -36,6 +37,26 @@ function formatPracticeTime(value) {
     hour: "numeric",
     minute: "2-digit",
   }).format(date);
+}
+
+function formatRecordingRemovedAt(value) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) return "Unknown removal date";
+
+  const dateLabel = new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(date);
+
+  const timeLabel = new Intl.DateTimeFormat("en", {
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+  }).format(date);
+
+  return `${dateLabel} - ${timeLabel}`;
 }
 
 function getSessionTimestamp(session) {
@@ -134,6 +155,7 @@ function getHistorySongFilterLabel(historySongFilter) {
 
 export default function SessionHistory({ historySongFilter = null, onClearHistorySongFilter, onDeleteSessionRecording, onUpdateSessionNotes, sessions }) {
   const [availableRecordingIds, setAvailableRecordingIds] = useState(() => new Set());
+  const [detailSessionId, setDetailSessionId] = useState("");
   const [editingSessionId, setEditingSessionId] = useState("");
   const [editingSessionNotes, setEditingSessionNotes] = useState("");
   const [historyActionMessage, setHistoryActionMessage] = useState("");
@@ -149,6 +171,7 @@ export default function SessionHistory({ historySongFilter = null, onClearHistor
   const activeSongStats = useMemo(() => getPracticeHistoryStats(songFilteredSessions), [songFilteredSessions]);
   const hasSongFilteredSessions = songFilteredSessions.length > 0;
   const filteredSessions = useMemo(() => filterPracticeSessions(songFilteredSessions, practiceHistorySearchTerm), [practiceHistorySearchTerm, songFilteredSessions]);
+  const detailSession = useMemo(() => sessions.find((session) => session.id === detailSessionId) || null, [detailSessionId, sessions]);
   const recentSessionGroups = useMemo(() => getVisiblePracticeDayGroups(filteredSessions, practiceHistorySortMode).slice(0, 8), [filteredSessions, practiceHistorySortMode]);
   const visibleSessionCount = filteredSessions.length;
   const shouldScrollHistory = visibleSessionCount > 5;
@@ -218,6 +241,15 @@ export default function SessionHistory({ historySongFilter = null, onClearHistor
     if (onClearHistorySongFilter) {
       onClearHistorySongFilter();
     }
+  }
+
+  function handleOpenSessionDetails(session) {
+    setHistoryActionMessage("");
+    setDetailSessionId(session.id);
+  }
+
+  function handleCloseSessionDetails() {
+    setDetailSessionId("");
   }
 
   function handleStartEditSessionNotes(session) {
@@ -443,19 +475,28 @@ export default function SessionHistory({ historySongFilter = null, onClearHistor
 
                             {hasStoredRecording ? <span>Recording {formatRecordingDuration(session.recordingDurationSeconds)}</span> : null}
                             {hasMissingRecording ? <span className="history-recording-missing-pill">Recording removed</span> : null}
-                          </div>
-
-                          {canAddNotesInline ? (
                             <button
                               type="button"
-                              className="history-notes-icon-button history-add-notes-icon-button"
-                              title={`Add notes for ${session.songTitle}`}
-                              aria-label={`Add notes for ${session.songTitle}`}
-                              onClick={() => handleStartEditSessionNotes(session)}
+                              className="history-session-detail-icon-button"
+                              title={`View details for ${session.songTitle}`}
+                              aria-label={`View details for ${session.songTitle}`}
+                              onClick={() => handleOpenSessionDetails(session)}
                             >
-                              <NotebookTextIcon />
+                              <ListMusicIcon />
                             </button>
-                          ) : null}
+
+                            {canAddNotesInline ? (
+                              <button
+                                type="button"
+                                className="history-notes-icon-button history-add-notes-icon-button"
+                                title={`Add notes for ${session.songTitle}`}
+                                aria-label={`Add notes for ${session.songTitle}`}
+                                onClick={() => handleStartEditSessionNotes(session)}
+                              >
+                                <NotebookTextIcon />
+                              </button>
+                            ) : null}
+                          </div>
 
                           {hasStoredRecording ? (
                             <div className="history-recording-actions">
@@ -600,7 +641,181 @@ export default function SessionHistory({ historySongFilter = null, onClearHistor
         onCancel={handleCancelDeleteRecording}
         onConfirm={handleConfirmDeleteRecording}
       />
+
+      <SessionDetailDialog
+        session={detailSession}
+        availableRecordingIds={availableRecordingIds}
+        activeRecordingId={activeRecordingId}
+        isLoadingRecording={isLoadingRecording}
+        isPlayingRecording={isPlayingRecording}
+        playbackMessage={playbackMessage}
+        playbackMessageRecordingId={playbackMessageRecordingId}
+        playbackState={playbackState}
+        onClose={handleCloseSessionDetails}
+        onDownloadRecording={handleDownloadRecording}
+        onPlayRecording={playRecording}
+        onRequestDeleteRecording={handleRequestDeleteRecording}
+        onStopPlayback={stopPlayback}
+      />
     </Fragment>
+  );
+}
+
+function SessionDetailDialog({
+  activeRecordingId,
+  availableRecordingIds,
+  isLoadingRecording,
+  isPlayingRecording,
+  onClose,
+  onDownloadRecording,
+  onPlayRecording,
+  onRequestDeleteRecording,
+  onStopPlayback,
+  playbackMessage,
+  playbackMessageRecordingId,
+  playbackState,
+  session,
+}) {
+  if (!session) return null;
+
+  const portalTarget = typeof document === "undefined" ? null : document.body;
+
+  if (!portalTarget) return null;
+
+  const hasRecordingReference = Boolean(session.recordingId);
+  const hasStoredRecording = hasRecordingReference && availableRecordingIds.has(session.recordingId);
+  const hasRemovedRecording = Boolean(session.recordingRemovedAt);
+  const hasMissingRecording = hasRemovedRecording || (hasRecordingReference && !hasStoredRecording);
+  const isActiveRecording = hasStoredRecording && activeRecordingId === session.recordingId;
+  const isLoadingThisRecording = isActiveRecording && isLoadingRecording;
+  const isPlayingThisRecording = isActiveRecording && isPlayingRecording;
+  const isPausedThisRecording = isActiveRecording && playbackState === "paused";
+  const isReplayThisRecording = isActiveRecording && playbackState === "finished";
+  const canStopThisRecording = canStopRecordingPlayback({ isActiveRecording, playbackState });
+  const hasPlaybackMessage = playbackMessageRecordingId === session.recordingId && playbackMessage;
+  const recordingActionLabel = getRecordingActionLabel({
+    isLoading: isLoadingThisRecording,
+    isPaused: isPausedThisRecording,
+    isPlaying: isPlayingThisRecording,
+    isReplay: isReplayThisRecording,
+  });
+  const formattedDate = formatPracticeDate(new Date(session.completedAt));
+  const formattedTime = formatPracticeTime(session.completedAt);
+
+  return createPortal(
+    <div className="history-session-detail-backdrop" role="presentation" onClick={onClose}>
+      <section
+        className="history-session-detail-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="history-session-detail-title"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <header className="history-session-detail-header">
+          <div>
+            <p className="eyebrow">Session Details</p>
+            <h3 id="history-session-detail-title">{session.songTitle}</h3>
+            {session.genre ? <span>{session.genre}</span> : null}
+          </div>
+
+          <button type="button" className="history-session-detail-close-button" title="Close session details" aria-label="Close session details" onClick={onClose}>
+            <XIcon />
+          </button>
+        </header>
+
+        <div className="history-session-detail-grid">
+          <SessionDetailFact label="Date" value={formattedDate} />
+          <SessionDetailFact label="Time" value={formattedTime} />
+          <SessionDetailFact label="Actual" value={`${formatSessionActualDuration(session.elapsedSeconds, session.minutes)} actual`} />
+          <SessionDetailFact label="Planned" value={session.plannedMinutes ? `${session.plannedMinutes} min` : "—"} />
+          <SessionDetailFact label="Rating" value={session.rating || "—"} />
+          <SessionDetailFact label="Steps" value={`${session.completedStepCount}/${session.totalStepCount}`} />
+        </div>
+
+        <div className="history-session-detail-section">
+          <div className="history-session-detail-section-header">
+            <strong>Notes</strong>
+          </div>
+
+          {session.notes ? <p className="history-session-detail-notes">{session.notes}</p> : <p className="history-session-detail-empty">No notes saved for this session.</p>}
+        </div>
+
+        <div className="history-session-detail-section">
+          <div className="history-session-detail-section-header">
+            <strong>Recording</strong>
+          </div>
+
+          {hasStoredRecording ? (
+            <div className="history-session-detail-recording">
+              <div className="history-session-detail-recording-row">
+                <span className="history-session-detail-recording-duration">Recording {formatRecordingDuration(session.recordingDurationSeconds)}</span>
+
+                <div className="history-session-detail-recording-actions">
+                  <button
+                    type="button"
+                    className={`history-recording-button ${isPlayingThisRecording ? "is-playing" : ""} ${isReplayThisRecording ? "is-replay" : ""}`}
+                    onClick={() => onPlayRecording(session)}
+                    disabled={isLoadingThisRecording}
+                  >
+                    {isPlayingThisRecording ? <PauseIcon /> : isReplayThisRecording ? <ReplayIcon className="history-replay-icon" /> : <PlayIcon />}
+                    <span>{recordingActionLabel}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="history-recording-stop-button"
+                    title="Stop playback"
+                    aria-label="Stop playback from session details"
+                    onClick={() => onStopPlayback(session.recordingId)}
+                    disabled={!canStopThisRecording}
+                  >
+                    <StopIcon />
+                  </button>
+
+                  <button
+                    type="button"
+                    className="history-recording-download-button"
+                    title="Download recording"
+                    aria-label={`Download recording for ${session.songTitle} from session details`}
+                    onClick={() => onDownloadRecording(session)}
+                  >
+                    <DownloadIcon />
+                  </button>
+
+                  <button
+                    type="button"
+                    className="history-recording-delete-button"
+                    title="Delete recording"
+                    aria-label={`Delete recording for ${session.songTitle} from session details`}
+                    onClick={() => onRequestDeleteRecording(session)}
+                  >
+                    <TrashIcon />
+                  </button>
+                </div>
+              </div>
+
+              {hasPlaybackMessage ? <p className="history-session-detail-recording-playback-message">{playbackMessage}</p> : null}
+            </div>
+          ) : hasRemovedRecording || hasMissingRecording ? (
+            <p className="history-session-detail-recording-removed-line">
+              Removed at: {hasRemovedRecording ? formatRecordingRemovedAt(session.recordingRemovedAt) : "Unknown removal date"}
+            </p>
+          ) : (
+            <p className="history-session-detail-empty">No recording saved for this session.</p>
+          )}
+        </div>
+      </section>
+    </div>,
+    portalTarget,
+  );
+}
+
+function SessionDetailFact({ label, value }) {
+  return (
+    <div className="history-session-detail-fact">
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
   );
 }
 
