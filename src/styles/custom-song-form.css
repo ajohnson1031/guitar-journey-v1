@@ -57,6 +57,7 @@
   flex: 0 0 auto;
   justify-content: flex-end;
   gap: 10px;
+  margin-left: auto;
 }
 
 .form-grid {
@@ -101,6 +102,31 @@
 
 .custom-song-message.is-info {
   color: var(--color-primary-text);
+}
+
+.custom-song-message.is-warning {
+  color: var(--color-accent-hover);
+}
+
+.custom-song-duplicate-warning {
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--color-accent);
+  border-radius: 16px;
+  background: var(--color-accent-soft);
+  padding: 12px;
+}
+
+.custom-song-duplicate-warning strong {
+  color: var(--color-text);
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.custom-song-duplicate-warning span {
+  color: var(--color-text-muted);
+  font-size: 13px;
+  line-height: 1.35;
 }
 
 .import-link-card {
@@ -347,6 +373,7 @@
 
   .custom-song-action-row .custom-song-button-group {
     justify-content: flex-start;
+    margin-left: 0;
   }
 }
 
@@ -581,6 +608,8 @@
     justify-content: flex-end;
   }
 }
+
+
 
 .custom-song-preview p {
   margin: 4px 0;
