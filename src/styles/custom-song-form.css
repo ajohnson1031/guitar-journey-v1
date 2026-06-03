@@ -23,6 +23,10 @@
   align-items: start;
 }
 
+.custom-song-header .section-copy {
+  margin-bottom: 0.5rem;
+}
+
 .custom-song-actions {
   grid-template-columns: 1fr auto;
   align-items: center;
@@ -131,6 +135,20 @@
   border-color: var(--color-danger);
   background: transparent;
   color: var(--color-danger);
+}
+
+.custom-song-button-group .analyze-paste-button {
+  border-color: var(--color-primary-border);
+  background: transparent;
+  color: var(--color-primary-text);
+}
+
+.custom-song-button-group .analyze-paste-button:not(:disabled):hover {
+  border-color: var(--color-primary-border);
+  background: transparent;
+  color: var(--color-primary-text);
+  box-shadow: none;
+  transform: none;
 }
 
 .clear-paste-button {
@@ -352,7 +370,7 @@
 }
 
 .practice-setup-copy-message {
-  color: var(--color-primary-text) !important;
+  color: var(--color-primary) !important;
   font-weight: 900;
 }
 
@@ -408,8 +426,32 @@
   }
 }
 
-
-
 .custom-song-preview p {
   margin: 4px 0;
+}
+
+.custom-song-form .custom-song-button-group .primary-outline-button.analyze-paste-button,
+.custom-song-form .custom-song-button-group .primary-outline-button.analyze-paste-button:not(:disabled):hover,
+.custom-song-form .custom-song-button-group .primary-outline-button.analyze-paste-button:not(:disabled):focus,
+.custom-song-form .custom-song-button-group .primary-outline-button.analyze-paste-button:not(:disabled):active {
+  border-color: var(--color-primary-border);
+  background: transparent;
+  color: var(--color-primary-text);
+  box-shadow: none;
+  transform: none;
+}
+
+:root[data-theme="dark"] .custom-song-form .custom-song-button-group .primary-outline-button.analyze-paste-button,
+:root[data-theme="dark"] .custom-song-form .custom-song-button-group .primary-outline-button.analyze-paste-button:not(:disabled):hover,
+:root[data-theme="dark"] .custom-song-form .custom-song-button-group .primary-outline-button.analyze-paste-button:not(:disabled):focus,
+:root[data-theme="dark"] .custom-song-form .custom-song-button-group .primary-outline-button.analyze-paste-button:not(:disabled):active,
+:root:not([data-theme="light"]) .custom-song-form .custom-song-button-group .primary-outline-button.analyze-paste-button,
+:root:not([data-theme="light"]) .custom-song-form .custom-song-button-group .primary-outline-button.analyze-paste-button:not(:disabled):hover,
+:root:not([data-theme="light"]) .custom-song-form .custom-song-button-group .primary-outline-button.analyze-paste-button:not(:disabled):focus,
+:root:not([data-theme="light"]) .custom-song-form .custom-song-button-group .primary-outline-button.analyze-paste-button:not(:disabled):active {
+  border-color: var(--color-primary-border);
+  background: transparent;
+  color: var(--color-primary-text);
+  box-shadow: none;
+  transform: none;
 }

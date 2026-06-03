@@ -20,7 +20,7 @@
 .transition-card input {
   width: 100%;
   margin-top: 14px;
-  accent-color: var(--color-primary-fill);
+  accent-color: var(--color-primary-text);
 }
 
 .strum-pill {
@@ -49,16 +49,13 @@
 }
 
 .song-section-card span {
-  color: #7dd3fc;
+  color: var(--color-eyebrow);
   font-size: 12px;
   font-weight: 900;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
-:root[data-theme="light"] .song-section-card span {
-  color: var(--color-eyebrow);
-}
 
 .song-section-card strong {
   font-size: 18px;

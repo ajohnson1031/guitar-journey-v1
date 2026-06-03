@@ -137,9 +137,7 @@ function getSongProgressItems({ allSongs = [], completedStepsBySong = {}, master
 }
 
 function filterProgressItems(items = [], { genreFilter = "all", searchTerm = "", statusFilter = "all" } = {}) {
-  const normalizedSearchTerm = String(searchTerm || "")
-    .trim()
-    .toLowerCase();
+  const normalizedSearchTerm = String(searchTerm || "").trim().toLowerCase();
 
   return items.filter((item) => {
     if (statusFilter === "mastered" && !item.isMastered) return false;
@@ -148,7 +146,10 @@ function filterProgressItems(items = [], { genreFilter = "all", searchTerm = "",
 
     if (!normalizedSearchTerm) return true;
 
-    const searchableText = [item.song.title, item.song.genre, item.song.difficulty, item.song.key].filter(Boolean).join(" ").toLowerCase();
+    const searchableText = [item.song.title, item.song.genre, item.song.difficulty, item.song.key]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
 
     return searchableText.includes(normalizedSearchTerm);
   });
@@ -310,7 +311,13 @@ export default function ProgressLibrary({
         {visibleProgressItems.length ? (
           <div className={`progress-song-list ${shouldScrollProgress ? "is-scrollable" : ""}`}>
             {visibleProgressItems.map((item) => (
-              <ProgressSongCard key={item.song.id} item={item} onPracticeSong={onPracticeSong} onToggleMastered={onToggleMastered} onViewHistory={onViewHistory} />
+              <ProgressSongCard
+                key={item.song.id}
+                item={item}
+                onPracticeSong={onPracticeSong}
+                onToggleMastered={onToggleMastered}
+                onViewHistory={onViewHistory}
+              />
             ))}
           </div>
         ) : progressItems.length ? (
@@ -341,7 +348,7 @@ function SummaryCard({ accent = "blue", helper, label, value }) {
 
 function ProgressSongCard({ item, onPracticeSong, onToggleMastered, onViewHistory }) {
   const { completedStepCount, isInProgress, isMastered, lastPracticedAt, sessionCount, song, totalPracticeSeconds } = item;
-  const progressLabel = isMastered ? "(Mastered)" : "(In Progress)";
+  const progressLabel = isMastered ? "Mastered" : "In Progress";
   const masteredActionLabel = isMastered ? "Marked Mastered" : "Mark Mastered";
   const masteredTitle = isMastered ? `Marked Mastered: ${song.title}` : `Mark Mastered: ${song.title}`;
 
@@ -350,10 +357,8 @@ function ProgressSongCard({ item, onPracticeSong, onToggleMastered, onViewHistor
       <div className="progress-song-card-header">
         <div className="progress-song-title-group">
           <h3 className="progress-song-title">
-            <span>
-              {`${song.title} `}
-              <span className={`progress-song-title-status ${isMastered ? "is-mastered" : "is-in-progress"}`}>{progressLabel}</span>
-            </span>
+            <span>{song.title}</span>
+            <span className={`progress-song-title-status ${isMastered ? "is-mastered" : "is-in-progress"}`} aria-label={`Status: ${progressLabel}`}>{progressLabel}</span>
           </h3>
           <small>
             {song.genre} • {song.difficulty} • Key {song.key}
@@ -401,9 +406,7 @@ function ProgressSongCard({ item, onPracticeSong, onToggleMastered, onViewHistor
           {sessionCount} session{sessionCount === 1 ? "" : "s"}
         </span>
         <span>Last: {formatLastPracticed(lastPracticedAt)}</span>
-        <span>
-          {completedStepCount} active step{completedStepCount === 1 ? "" : "s"}
-        </span>
+        <span>{completedStepCount} active step{completedStepCount === 1 ? "" : "s"}</span>
       </div>
     </article>
   );

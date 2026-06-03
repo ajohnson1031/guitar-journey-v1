@@ -88,7 +88,7 @@
 
 .progress-library-controls {
   display: grid;
-  grid-template-columns: minmax(220px, 1fr) auto minmax(150px, 180px) minmax(170px, 220px);
+  grid-template-columns: minmax(220px, 1fr) minmax(320px, max-content) minmax(150px, 180px) minmax(170px, 220px);
   gap: 10px;
   align-items: end;
   border: 1px solid var(--color-border);
@@ -134,15 +134,23 @@
 
 .progress-filter-group {
   display: flex;
-  align-items: center;
+  align-items: end;
   gap: 8px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .progress-filter-button.is-active {
   border-color: var(--color-neutral-action-active-bg);
   background: var(--color-neutral-action-active-bg);
   color: var(--color-neutral-action-active-text);
+}
+
+.progress-filter-button {
+  min-height: 38px;
+  align-items: center;
+  padding: 8px 14px;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .progress-song-list {
@@ -197,19 +205,29 @@
 }
 
 .progress-song-title-status {
+  display: inline-flex;
+  min-height: 24px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted-strong);
+  padding: 4px 9px;
   font-size: 12px;
   font-weight: 900;
   letter-spacing: 0.08em;
-  line-height: inherit;
+  line-height: 1;
   text-transform: uppercase;
   white-space: nowrap;
+  position: relative;
+  top: -1px;
 }
 
-.progress-song-title-status.is-mastered {
-  color: var(--color-accent);
-}
-
+.progress-song-title-status.is-mastered,
 .progress-song-title-status.is-in-progress {
+  border-color: var(--color-border);
+  background: var(--color-surface-soft);
   color: var(--color-text-muted-strong);
 }
 
@@ -348,7 +366,7 @@
   line-height: 1.45;
 }
 
-@media (max-width: 1050px) {
+@media (max-width: 1180px) {
   .progress-library-controls {
     grid-template-columns: 1fr 1fr;
   }
@@ -382,8 +400,8 @@
   }
 
   .progress-song-title {
-    display: grid;
-    gap: 3px;
+    flex-wrap: wrap;
+    gap: 6px;
   }
 
   .progress-song-metrics {

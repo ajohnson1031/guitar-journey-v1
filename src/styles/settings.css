@@ -630,6 +630,10 @@ html[data-theme="light"] .microphone-test-button.is-testing:hover {
   font-weight: 900;
 }
 
+.settings-inline-message:not(.settings-inline-message-stopped) {
+  color: var(--color-success);
+}
+
 .settings-inline-message-stopped {
   color: var(--color-danger);
 }

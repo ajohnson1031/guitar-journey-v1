@@ -63,8 +63,19 @@
 }
 
 .session-primary-action {
+  display: inline-flex;
   width: 100%;
   min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.session-primary-action svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  transform: translateY(1px);
 }
 
 .session-running-actions {
