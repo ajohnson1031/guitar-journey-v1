@@ -33,6 +33,34 @@ Bm F# A E
 G D Em F#7
 `;
 
+const GREENSLEEVES_SETUP = `Title: Greensleeves
+Artist: Traditional
+Instrument / Type: Chords
+Genre: Folk
+Difficulty: Intermediate
+Key: Em
+Tuning: Standard
+Capo: None
+BPM: 86
+
+Chords:
+Em, G, D, Bm, C, Am, B7
+
+Verse:
+Em - G - D - Bm
+C - Am - B7 - Em
+Em - G - D - Bm
+C - B7 - Em - Em
+
+Refrain:
+G - D - Bm - Em
+C - Am - B7 - B7
+G - D - Bm - Em
+C - B7 - Em - Em
+
+Practice Goal:
+Practice the minor-key chord movement slowly, then loop the Verse and Refrain until the transitions feel smooth.`;
+
 describe("songImportUtils", () => {
   it("analyzes a Hotel California-style chart without losing sharps", () => {
     const analysis = analyzeSongText(HOTEL_STYLE_CHART);
@@ -102,6 +130,66 @@ I saw a bright light in the distance.
 
     expect(result.key).toBe("Bm");
     expect(["medium", "high"]).toContain(result.confidence);
+  });
+
+  it("detects Practice Setup Assistant metadata from pasted song details", () => {
+    const analysis = analyzeSongText(GREENSLEEVES_SETUP);
+
+    expect(analysis.title).toBe("Greensleeves");
+    expect(analysis.artist).toBe("Traditional");
+    expect(analysis.instrument).toBe("Chords");
+    expect(analysis.genre).toBe("Folk");
+    expect(analysis.bpm).toBe(86);
+    expect(analysis.difficulty).toBe("Intermediate");
+    expect(analysis.difficultyConfidence).toBe("high");
+    expect(analysis.key).toBe("Em");
+    expect(analysis.keySource).toBe("metadata");
+    expect(analysis.keyConfidence).toBe("high");
+    expect(analysis.tuning).toBe("Standard");
+    expect(analysis.capo).toBe("No capo");
+  });
+
+  it("extracts chords, transitions, and multiple sections from Practice Setup Assistant text", () => {
+    const analysis = analyzeSongText(GREENSLEEVES_SETUP);
+
+    expect(analysis.chords).toEqual(["Em", "G", "D", "Bm", "C", "Am", "B7"]);
+    expect(analysis.transitions).toContain("Em → G");
+    expect(analysis.transitions).toContain("Am → B7");
+    expect(analysis.transitions).toContain("B7 → Em");
+    expect(analysis.sections).toEqual([
+      {
+        name: "Main",
+        progression: "Em - G - D - Bm - C - Am - B7",
+      },
+      {
+        name: "Verse",
+        progression: "Em - G - D - Bm - C - Am - B7",
+      },
+      {
+        name: "Refrain",
+        progression: "G - D - Bm - Em - C - Am - B7",
+      },
+    ]);
+    expect(analysis.goal).toContain("Learn Greensleeves");
+    expect(analysis.goal).toContain("verse progression");
+  });
+
+  it("supports compact pasted metadata and clamps BPM values", () => {
+    const highBpmAnalysis = analyzeSongText(`Title: Compact SongArtist: Test PlayerInstrument / Type: ChordsGenre: BluesBPM: 320Key: GCapo: No capoTuning: E A D G B E
+G C D G`);
+    const lowBpmAnalysis = analyzeSongText(`Title: Slow SongTempo: 12Key: C
+C F G C`);
+
+    expect(highBpmAnalysis.title).toBe("Compact Song");
+    expect(highBpmAnalysis.artist).toBe("Test Player");
+    expect(highBpmAnalysis.instrument).toBe("Chords");
+    expect(highBpmAnalysis.genre).toBe("Blues");
+    expect(highBpmAnalysis.bpm).toBe(220);
+    expect(highBpmAnalysis.key).toBe("G");
+    expect(highBpmAnalysis.tuning).toBe("Standard");
+    expect(highBpmAnalysis.capo).toBe("No capo");
+
+    expect(lowBpmAnalysis.bpm).toBe(40);
   });
 
   it("generates fallback review data from analyzed text", () => {
