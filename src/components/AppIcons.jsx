@@ -3,12 +3,15 @@ import {
   Check,
   Circle,
   CirclePlus,
+  ClipboardPaste,
   CloudDownload,
   CloudUpload,
+  Copy,
   Download,
   Edit3,
   Guitar,
   History,
+  Info,
   LayoutDashboard,
   ListMusic,
   Menu,
@@ -52,13 +55,16 @@ function createIcon(Component, defaultProps = {}) {
 const CalendarDaysIcon = createIcon(CalendarDays);
 const CheckIcon = createIcon(Check);
 const CirclePlusIcon = createIcon(CirclePlus);
+const ClipboardPasteIcon = createIcon(ClipboardPaste);
 const CloudDownloadIcon = createIcon(CloudDownload);
 const CloudUploadIcon = createIcon(CloudUpload);
+const CopyIcon = createIcon(Copy);
 const DashboardIcon = createIcon(LayoutDashboard);
 const DownloadIcon = createIcon(Download);
 const EditIcon = createIcon(Edit3);
 const GuitarIcon = createIcon(Guitar);
 const HistoryIcon = createIcon(History);
+const InfoIcon = createIcon(Info);
 const ListMusicIcon = createIcon(ListMusic);
 const MenuIcon = createIcon(Menu);
 const MicIcon = createIcon(Mic);
@@ -90,13 +96,16 @@ export {
   CalendarDaysIcon,
   CheckIcon,
   CirclePlusIcon,
+  ClipboardPasteIcon,
   CloudDownloadIcon,
   CloudUploadIcon,
+  CopyIcon,
   DashboardIcon,
   DownloadIcon,
   EditIcon,
   GuitarIcon,
   HistoryIcon,
+  InfoIcon,
   ListMusicIcon,
   MenuIcon,
   MicIcon,

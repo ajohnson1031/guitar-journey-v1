@@ -1,6 +1,6 @@
 import * as React from "react";
 import { DEFAULT_CUSTOM_SONG_FORM, KEY_OPTIONS } from "../constants";
-import { parseCommaList, parseSections, parseUltimateGuitarUrl, slugify } from "../utils/songFormUtils";
+import { parseCommaList, parseSections, slugify } from "../utils/songFormUtils";
 import { hasStrummingPattern, normalizeStrummingPatternData, serializeStrummingPattern } from "../utils/strummingUtils";
 import { SongImportAssistant, StrummingPatternBuilder, TransitionInput } from "./";
 
@@ -25,11 +25,26 @@ function getDefaultForm() {
   };
 }
 
+function getMatchingGenre(value, genres = []) {
+  const normalizedValue = String(value || "").trim().toLowerCase();
+
+  if (!normalizedValue) return "";
+
+  return genres.find((genre) => String(genre || "").trim().toLowerCase() === normalizedValue) || "";
+}
+
+function getAppliedBpm(value) {
+  const bpm = Number(value);
+
+  if (!Number.isFinite(bpm)) return "";
+
+  return String(Math.min(220, Math.max(40, Math.round(bpm))));
+}
+
 function songToForm(song) {
   if (!song) return getDefaultForm();
 
   return {
-    sourceUrl: song.sourceUrl || "",
     artist: song.artist || "",
     instrument: song.instrument || "",
     title: song.title || "",
@@ -121,44 +136,28 @@ export default function CustomSongForm({
     onClose();
   }
 
-  function importFromUltimateGuitarLink() {
-    const result = parseUltimateGuitarUrl(form.sourceUrl);
-
-    if (!result.ok) {
-      setValidationMessage(result.message);
-      return;
-    }
-
-    const imported = result.data;
-    const titleWithArtist = imported.artist ? `${imported.title} — ${imported.artist}` : imported.title;
-
-    setForm((current) => ({
-      ...current,
-      title: imported.title || current.title,
-      artist: imported.artist || current.artist,
-      instrument: imported.instrument || current.instrument,
-      sourceUrl: imported.sourceUrl || current.sourceUrl,
-      goal:
-        current.goal === DEFAULT_CUSTOM_SONG_FORM.goal
-          ? `Learn ${titleWithArtist} with clean timing, smooth transitions, and a focused ${imported.instrument.toLowerCase()} practice plan.`
-          : current.goal,
-    }));
-
-    setInfoMessage("Imported starter details. Review and fill in genre, key, difficulty, chords, sections, and strumming.");
-  }
-
   function applySongAnalysis(analysis) {
-    setForm((current) => ({
-      ...current,
-      chords: analysis.chords.length ? analysis.chords.join(", ") : current.chords,
-      transitions: analysis.transitions.length ? analysis.transitions.join(", ") : current.transitions,
-      sections: analysis.sections.length ? sectionsToText(analysis.sections) : current.sections,
-      difficulty: analysis.difficulty || current.difficulty,
-      key: analysis.key || current.key,
-      tuning: analysis.tuning || current.tuning,
-      capo: analysis.capo || current.capo,
-      goal: !current.goal || current.goal === DEFAULT_CUSTOM_SONG_FORM.goal ? analysis.goal : current.goal,
-    }));
+    setForm((current) => {
+      const matchingGenre = getMatchingGenre(analysis.genre, genres);
+      const appliedBpm = getAppliedBpm(analysis.bpm);
+
+      return {
+        ...current,
+        title: analysis.title || current.title,
+        artist: analysis.artist || current.artist,
+        instrument: analysis.instrument || current.instrument,
+        genre: matchingGenre || current.genre,
+        bpm: appliedBpm || current.bpm,
+        chords: analysis.chords.length ? analysis.chords.join(", ") : current.chords,
+        transitions: analysis.transitions.length ? analysis.transitions.join(", ") : current.transitions,
+        sections: analysis.sections.length ? sectionsToText(analysis.sections) : current.sections,
+        difficulty: analysis.difficulty || current.difficulty,
+        key: analysis.key || current.key,
+        tuning: analysis.tuning || current.tuning,
+        capo: analysis.capo || current.capo,
+        goal: !current.goal || current.goal === DEFAULT_CUSTOM_SONG_FORM.goal ? analysis.goal : current.goal,
+      };
+    });
 
     setInfoMessage("Song analysis applied. Review and edit anything before saving.");
   }
@@ -219,8 +218,6 @@ export default function CustomSongForm({
       strumming: strummingPatternText,
       strummingPattern,
       goal: form.goal.trim() || "Practice this song with clean timing and smooth transitions.",
-      source: form.sourceUrl.trim() ? "Ultimate Guitar" : "",
-      sourceUrl: form.sourceUrl.trim(),
       isCustom: true,
       createdAt: editingSong?.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -254,24 +251,6 @@ export default function CustomSongForm({
 
       {isOpen ? (
         <form className="custom-song-form" onSubmit={handleSubmit}>
-          <div className="import-link-card import-link-url-card">
-            <label>
-              <span>Import from Ultimate Guitar link</span>
-              <input
-                type="url"
-                value={form.sourceUrl}
-                placeholder="https://tabs.ultimate-guitar.com/tab/artist/song-chords-123456"
-                onChange={(event) => updateField("sourceUrl", event.target.value)}
-              />
-            </label>
-
-            <button type="button" className="primary-button" onClick={importFromUltimateGuitarLink}>
-              Import Starter Details
-            </button>
-
-            <p>This reads artist, title, instrument/type, tab ID, and source URL from the link. Chords and sections stay editable so you can build your own study plan.</p>
-          </div>
-
           <SongImportAssistant onApplyAnalysis={applySongAnalysis} />
 
           <div className="form-grid three">

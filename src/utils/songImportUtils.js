@@ -1,6 +1,7 @@
 import { KEY_OPTIONS } from "../constants";
 
-const SECTION_LABELS = ["intro", "verse", "pre-chorus", "pre chorus", "chorus", "bridge", "interlude", "solo", "guitar solo", "outro", "tag"];
+const SECTION_LABELS = ["intro", "verse", "pre-chorus", "pre chorus", "chorus", "refrain", "bridge", "interlude", "solo", "guitar solo", "outro", "tag"];
+const METADATA_LABELS = ["Title", "Artist", "Instrument / Type", "Instrument", "Type", "Genre", "Difficulty", "Key", "Tuning", "Capo", "BPM", "Tempo"];
 
 const CHORD_PATTERN =
   /(^|[\s|()[\]{}:])([A-G](?:#|b)?)(maj7|maj9|maj|min7|min9|min|m7b5|m7|m9|m6|m|dim7|dim|sus2|sus4|sus|add9|7sus4|7sus|13|11|9|7|6|5)?(?:\/([A-G](?:#|b)?))?(?=$|[\s|()[\]{}:.,;!?])/g;
@@ -29,7 +30,6 @@ const NOTE_VALUES = {
 
 const MAJOR_SCALE_DEGREES = [0, 2, 4, 5, 7, 9, 11];
 const MINOR_SCALE_DEGREES = [0, 2, 3, 5, 7, 8, 10];
-const HARMONIC_MINOR_EXTRA_DEGREES = [11];
 
 function normalizeQuality(quality) {
   const normalized = String(quality || "").trim();
@@ -92,6 +92,62 @@ function uniqueInOrder(values, limit = 24) {
   return output;
 }
 
+function normalizeMetadataLabel(label) {
+  return String(label || "")
+    .trim()
+    .replace(/\s*\/\s*/g, " / ")
+    .replace(/\s+/g, " ")
+    .toLowerCase();
+}
+
+function escapeMetadataLabel(label) {
+  return String(label || "")
+    .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+    .replace(/\\ \/\\ /g, "\\s*\\/\\s*");
+}
+
+function getMetadataLabelPattern() {
+  return METADATA_LABELS.slice()
+    .sort((leftLabel, rightLabel) => rightLabel.length - leftLabel.length)
+    .map(escapeMetadataLabel)
+    .join("|");
+}
+
+function normalizeMetadataText(text) {
+  const labelPattern = getMetadataLabelPattern();
+
+  return String(text || "")
+    .replace(/\r\n?/g, "\n")
+    .replace(new RegExp(`(${labelPattern})\\s*:`, "gi"), "\n$1:")
+    .trim();
+}
+
+function getMetadataValue(text, labels) {
+  const labelList = Array.isArray(labels) ? labels : [labels];
+  const normalizedText = normalizeMetadataText(text);
+  const labelPattern = getMetadataLabelPattern();
+
+  for (const label of labelList) {
+    const escapedLabel = escapeMetadataLabel(label);
+    const pattern = new RegExp(`^\\s*${escapedLabel}\\s*:\\s*([\\s\\S]*?)(?=\\n\\s*(?:${labelPattern})\\s*:|$)`, "im");
+    const match = normalizedText.match(pattern);
+
+    if (match) {
+      return String(match[1] || "")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+  }
+
+  return "";
+}
+
+function isMetadataLine(line) {
+  const normalized = normalizeMetadataLabel(String(line || "").split(":")[0]);
+
+  return METADATA_LABELS.some((label) => normalizeMetadataLabel(label) === normalized);
+}
+
 function getSectionNameFromLine(line) {
   const cleaned = String(line || "")
     .toLowerCase()
@@ -123,10 +179,6 @@ function removeSectionLabelFromLine(line, sectionLabel) {
     .replace(plainPattern, " ");
 }
 
-function isMetadataLine(line) {
-  return /\b(tuning|key|capo)\s*:/i.test(String(line || ""));
-}
-
 function hasBracketedChord(line) {
   return BRACKETED_CHORD_PATTERN.test(String(line || ""));
 }
@@ -150,14 +202,12 @@ function shouldAcceptChordCandidates(line, chordCandidates) {
   if (!chordCandidates.length) return false;
 
   if (hasBracketedChord(line)) return true;
-
   if (chordCandidates.length >= 2) return true;
 
   const normalizedLine = normalizeBracketedText(line).trim();
   const onlyChord = chordCandidates[0];
 
   if (normalizedLine === onlyChord) return true;
-
   if (startsWithChordAndSpacing(normalizedLine, onlyChord)) return true;
 
   const words = getLineWords(normalizedLine);
@@ -353,39 +403,6 @@ function estimateDifficultyConfidence(chords) {
   return "low";
 }
 
-function getMainSection(sections) {
-  if (!Array.isArray(sections) || !sections.length) return null;
-
-  return sections.find((section) => /verse|chorus/i.test(section.name)) || sections.find((section) => !/intro|outro/i.test(section.name)) || sections[0];
-}
-
-function createPracticeGoal({ chords, key, sections, transitions }) {
-  const mainSection = getMainSection(sections);
-  const firstTransition = transitions[0];
-
-  const parts = [];
-
-  if (key) {
-    parts.push(`Learn the song in ${key}`);
-  } else {
-    parts.push("Learn the song");
-  }
-
-  if (mainSection) {
-    parts.push(`focus on the ${mainSection.name.toLowerCase()} progression`);
-  }
-
-  if (firstTransition) {
-    parts.push(`tighten the ${firstTransition} transition`);
-  }
-
-  if (!mainSection && !firstTransition && chords.length) {
-    parts.push(`build clean changes across ${chords.slice(0, 4).join(", ")}`);
-  }
-
-  return `${parts.join(", ")}, and build a confident full-song playthrough.`;
-}
-
 function getChordRoot(chord) {
   const match = String(chord || "").match(/^([A-G](?:#|b)?)/);
 
@@ -401,16 +418,6 @@ function getChordQuality(chord) {
 
 function isMinorChord(chord) {
   return /^m(?!aj)/i.test(getChordQuality(chord));
-}
-
-function isDominantChord(chord) {
-  const quality = getChordQuality(chord);
-
-  return /7/i.test(quality) && !/maj7/i.test(quality);
-}
-
-function getNoteValue(note) {
-  return NOTE_VALUES[note];
 }
 
 function getKeyRootFromOption(keyOption) {
@@ -435,9 +442,7 @@ function getKeyName(rootValue, mode) {
     return mode === "minor" ? isMinorKeyOption(keyOption) : !isMinorKeyOption(keyOption);
   });
 
-  if (matchingOption) return matchingOption;
-
-  return "";
+  return matchingOption || "";
 }
 
 function getScaleDegree(rootValue, keyRootValue) {
@@ -449,7 +454,7 @@ function scoreMajorKey(chordSequence, keyRootValue) {
 
   chordSequence.forEach((chord, index) => {
     const root = getChordRoot(chord);
-    const rootValue = getNoteValue(root);
+    const rootValue = NOTE_VALUES[root];
 
     if (rootValue === undefined) return;
 
@@ -459,27 +464,10 @@ function scoreMajorKey(chordSequence, keyRootValue) {
     if (isDiatonicRoot) score += 2;
     if (degree === 0) score += 4;
     if (degree === 7) score += 2;
-    if (degree === 5) score += 1;
-
-    if (index === 0 && degree === 0) score += 4;
-    if (index === chordSequence.length - 1 && degree === 0) score += 4;
-
+    if (index === 0 && degree === 0) score += 3;
+    if (index === chordSequence.length - 1 && degree === 0) score += 3;
     if (degree === 0 && !isMinorChord(chord)) score += 2;
   });
-
-  for (let index = 0; index < chordSequence.length - 1; index += 1) {
-    const currentRoot = getNoteValue(getChordRoot(chordSequence[index]));
-    const nextRoot = getNoteValue(getChordRoot(chordSequence[index + 1]));
-
-    if (currentRoot === undefined || nextRoot === undefined) continue;
-
-    const currentDegree = getScaleDegree(currentRoot, keyRootValue);
-    const nextDegree = getScaleDegree(nextRoot, keyRootValue);
-
-    if (currentDegree === 7 && nextDegree === 0 && isDominantChord(chordSequence[index])) {
-      score += 8;
-    }
-  }
 
   return score;
 }
@@ -489,43 +477,20 @@ function scoreMinorKey(chordSequence, keyRootValue) {
 
   chordSequence.forEach((chord, index) => {
     const root = getChordRoot(chord);
-    const rootValue = getNoteValue(root);
+    const rootValue = NOTE_VALUES[root];
 
     if (rootValue === undefined) return;
 
     const degree = getScaleDegree(rootValue, keyRootValue);
     const isNaturalMinorRoot = MINOR_SCALE_DEGREES.includes(degree);
-    const isHarmonicMinorRoot = HARMONIC_MINOR_EXTRA_DEGREES.includes(degree);
 
     if (isNaturalMinorRoot) score += 2;
-    if (isHarmonicMinorRoot) score += 1;
-
     if (degree === 0) score += 4;
     if (degree === 7) score += 2;
-    if (degree === 8) score += 1;
-    if (degree === 10) score += 1;
-
-    if (index === 0 && degree === 0) score += 5;
-    if (index === chordSequence.length - 1 && degree === 0) score += 5;
-
+    if (index === 0 && degree === 0) score += 4;
+    if (index === chordSequence.length - 1 && degree === 0) score += 4;
     if (degree === 0 && isMinorChord(chord)) score += 3;
-
-    if (degree === 7 && isDominantChord(chord)) score += 5;
   });
-
-  for (let index = 0; index < chordSequence.length - 1; index += 1) {
-    const currentRoot = getNoteValue(getChordRoot(chordSequence[index]));
-    const nextRoot = getNoteValue(getChordRoot(chordSequence[index + 1]));
-
-    if (currentRoot === undefined || nextRoot === undefined) continue;
-
-    const currentDegree = getScaleDegree(currentRoot, keyRootValue);
-    const nextDegree = getScaleDegree(nextRoot, keyRootValue);
-
-    if (currentDegree === 7 && nextDegree === 0 && isDominantChord(chordSequence[index])) {
-      score += 12;
-    }
-  }
 
   return score;
 }
@@ -535,8 +500,8 @@ function getConfidenceFromScoreGap(bestScore, secondBestScore) {
 
   const gap = bestScore - secondBestScore;
 
-  if (gap >= 18) return "high";
-  if (gap >= 8) return "medium";
+  if (gap >= 16) return "high";
+  if (gap >= 7) return "medium";
 
   return "low";
 }
@@ -597,20 +562,6 @@ export function estimateSongKey(chordSequence) {
   return estimateSongKeyDetails(chordSequence).key;
 }
 
-function normalizeMetadataText(text) {
-  return String(text || "")
-    .replace(/\r\n?/g, "\n")
-    .replace(/(Tuning|Key|Capo)\s*:/gi, "\n$1:");
-}
-
-function getMetadataValue(text, label) {
-  const normalizedText = normalizeMetadataText(text);
-  const pattern = new RegExp(`^\\s*${label}\\s*:\\s*([\\s\\S]*?)(?=\\n\\s*(?:Tuning|Key|Capo)\\s*:|\\n\\s*\\[|$)`, "im");
-  const match = normalizedText.match(pattern);
-
-  return match ? match[1].replace(/\s+/g, " ").trim() : "";
-}
-
 function normalizeTuningValue(value) {
   const cleaned = String(value || "")
     .trim()
@@ -629,10 +580,6 @@ function normalizeTuningValue(value) {
     return "Standard";
   }
 
-  if (compact === "EBABDBGbBBEB".toUpperCase() || compact === "D#G#C#F#A#D#" || lower.includes("half-step") || lower.includes("half step") || lower.includes("eb standard")) {
-    return "Eb Standard";
-  }
-
   if (compact === "DADGBE" || lower.includes("drop d")) {
     return "Drop D";
   }
@@ -643,6 +590,10 @@ function normalizeTuningValue(value) {
 
   if (lower.includes("drop c")) {
     return "Drop C";
+  }
+
+  if (lower.includes("half-step") || lower.includes("half step") || lower.includes("eb standard")) {
+    return "Eb Standard";
   }
 
   return cleaned;
@@ -700,9 +651,7 @@ function normalizeKeyMetadataValue(value) {
 
   if (!cleaned) return "";
 
-  const exactMatch = KEY_OPTIONS.find((keyOption) => {
-    return keyOption.toLowerCase() === cleaned.toLowerCase();
-  });
+  const exactMatch = KEY_OPTIONS.find((keyOption) => keyOption.toLowerCase() === cleaned.toLowerCase());
 
   if (exactMatch) return exactMatch;
 
@@ -720,12 +669,94 @@ function normalizeKeyMetadataValue(value) {
   return getKeyName(rootValue, mode);
 }
 
+function normalizeDifficultyValue(value) {
+  const cleaned = String(value || "")
+    .trim()
+    .replace(/\s+/g, " ");
+
+  if (!cleaned) return "";
+
+  const exactOptions = ["Beginner", "Intermediate", "Advanced", "Expert"];
+  const exactMatch = exactOptions.find((option) => option.toLowerCase() === cleaned.toLowerCase());
+
+  if (exactMatch) return exactMatch;
+
+  const lower = cleaned.toLowerCase();
+
+  if (lower.includes("beginner")) return "Beginner";
+  if (lower.includes("intermediate")) return "Intermediate";
+  if (lower.includes("advanced")) return "Advanced";
+  if (lower.includes("expert")) return "Expert";
+
+  return "";
+}
+
+function normalizeBpmValue(value) {
+  const match = String(value || "").match(/\d+/);
+  const bpm = match ? Number(match[0]) : NaN;
+
+  if (!Number.isFinite(bpm)) return "";
+
+  return Math.min(220, Math.max(40, Math.round(bpm)));
+}
+
 function extractSongMetadata(text) {
+  const title = getMetadataValue(text, "Title");
+  const artist = getMetadataValue(text, "Artist");
+  const instrument = getMetadataValue(text, ["Instrument / Type", "Instrument", "Type"]);
+  const genre = getMetadataValue(text, "Genre");
+  const difficulty = normalizeDifficultyValue(getMetadataValue(text, "Difficulty"));
+  const key = normalizeKeyMetadataValue(getMetadataValue(text, "Key"));
+  const tuning = normalizeTuningValue(getMetadataValue(text, "Tuning"));
+  const capo = normalizeCapoValue(getMetadataValue(text, "Capo"));
+  const bpm = normalizeBpmValue(getMetadataValue(text, ["BPM", "Tempo"]));
+
   return {
-    tuning: normalizeTuningValue(getMetadataValue(text, "Tuning")),
-    key: normalizeKeyMetadataValue(getMetadataValue(text, "Key")),
-    capo: normalizeCapoValue(getMetadataValue(text, "Capo")),
+    title,
+    artist,
+    instrument,
+    genre,
+    difficulty,
+    key,
+    tuning,
+    capo,
+    bpm,
   };
+}
+
+function getMainSection(sections) {
+  if (!Array.isArray(sections) || !sections.length) return null;
+
+  return sections.find((section) => /verse|chorus|refrain/i.test(section.name)) || sections.find((section) => !/intro|outro/i.test(section.name)) || sections[0];
+}
+
+function createPracticeGoal({ chords, key, sections, title, transitions }) {
+  const mainSection = getMainSection(sections);
+  const firstTransition = transitions[0];
+
+  const parts = [];
+
+  if (title) {
+    parts.push(`Learn ${title}`);
+  } else if (key) {
+    parts.push(`Learn the song in ${key}`);
+  } else {
+    parts.push("Learn the song");
+  }
+
+  if (mainSection) {
+    parts.push(`focus on the ${mainSection.name.toLowerCase()} progression`);
+  }
+
+  if (firstTransition) {
+    parts.push(`tighten the ${firstTransition} transition`);
+  }
+
+  if (!mainSection && !firstTransition && chords.length) {
+    parts.push(`build clean changes across ${chords.slice(0, 4).join(", ")}`);
+  }
+
+  return `${parts.join(", ")}, and build a confident full-song playthrough.`;
 }
 
 export function analyzeSongText(text) {
@@ -734,12 +765,18 @@ export function analyzeSongText(text) {
   const chords = uniqueInOrder(rawChordSequence, 24);
   const transitions = createTransitionList(rawChordSequence);
   const sections = extractSectionsFromSongText(text);
-  const difficulty = estimateDifficulty(chords);
-  const difficultyConfidence = estimateDifficultyConfidence(chords);
+  const estimatedDifficulty = estimateDifficulty(chords);
+  const difficulty = metadata.difficulty || estimatedDifficulty;
+  const difficultyConfidence = metadata.difficulty ? "high" : estimateDifficultyConfidence(chords);
   const keyDetails = estimateSongKeyDetails(rawChordSequence);
   const key = metadata.key || keyDetails.key;
 
   return {
+    title: metadata.title,
+    artist: metadata.artist,
+    instrument: metadata.instrument,
+    genre: metadata.genre,
+    bpm: metadata.bpm,
     chords,
     transitions,
     sections,
@@ -754,6 +791,7 @@ export function analyzeSongText(text) {
       chords,
       key,
       sections,
+      title: metadata.title,
       transitions,
     }),
   };

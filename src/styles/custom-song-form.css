@@ -87,22 +87,14 @@
   padding: 14px;
 }
 
-.import-link-url-card {
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: end;
-}
-
-.import-link-url-card button {
-  align-self: end;
-  min-height: 42px;
-  white-space: nowrap;
-}
-
-.import-link-url-card p {
-  grid-column: 1 / -1;
-}
-
 .import-link-card p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.practice-setup-helper {
   margin: 0;
   color: var(--color-text-muted);
   font-size: 12px;
@@ -113,20 +105,32 @@
   min-height: 235px;
 }
 
-.analyze-paste-button:hover {
-  border-color: var(--color-neutral-action-active-bg);
-  background: var(--color-neutral-action-active-bg);
-  color: var(--color-neutral-action-active-text);
+.custom-song-button-group button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
-:root:not([data-theme="light"]) .preset-button.analyze-paste-button:hover {
-  border-color: var(--color-neutral-action-active-bg);
-  background: var(--color-neutral-action-active-bg);
-  color: var(--color-neutral-action-active-text);
+.custom-song-button-group button:disabled:hover {
+  transform: none;
+  box-shadow: none;
 }
 
-:root:not([data-theme="light"]) .analyze-paste-button:hover {
-  color: #ffffff;
+.custom-song-button-group .primary-outline-button:disabled:hover {
+  border-color: var(--color-primary);
+  background: transparent;
+  color: var(--color-primary);
+}
+
+.custom-song-button-group .selected-button:disabled:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+}
+
+.custom-song-button-group .destructive-outline-button:disabled:hover {
+  border-color: var(--color-danger);
+  background: transparent;
+  color: var(--color-danger);
 }
 
 .clear-paste-button {
@@ -187,12 +191,220 @@
 @media (max-width: 640px) {
   .form-grid.two,
   .form-grid.three,
-  .custom-song-chord-transition-row,
-  .import-link-url-card {
+  .custom-song-chord-transition-row {
     grid-template-columns: 1fr;
   }
+}
 
-  .import-link-url-card button {
-    width: 100%;
+.practice-setup-assistant-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 12px;
+}
+
+.practice-setup-assistant-header label {
+  min-width: 0;
+}
+
+.practice-setup-info-button {
+  display: inline-grid;
+  width: 20px;
+  min-width: 20px;
+  height: 20px;
+  min-height: 20px;
+  place-items: center;
+  border: 1px solid var(--color-primary);
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+  padding: 0;
+  box-shadow: 0 10px 22px rgb(15 23 42 / 0.12);
+}
+
+.practice-setup-info-button:hover {
+  border-color: var(--color-primary-hover);
+  background: var(--color-primary-hover);
+  color: var(--color-primary-contrast);
+}
+
+.practice-setup-info-glyph {
+  display: inline-grid;
+  place-items: center;
+  transform: translateY(1px);
+  color: currentColor;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 15px;
+  font-weight: 900;
+  font-style: normal;
+  line-height: 1;
+}
+
+.practice-setup-dialog-backdrop {
+  position: fixed;
+  z-index: 1200;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgb(15 23 42 / 0.58);
+  padding: 20px;
+}
+
+.practice-setup-dialog {
+  display: grid;
+  width: min(720px, 100%);
+  max-height: min(86vh, 760px);
+  overflow: auto;
+  gap: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 24px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  padding: 18px;
+  box-shadow: 0 24px 80px rgb(15 23 42 / 0.35);
+}
+
+.practice-setup-dialog-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.practice-setup-dialog-header > div {
+  display: grid;
+  gap: 4px;
+}
+
+.practice-setup-dialog-header h2 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 22px;
+  line-height: 1.15;
+}
+
+.practice-setup-dialog-close-button {
+  display: inline-grid;
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  min-height: 34px;
+  place-items: center;
+  border: 1px solid var(--color-danger);
+  border-radius: 999px;
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+  padding: 0;
+}
+
+.practice-setup-dialog-close-button:hover {
+  border-color: var(--color-danger-text, var(--color-danger));
+  background: var(--color-danger-soft);
+  color: var(--color-danger-text, var(--color-danger));
+}
+
+.practice-setup-dialog-close-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.practice-setup-dialog-body {
+  display: grid;
+  gap: 12px;
+}
+
+.practice-setup-dialog-body p,
+.practice-setup-dialog-body ul {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.practice-setup-dialog-body ul {
+  padding-left: 18px;
+}
+
+.practice-setup-sample-field {
+  display: grid;
+  gap: 8px;
+}
+
+.practice-setup-sample-field span {
+  color: var(--color-text-muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.practice-setup-sample-field textarea {
+  min-height: 260px;
+  resize: vertical;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: var(--color-surface-soft);
+  color: var(--color-text);
+  padding: 12px;
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.practice-setup-copy-message {
+  color: var(--color-primary) !important;
+  font-weight: 900;
+}
+
+.practice-setup-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.practice-setup-dialog-icon-action {
+  display: inline-grid;
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  min-height: 40px;
+  place-items: center;
+  border-radius: 999px;
+  padding: 0;
+}
+
+.practice-setup-dialog-icon-action svg {
+  width: 18px;
+  height: 18px;
+}
+
+.practice-setup-dialog-copy-button {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted-strong);
+}
+
+.practice-setup-dialog-copy-button:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.practice-setup-dialog-use-button {
+  border: 1px solid var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+}
+
+.practice-setup-dialog-use-button:hover {
+  border-color: var(--color-primary-hover);
+  background: var(--color-primary-hover);
+  color: var(--color-primary-contrast);
+}
+
+@media (max-width: 640px) {
+  .practice-setup-dialog-actions {
+    justify-content: flex-end;
   }
 }
+
