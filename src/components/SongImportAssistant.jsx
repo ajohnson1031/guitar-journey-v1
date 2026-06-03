@@ -39,6 +39,61 @@ function formatConfidence(value) {
   return `${value[0].toUpperCase()}${value.slice(1)} confidence`;
 }
 
+function getAnalysisMetadataRows(analysis) {
+  if (!analysis) return [];
+
+  return [
+    ["Title", analysis.title],
+    ["Artist", analysis.artist],
+    ["Instrument", analysis.instrument],
+    ["Genre", analysis.genre],
+    ["BPM", analysis.bpm],
+    ["Difficulty", analysis.difficulty],
+    ["Key", analysis.key],
+    ["Tuning", analysis.tuning],
+    ["Capo", analysis.capo],
+  ].filter(([, value]) => value !== undefined && value !== null && String(value).trim());
+}
+
+function formatFieldList(fields = []) {
+  const cleanedFields = fields.filter(Boolean);
+
+  if (!cleanedFields.length) return "";
+
+  if (cleanedFields.length === 1) return cleanedFields[0];
+
+  return `${cleanedFields.slice(0, -1).join(", ")} and ${cleanedFields[cleanedFields.length - 1]}`;
+}
+
+function getDefaultAppliedFields(analysis) {
+  if (!analysis) return [];
+
+  return [
+    analysis.title ? "title" : "",
+    analysis.artist ? "artist" : "",
+    analysis.instrument ? "instrument" : "",
+    analysis.genre ? "genre" : "",
+    analysis.bpm ? "BPM" : "",
+    analysis.difficulty ? "difficulty" : "",
+    analysis.key ? "key" : "",
+    analysis.tuning ? "tuning" : "",
+    analysis.capo ? "capo" : "",
+    analysis.chords?.length ? "chords" : "",
+    analysis.transitions?.length ? "transitions" : "",
+    analysis.sections?.length ? "sections" : "",
+    analysis.goal ? "practice goal" : "",
+  ].filter(Boolean);
+}
+
+function createApplyMessage(analysis, applyResult = {}) {
+  const appliedFields = applyResult.appliedFields?.length ? applyResult.appliedFields : getDefaultAppliedFields(analysis);
+  const skippedFields = applyResult.skippedFields || [];
+  const appliedMessage = appliedFields.length ? `Applied: ${formatFieldList(appliedFields)}.` : "Analysis applied.";
+  const skippedMessage = skippedFields.length ? ` Not applied: ${formatFieldList(skippedFields)}. Add a matching genre first if you want that field applied.` : "";
+
+  return `${appliedMessage}${skippedMessage} Review and edit anything before saving.`;
+}
+
 export default function SongImportAssistant({ onApplyAnalysis }) {
   const [songText, setSongText] = useState("");
   const [message, setMessage] = useState("");
@@ -48,6 +103,7 @@ export default function SongImportAssistant({ onApplyAnalysis }) {
 
   const previewChords = useMemo(() => analysis?.chords?.slice(0, 12) || [], [analysis]);
   const previewTransitions = useMemo(() => analysis?.transitions?.slice(0, 6) || [], [analysis]);
+  const metadataRows = useMemo(() => getAnalysisMetadataRows(analysis), [analysis]);
   const hasSongText = Boolean(songText.trim());
   const canApplyAnalysis = hasSongText && Boolean(analysis?.chords?.length);
 
@@ -97,8 +153,9 @@ export default function SongImportAssistant({ onApplyAnalysis }) {
       return;
     }
 
-    onApplyAnalysis(analysis);
-    setMessage("Analysis applied. Review and edit anything before saving.");
+    const applyResult = onApplyAnalysis(analysis) || {};
+
+    setMessage(createApplyMessage(analysis, applyResult));
   }
 
   function handleClearText() {
@@ -167,97 +224,105 @@ export default function SongImportAssistant({ onApplyAnalysis }) {
         }}
       />
 
-      <div className="custom-song-button-group">
-        <button type="button" className="primary-outline-button analyze-paste-button" onClick={handleAnalyzeSongText} disabled={!hasSongText}>
-          Analyze Paste
-        </button>
+      <div className="custom-song-action-row">
+        {message ? <p className="custom-song-action-message">{message}</p> : <span className="custom-song-action-message is-empty" aria-hidden="true" />}
 
-        <button type="button" className="selected-button" onClick={handleApplyAnalysis} disabled={!canApplyAnalysis}>
-          Apply Analysis
-        </button>
+        <div className="custom-song-button-group">
+          <button type="button" className="primary-outline-button analyze-paste-button" onClick={handleAnalyzeSongText} disabled={!hasSongText}>
+            Analyze Paste
+          </button>
 
-        <button
-          type="button"
-          className="destructive-outline-button clear-paste-button"
-          title="Clear Paste"
-          aria-label="Clear Paste"
-          onClick={handleClearText}
-          disabled={!hasSongText}
-        >
-          <TrashIcon />
-        </button>
+          <button type="button" className="selected-button" onClick={handleApplyAnalysis} disabled={!canApplyAnalysis}>
+            Apply Analysis
+          </button>
+
+          <button
+            type="button"
+            className="destructive-outline-button clear-paste-button"
+            title="Clear Paste"
+            aria-label="Clear Paste"
+            onClick={handleClearText}
+            disabled={!hasSongText}
+          >
+            <TrashIcon />
+          </button>
+        </div>
       </div>
-
-      {message ? <p>{message}</p> : null}
 
       {analysis ? (
         <div className="custom-song-preview">
           <span>Analysis Preview</span>
 
-          <div>
-            {previewChords.map((chord) => (
-              <strong key={chord}>{chord}</strong>
-            ))}
-          </div>
+          <section className="analysis-preview-section analysis-preview-section--metadata" aria-label="Detected setup details">
+            <h3>Detected details</h3>
 
-          {analysis.key ? (
-            <p>
-              Suggested key: <strong>{analysis.key}</strong>{" "}
-              <small>{analysis.keySource === "metadata" ? "Detected from pasted details" : formatConfidence(analysis.keyConfidence)}</small>
-            </p>
-          ) : (
-            <p>
-              Suggested key: <strong>Not detected</strong> <small>Select one manually before saving.</small>
-            </p>
-          )}
+            {metadataRows.length ? (
+              <dl className="analysis-metadata-grid">
+                {metadataRows.map(([label, value]) => (
+                  <div key={label}>
+                    <dt>{label}</dt>
+                    <dd>{value}</dd>
+                  </div>
+                ))}
+              </dl>
+            ) : (
+              <p>No setup metadata detected yet.</p>
+            )}
 
-          {analysis.tuning ? (
-            <p>
-              Detected tuning: <strong>{analysis.tuning}</strong>
-            </p>
-          ) : (
-            <p>
-              Detected tuning: <strong>Not detected</strong>
-            </p>
-          )}
+            {analysis.key ? (
+              <p className="analysis-preview-note">
+                Key source: <strong>{analysis.keySource === "metadata" ? "pasted details" : formatConfidence(analysis.keyConfidence)}</strong>
+              </p>
+            ) : null}
+          </section>
 
-          {analysis.capo ? (
-            <p>
-              Detected capo: <strong>{analysis.capo}</strong>
-            </p>
-          ) : (
-            <p>
-              Detected capo: <strong>Not detected</strong>
-            </p>
-          )}
+          <section className="analysis-preview-section" aria-label="Detected chords">
+            <h3>Chords</h3>
 
-          {previewTransitions.length ? (
-            <p>
-              Suggested transitions: <strong>{previewTransitions.join(", ")}</strong>
-            </p>
-          ) : (
-            <p>
-              Suggested transitions: <strong>Not enough movement detected</strong>
-            </p>
-          )}
+            <div className="analysis-chip-row">
+              {previewChords.map((chord) => (
+                <strong key={chord}>{chord}</strong>
+              ))}
+            </div>
+          </section>
 
-          {analysis.sections.length ? (
-            <p>
-              Suggested sections: <strong>{analysis.sections.map((section) => section.name).join(", ")}</strong>
-            </p>
-          ) : (
-            <p>
-              Suggested sections: <strong>Main section only</strong>
-            </p>
-          )}
+          <section className="analysis-preview-section" aria-label="Suggested song sections">
+            <h3>Sections</h3>
 
-          <p>
-            Estimated difficulty: <strong>{analysis.difficulty}</strong> <small>{formatConfidence(analysis.difficultyConfidence)}</small>
-          </p>
+            {analysis.sections.length ? (
+              <ul className="analysis-preview-list">
+                {analysis.sections.map((section) => (
+                  <li key={`${section.name}-${section.progression}`}>
+                    <strong>{section.name}</strong>
+                    <span>{section.progression}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>Main section only.</p>
+            )}
+          </section>
 
-          <p>
-            <small>These are suggestions. Review and edit anything before saving.</small>
-          </p>
+          <section className="analysis-preview-section" aria-label="Suggested transitions">
+            <h3>Transitions</h3>
+
+            {previewTransitions.length ? (
+              <p>{previewTransitions.join(", ")}</p>
+            ) : (
+              <p>Not enough movement detected.</p>
+            )}
+          </section>
+
+          <section className="analysis-preview-section analysis-preview-section--review" aria-label="Review reminder">
+            <p>
+              Estimated difficulty: <strong>{analysis.difficulty}</strong>{" "}
+              <small>{formatConfidence(analysis.difficultyConfidence)}</small>
+            </p>
+
+            <p>
+              <small>These are suggestions. Review and edit anything before saving.</small>
+            </p>
+          </section>
         </div>
       ) : null}
 
