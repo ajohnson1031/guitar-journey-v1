@@ -91,10 +91,10 @@
   display: grid;
   min-height: 54px;
   place-items: center;
-  border: 1px solid var(--color-primary);
+  border: 1px solid var(--color-primary-border);
   border-radius: 18px;
   background: var(--color-primary-soft);
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   font-size: 13px;
   font-weight: 900;
 }

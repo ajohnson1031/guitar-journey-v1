@@ -75,7 +75,7 @@
 }
 
 .custom-song-message.is-info {
-  color: var(--color-primary);
+  color: var(--color-primary-text);
 }
 
 .import-link-card {
@@ -116,14 +116,14 @@
 }
 
 .custom-song-button-group .primary-outline-button:disabled:hover {
-  border-color: var(--color-primary);
+  border-color: var(--color-primary-border);
   background: transparent;
-  color: var(--color-primary);
+  color: var(--color-primary-text);
 }
 
 .custom-song-button-group .selected-button:disabled:hover {
-  border-color: var(--color-primary);
-  background: var(--color-primary);
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-fill);
   color: var(--color-primary-contrast);
 }
 
@@ -170,20 +170,16 @@
 }
 
 .custom-song-preview strong {
-  border: 1px solid var(--color-primary);
+  border: 1px solid var(--color-primary-border);
   border-radius: 999px;
   padding: 6px 10px;
   background: var(--color-primary-soft);
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   font-size: 13px;
 }
 
 .custom-song-preview small {
   color: var(--color-text-muted);
-}
-
-.custom-song-preview p {
-  margin: 4px 0;
 }
 
 @media (max-width: 980px) {
@@ -218,17 +214,17 @@
   height: 20px;
   min-height: 20px;
   place-items: center;
-  border: 1px solid var(--color-primary);
+  border: 1px solid var(--color-primary-border);
   border-radius: 999px;
-  background: var(--color-primary);
+  background: var(--color-primary-fill);
   color: var(--color-primary-contrast);
   padding: 0;
   box-shadow: 0 10px 22px rgb(15 23 42 / 0.12);
 }
 
 .practice-setup-info-button:hover {
-  border-color: var(--color-primary-hover);
-  background: var(--color-primary-hover);
+  border-color: var(--color-primary-border-hover);
+  background: var(--color-primary-fill-hover);
   color: var(--color-primary-contrast);
 }
 
@@ -356,7 +352,7 @@
 }
 
 .practice-setup-copy-message {
-  color: var(--color-primary) !important;
+  color: var(--color-primary-text) !important;
   font-weight: 900;
 }
 
@@ -389,20 +385,20 @@
 }
 
 .practice-setup-dialog-copy-button:hover {
-  border-color: var(--color-primary);
+  border-color: var(--color-primary-border);
   background: var(--color-primary-soft);
-  color: var(--color-primary);
+  color: var(--color-primary-text);
 }
 
 .practice-setup-dialog-use-button {
-  border: 1px solid var(--color-primary);
-  background: var(--color-primary);
+  border: 1px solid var(--color-primary-border);
+  background: var(--color-primary-fill);
   color: var(--color-primary-contrast);
 }
 
 .practice-setup-dialog-use-button:hover {
-  border-color: var(--color-primary-hover);
-  background: var(--color-primary-hover);
+  border-color: var(--color-primary-border-hover);
+  background: var(--color-primary-fill-hover);
   color: var(--color-primary-contrast);
 }
 
@@ -410,4 +406,10 @@
   .practice-setup-dialog-actions {
     justify-content: flex-end;
   }
+}
+
+
+
+.custom-song-preview p {
+  margin: 4px 0;
 }

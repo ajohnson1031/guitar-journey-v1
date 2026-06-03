@@ -28,10 +28,20 @@
   /* Intent/brand colors */
   --color-primary: #1b82e6;
   --color-primary-hover: #176fc4;
-  --color-primary-soft: rgba(27, 130, 230, 0.14);
-  --color-primary-soft-hover: rgba(27, 130, 230, 0.24);
-  --color-primary-outline: #1b82e6;
-  --color-primary-outline-hover: #176fc4;
+  --color-primary-soft: rgba(96, 165, 250, 0.14);
+  --color-primary-soft-hover: rgba(96, 165, 250, 0.24);
+  --color-primary-text: #60a5fa;
+  --color-primary-text-hover: #93c5fd;
+  --color-primary-border: #3b82f6;
+  --color-primary-border-hover: #60a5fa;
+  --color-primary-fill: #1d4ed8;
+  --color-primary-fill-hover: #2563eb;
+  --color-primary-selected-soft-bg: rgba(96, 165, 250, 0.16);
+  --color-primary-selected-soft-text: #bfdbfe;
+  --color-primary-selected-soft-hover-bg: var(--color-primary-fill);
+  --color-primary-selected-soft-hover-text: #ffffff;
+  --color-primary-outline: var(--color-primary-border);
+  --color-primary-outline-hover: var(--color-primary-border-hover);
   --color-primary-contrast: #ffffff;
   --color-success: #34d399;
   --color-success-hover: #10b981;
@@ -86,8 +96,8 @@
   --muted: var(--color-text-muted);
   --muted-strong: var(--color-text-muted-strong);
   --eyebrow: var(--color-eyebrow);
-  --blue: var(--color-primary);
-  --blue-hover: var(--color-primary-hover);
+  --blue: var(--color-primary-text);
+  --blue-hover: var(--color-primary-text-hover);
   --blue-soft: var(--color-primary-soft);
   --blue-soft-hover: var(--color-primary-soft-hover);
   --green: var(--color-success);
@@ -152,8 +162,18 @@
   --color-primary-hover: #0b5bb0;
   --color-primary-soft: rgba(15, 114, 216, 0.12);
   --color-primary-soft-hover: rgba(15, 114, 216, 0.2);
-  --color-primary-outline: #0f72d8;
-  --color-primary-outline-hover: #0b5bb0;
+  --color-primary-text: var(--color-primary);
+  --color-primary-text-hover: var(--color-primary-hover);
+  --color-primary-border: var(--color-primary);
+  --color-primary-border-hover: var(--color-primary-hover);
+  --color-primary-fill: var(--color-primary);
+  --color-primary-fill-hover: var(--color-primary-hover);
+  --color-primary-selected-soft-bg: rgba(15, 114, 216, 0.14);
+  --color-primary-selected-soft-text: var(--color-primary-hover);
+  --color-primary-selected-soft-hover-bg: var(--color-primary-fill);
+  --color-primary-selected-soft-hover-text: #ffffff;
+  --color-primary-outline: var(--color-primary-border);
+  --color-primary-outline-hover: var(--color-primary-border-hover);
   --color-primary-contrast: #ffffff;
   --color-success: #059669;
   --color-success-hover: #047857;
@@ -208,8 +228,8 @@
   --muted: var(--color-text-muted);
   --muted-strong: var(--color-text-muted-strong);
   --eyebrow: var(--color-eyebrow);
-  --blue: var(--color-primary);
-  --blue-hover: var(--color-primary-hover);
+  --blue: var(--color-primary-text);
+  --blue-hover: var(--color-primary-text-hover);
   --blue-soft: var(--color-primary-soft);
   --blue-soft-hover: var(--color-primary-soft-hover);
   --green: var(--color-success);
@@ -251,15 +271,25 @@
    Accent Palette Presets
 ========================= */
 
-:root[data-accent="purple"] {
+:root:not([data-theme="light"])[data-accent="purple"] {
   --color-body-bg:
     radial-gradient(circle at top left, rgba(139, 92, 246, 0.18), transparent 34rem), radial-gradient(circle at bottom right, rgba(255, 179, 71, 0.12), transparent 30rem), #0a0a0b;
   --color-primary: #8b5cf6;
   --color-primary-hover: #7c3aed;
-  --color-primary-soft: rgba(139, 92, 246, 0.14);
-  --color-primary-soft-hover: rgba(139, 92, 246, 0.24);
-  --color-primary-outline: #8b5cf6;
-  --color-primary-outline-hover: #7c3aed;
+  --color-primary-soft: rgba(196, 181, 253, 0.14);
+  --color-primary-soft-hover: rgba(196, 181, 253, 0.24);
+  --color-primary-text: #c4b5fd;
+  --color-primary-text-hover: #ddd6fe;
+  --color-primary-border: #8b5cf6;
+  --color-primary-border-hover: #a78bfa;
+  --color-primary-fill: #6d28d9;
+  --color-primary-fill-hover: #7c3aed;
+  --color-primary-selected-soft-bg: rgba(196, 181, 253, 0.16);
+  --color-primary-selected-soft-text: #ddd6fe;
+  --color-primary-selected-soft-hover-bg: var(--color-primary-fill);
+  --color-primary-selected-soft-hover-text: #ffffff;
+  --color-primary-outline: var(--color-primary-border);
+  --color-primary-outline-hover: var(--color-primary-border-hover);
   --color-eyebrow: #c4b5fd;
   --color-edit: #c4b5fd;
   --color-edit-soft: rgba(196, 181, 253, 0.12);
@@ -267,15 +297,25 @@
   --diagram-open-string: #c4b5fd;
 }
 
-:root[data-accent="teal"] {
+:root:not([data-theme="light"])[data-accent="teal"] {
   --color-body-bg:
     radial-gradient(circle at top left, rgba(20, 184, 166, 0.18), transparent 34rem), radial-gradient(circle at bottom right, rgba(255, 179, 71, 0.12), transparent 30rem), #0a0a0b;
   --color-primary: #14b8a6;
   --color-primary-hover: #0f766e;
-  --color-primary-soft: rgba(20, 184, 166, 0.14);
-  --color-primary-soft-hover: rgba(20, 184, 166, 0.24);
-  --color-primary-outline: #14b8a6;
-  --color-primary-outline-hover: #0f766e;
+  --color-primary-soft: rgba(94, 234, 212, 0.14);
+  --color-primary-soft-hover: rgba(94, 234, 212, 0.24);
+  --color-primary-text: #5eead4;
+  --color-primary-text-hover: #99f6e4;
+  --color-primary-border: #14b8a6;
+  --color-primary-border-hover: #5eead4;
+  --color-primary-fill: #0f766e;
+  --color-primary-fill-hover: #115e59;
+  --color-primary-selected-soft-bg: rgba(94, 234, 212, 0.16);
+  --color-primary-selected-soft-text: #99f6e4;
+  --color-primary-selected-soft-hover-bg: var(--color-primary-fill);
+  --color-primary-selected-soft-hover-text: #ffffff;
+  --color-primary-outline: var(--color-primary-border);
+  --color-primary-outline-hover: var(--color-primary-border-hover);
   --color-eyebrow: #5eead4;
   --color-edit: #5eead4;
   --color-edit-soft: rgba(94, 234, 212, 0.12);
@@ -283,15 +323,25 @@
   --diagram-open-string: #5eead4;
 }
 
-:root[data-accent="rose"] {
+:root:not([data-theme="light"])[data-accent="rose"] {
   --color-body-bg:
     radial-gradient(circle at top left, rgba(225, 29, 72, 0.18), transparent 34rem), radial-gradient(circle at bottom right, rgba(255, 179, 71, 0.12), transparent 30rem), #0a0a0b;
   --color-primary: #e11d48;
   --color-primary-hover: #be123c;
-  --color-primary-soft: rgba(225, 29, 72, 0.14);
-  --color-primary-soft-hover: rgba(225, 29, 72, 0.24);
-  --color-primary-outline: #e11d48;
-  --color-primary-outline-hover: #be123c;
+  --color-primary-soft: rgba(253, 164, 175, 0.14);
+  --color-primary-soft-hover: rgba(253, 164, 175, 0.24);
+  --color-primary-text: #fda4af;
+  --color-primary-text-hover: #fecdd3;
+  --color-primary-border: #e11d48;
+  --color-primary-border-hover: #fb7185;
+  --color-primary-fill: #be123c;
+  --color-primary-fill-hover: #9f1239;
+  --color-primary-selected-soft-bg: rgba(253, 164, 175, 0.16);
+  --color-primary-selected-soft-text: #fecdd3;
+  --color-primary-selected-soft-hover-bg: var(--color-primary-fill);
+  --color-primary-selected-soft-hover-text: #ffffff;
+  --color-primary-outline: var(--color-primary-border);
+  --color-primary-outline-hover: var(--color-primary-border-hover);
   --color-eyebrow: #fda4af;
   --color-edit: #fda4af;
   --color-edit-soft: rgba(253, 164, 175, 0.12);
@@ -299,15 +349,25 @@
   --diagram-open-string: #fda4af;
 }
 
-:root[data-accent="amber"] {
+:root:not([data-theme="light"])[data-accent="amber"] {
   --color-body-bg:
     radial-gradient(circle at top left, rgba(217, 119, 6, 0.18), transparent 34rem), radial-gradient(circle at bottom right, rgba(255, 179, 71, 0.12), transparent 30rem), #0a0a0b;
   --color-primary: #d97706;
   --color-primary-hover: #b45309;
-  --color-primary-soft: rgba(217, 119, 6, 0.14);
-  --color-primary-soft-hover: rgba(217, 119, 6, 0.24);
-  --color-primary-outline: #d97706;
-  --color-primary-outline-hover: #b45309;
+  --color-primary-soft: rgba(251, 191, 36, 0.14);
+  --color-primary-soft-hover: rgba(251, 191, 36, 0.24);
+  --color-primary-text: #fbbf24;
+  --color-primary-text-hover: #fde68a;
+  --color-primary-border: #d97706;
+  --color-primary-border-hover: #fbbf24;
+  --color-primary-fill: #92400e;
+  --color-primary-fill-hover: #b45309;
+  --color-primary-selected-soft-bg: rgba(251, 191, 36, 0.16);
+  --color-primary-selected-soft-text: #fde68a;
+  --color-primary-selected-soft-hover-bg: var(--color-primary-fill);
+  --color-primary-selected-soft-hover-text: #ffffff;
+  --color-primary-outline: var(--color-primary-border);
+  --color-primary-outline-hover: var(--color-primary-border-hover);
   --color-eyebrow: #fbbf24;
   --color-edit: #fbbf24;
   --color-edit-soft: rgba(251, 191, 36, 0.12);
@@ -315,15 +375,25 @@
   --diagram-open-string: #fbbf24;
 }
 
-:root[data-accent="green"] {
+:root:not([data-theme="light"])[data-accent="green"] {
   --color-body-bg:
     radial-gradient(circle at top left, rgba(22, 163, 74, 0.18), transparent 34rem), radial-gradient(circle at bottom right, rgba(255, 179, 71, 0.12), transparent 30rem), #0a0a0b;
   --color-primary: #16a34a;
   --color-primary-hover: #15803d;
-  --color-primary-soft: rgba(22, 163, 74, 0.14);
-  --color-primary-soft-hover: rgba(22, 163, 74, 0.24);
-  --color-primary-outline: #16a34a;
-  --color-primary-outline-hover: #15803d;
+  --color-primary-soft: rgba(134, 239, 172, 0.14);
+  --color-primary-soft-hover: rgba(134, 239, 172, 0.24);
+  --color-primary-text: #86efac;
+  --color-primary-text-hover: #bbf7d0;
+  --color-primary-border: #22c55e;
+  --color-primary-border-hover: #86efac;
+  --color-primary-fill: #15803d;
+  --color-primary-fill-hover: #166534;
+  --color-primary-selected-soft-bg: rgba(134, 239, 172, 0.16);
+  --color-primary-selected-soft-text: #bbf7d0;
+  --color-primary-selected-soft-hover-bg: var(--color-primary-fill);
+  --color-primary-selected-soft-hover-text: #ffffff;
+  --color-primary-outline: var(--color-primary-border);
+  --color-primary-outline-hover: var(--color-primary-border-hover);
   --color-eyebrow: #86efac;
   --color-edit: #86efac;
   --color-edit-soft: rgba(134, 239, 172, 0.12);
@@ -331,15 +401,25 @@
   --diagram-open-string: #86efac;
 }
 
-:root[data-accent="chartreuse"] {
+:root:not([data-theme="light"])[data-accent="chartreuse"] {
   --color-body-bg:
     radial-gradient(circle at top left, rgba(163, 230, 53, 0.16), transparent 34rem), radial-gradient(circle at bottom right, rgba(255, 179, 71, 0.1), transparent 30rem), #0a0a0b;
   --color-primary: #a3e635;
   --color-primary-hover: #84cc16;
-  --color-primary-soft: rgba(163, 230, 53, 0.14);
-  --color-primary-soft-hover: rgba(163, 230, 53, 0.24);
-  --color-primary-outline: #a3e635;
-  --color-primary-outline-hover: #84cc16;
+  --color-primary-soft: rgba(217, 249, 157, 0.14);
+  --color-primary-soft-hover: rgba(217, 249, 157, 0.24);
+  --color-primary-text: #d9f99d;
+  --color-primary-text-hover: #ecfccb;
+  --color-primary-border: #a3e635;
+  --color-primary-border-hover: #d9f99d;
+  --color-primary-fill: #4d7c0f;
+  --color-primary-fill-hover: #3f6212;
+  --color-primary-selected-soft-bg: rgba(217, 249, 157, 0.16);
+  --color-primary-selected-soft-text: #ecfccb;
+  --color-primary-selected-soft-hover-bg: var(--color-primary-fill);
+  --color-primary-selected-soft-hover-text: #ffffff;
+  --color-primary-outline: var(--color-primary-border);
+  --color-primary-outline-hover: var(--color-primary-border-hover);
   --color-eyebrow: #d9f99d;
   --color-edit: #d9f99d;
   --color-edit-soft: rgba(217, 249, 157, 0.12);
@@ -348,18 +428,28 @@
 }
 
 :root:not([data-theme="light"])[data-accent="chartreuse"] {
-  --color-primary-contrast: #111827;
+  --color-primary-contrast: #ffffff;
 }
 
-:root[data-accent="cyan"] {
+:root:not([data-theme="light"])[data-accent="cyan"] {
   --color-body-bg:
     radial-gradient(circle at top left, rgba(6, 182, 212, 0.18), transparent 34rem), radial-gradient(circle at bottom right, rgba(255, 179, 71, 0.12), transparent 30rem), #0a0a0b;
   --color-primary: #06b6d4;
   --color-primary-hover: #0891b2;
-  --color-primary-soft: rgba(6, 182, 212, 0.14);
-  --color-primary-soft-hover: rgba(6, 182, 212, 0.24);
-  --color-primary-outline: #06b6d4;
-  --color-primary-outline-hover: #0891b2;
+  --color-primary-soft: rgba(103, 232, 249, 0.14);
+  --color-primary-soft-hover: rgba(103, 232, 249, 0.24);
+  --color-primary-text: #67e8f9;
+  --color-primary-text-hover: #a5f3fc;
+  --color-primary-border: #06b6d4;
+  --color-primary-border-hover: #67e8f9;
+  --color-primary-fill: #0e7490;
+  --color-primary-fill-hover: #155e75;
+  --color-primary-selected-soft-bg: rgba(103, 232, 249, 0.16);
+  --color-primary-selected-soft-text: #a5f3fc;
+  --color-primary-selected-soft-hover-bg: var(--color-primary-fill);
+  --color-primary-selected-soft-hover-text: #ffffff;
+  --color-primary-outline: var(--color-primary-border);
+  --color-primary-outline-hover: var(--color-primary-border-hover);
   --color-eyebrow: #67e8f9;
   --color-edit: #67e8f9;
   --color-edit-soft: rgba(103, 232, 249, 0.12);
@@ -367,15 +457,25 @@
   --diagram-open-string: #67e8f9;
 }
 
-:root[data-accent="magenta"] {
+:root:not([data-theme="light"])[data-accent="magenta"] {
   --color-body-bg:
     radial-gradient(circle at top left, rgba(217, 70, 239, 0.18), transparent 34rem), radial-gradient(circle at bottom right, rgba(255, 179, 71, 0.12), transparent 30rem), #0a0a0b;
   --color-primary: #d946ef;
   --color-primary-hover: #c026d3;
-  --color-primary-soft: rgba(217, 70, 239, 0.14);
-  --color-primary-soft-hover: rgba(217, 70, 239, 0.24);
-  --color-primary-outline: #d946ef;
-  --color-primary-outline-hover: #c026d3;
+  --color-primary-soft: rgba(240, 171, 252, 0.14);
+  --color-primary-soft-hover: rgba(240, 171, 252, 0.24);
+  --color-primary-text: #f0abfc;
+  --color-primary-text-hover: #f5d0fe;
+  --color-primary-border: #d946ef;
+  --color-primary-border-hover: #f0abfc;
+  --color-primary-fill: #a21caf;
+  --color-primary-fill-hover: #86198f;
+  --color-primary-selected-soft-bg: rgba(240, 171, 252, 0.16);
+  --color-primary-selected-soft-text: #f5d0fe;
+  --color-primary-selected-soft-hover-bg: var(--color-primary-fill);
+  --color-primary-selected-soft-hover-text: #ffffff;
+  --color-primary-outline: var(--color-primary-border);
+  --color-primary-outline-hover: var(--color-primary-border-hover);
   --color-eyebrow: #f0abfc;
   --color-edit: #f0abfc;
   --color-edit-soft: rgba(240, 171, 252, 0.12);

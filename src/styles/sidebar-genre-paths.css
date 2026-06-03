@@ -55,7 +55,7 @@
 }
 
 .path-card.is-active {
-  border-color: var(--color-primary);
+  border-color: var(--color-primary-border);
   background: var(--color-primary-soft);
 }
 

@@ -131,7 +131,7 @@
 
 .recordings-search-field input:focus,
 .recordings-sort-field select:focus {
-  border-color: var(--color-primary);
+  border-color: var(--color-primary-border);
   outline: none;
 }
 
@@ -175,18 +175,10 @@
 }
 
 .recording-library-day-group-list.is-scrollable {
-  --recording-card-estimated-height: 148px;
-  --recording-card-gap: 10px;
-  --recording-day-header-height: 58px;
-
-  max-height: calc(var(--recording-day-header-height) + (var(--recording-card-estimated-height) * 5) + (var(--recording-card-gap) * 4) + 3px);
+  max-height: min(76vh, 920px);
   overflow-y: auto;
-  padding-right: 16px;
+  padding-right: 6px;
   scrollbar-gutter: stable;
-}
-
-.recording-library-day-group-list.is-scrollable > .recording-library-day-group {
-  margin-right: 4px;
 }
 
 .recording-library-day-group {
@@ -222,10 +214,10 @@
 }
 
 .recording-library-day-header span {
-  border: 1px solid var(--color-primary);
+  border: 1px solid var(--color-primary-border);
   border-radius: 999px;
-  background: var(--color-primary-soft);
-  color: var(--color-primary);
+  background: var(--color-primary-selected-soft-bg);
+  color: var(--color-primary-text);
   padding: 6px 10px;
   font-size: 12px;
   font-weight: 900;

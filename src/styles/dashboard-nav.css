@@ -51,8 +51,8 @@
 
 .dashboard-nav-button.is-active,
 .dashboard-nav-more-button.is-open {
-  border-color: var(--color-primary);
-  background: var(--color-primary);
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-fill);
   color: var(--color-primary-contrast, #ffffff);
 }
 
@@ -135,9 +135,9 @@
 }
 
 .dashboard-nav-more-link.is-active {
-  border-color: var(--color-primary);
+  border-color: var(--color-primary-border);
   background: var(--color-primary-soft);
-  color: var(--color-primary);
+  color: var(--color-primary-text);
 }
 
 .dashboard-nav-more-link svg {
@@ -162,9 +162,9 @@
 }
 
 .active-session-indicator:hover {
-  border-color: var(--color-primary);
+  border-color: var(--color-primary-border);
   background: var(--color-primary-soft);
-  color: var(--color-primary);
+  color: var(--color-primary-text);
 }
 
 .active-session-indicator.is-recording {
