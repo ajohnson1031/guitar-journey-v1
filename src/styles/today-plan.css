@@ -478,7 +478,7 @@
   padding: 0;
   text-align: left;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 900;
   line-height: 1.35;
 }
 
@@ -499,4 +499,104 @@
   background: transparent;
   color: var(--color-danger-text, var(--color-danger)) !important;
   padding: 0;
+}
+
+/* 6C.1f — Dashboard rating buttons */
+.session-rating-block {
+  display: grid;
+  gap: 8px;
+}
+
+.session-rating-label {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.session-rating-label.is-muted {
+  opacity: 0.55;
+}
+
+.rating-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.session-rating-button {
+  min-width: 0;
+  min-height: 42px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted-strong);
+  padding: 9px 12px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.session-rating-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.session-rating-button:not(:disabled):hover {
+  border-color: var(--color-primary);
+  background: var(--color-surface);
+  color: var(--color-primary);
+  transform: translateY(-1px);
+}
+
+.session-rating-button--easy.is-selected {
+  border-color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 62%, #ffffff 38%);
+  color: #ffffff;
+}
+
+.session-rating-button--okay.is-selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: #ffffff;
+}
+
+.session-rating-button--hard.is-selected {
+  border-color: var(--color-primary-hover);
+  background: color-mix(in srgb, var(--color-primary-hover) 82%, #000000 18%);
+  color: #ffffff;
+}
+
+.session-rating-button.is-selected:not(:disabled):hover {
+  color: #ffffff;
+}
+
+.session-rating-button--easy.is-selected {
+  background: color-mix(in srgb, var(--color-primary) 15%, #ffffff 65%);
+  color: var(--color-primary-hover);
+}
+
+.session-rating-button--easy.is-selected:not(:disabled):hover {
+  background: var(--color-primary);
+  color: #ffffff;
+}
+
+.session-rating-button--okay.is-selected:not(:disabled):hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: #ffffff;
+}
+
+.session-rating-button--hard.is-selected:not(:disabled):hover {
+  border-color: var(--color-primary-hover);
+  background: color-mix(in srgb, var(--color-primary-hover) 82%, #000000 18%);
+  color: #ffffff;
 }
