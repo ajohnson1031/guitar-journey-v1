@@ -5,9 +5,13 @@ import { useGuitarJourneyContext } from "../context";
 const { Fragment } = React;
 
 export default function NewSongRoute() {
-  const { newSongRouteProps = {} } = useGuitarJourneyContext();
+  const {
+    newSongRouteProps = {},
+    sidebarProps = {},
+  } = useGuitarJourneyContext();
 
   const {
+    existingSongs = sidebarProps.allSongs || [],
     genres,
     onAddSong,
     onCancelEdit,
@@ -20,6 +24,7 @@ export default function NewSongRoute() {
       <CustomSongForm
         defaultOpen
         editingSong={null}
+        existingSongs={existingSongs}
         genres={genres}
         showToggle={false}
         onAddSong={onAddSong}

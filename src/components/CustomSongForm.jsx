@@ -41,6 +41,48 @@ function getAppliedBpm(value) {
   return String(Math.min(220, Math.max(40, Math.round(bpm))));
 }
 
+function normalizeSongIdentityValue(value) {
+  return String(value || "")
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/&/g, "and")
+    .replace(/[’']/g, "")
+    .replace(/[^a-z0-9]+/gi, " ")
+    .trim()
+    .toLowerCase();
+}
+
+function getSongDuplicateLabel(song) {
+  const title = String(song?.title || "Untitled song").trim();
+  const artist = String(song?.artist || "").trim();
+
+  return artist ? `${title} by ${artist}` : title;
+}
+
+function findLikelyDuplicateSong(song, existingSongs = [], editingSongId = "") {
+  const normalizedTitle = normalizeSongIdentityValue(song?.title);
+  const normalizedArtist = normalizeSongIdentityValue(song?.artist);
+
+  if (!normalizedTitle) return null;
+
+  return (
+    existingSongs.find((existingSong) => {
+      if (!existingSong || existingSong.id === editingSongId) return false;
+
+      const existingTitle = normalizeSongIdentityValue(existingSong.title);
+      const existingArtist = normalizeSongIdentityValue(existingSong.artist);
+
+      if (!existingTitle || existingTitle !== normalizedTitle) return false;
+
+      if (normalizedArtist && existingArtist) {
+        return existingArtist === normalizedArtist;
+      }
+
+      return true;
+    }) || null
+  );
+}
+
 function songToForm(song) {
   if (!song) return getDefaultForm();
 
@@ -65,6 +107,7 @@ function songToForm(song) {
 export default function CustomSongForm({
   defaultOpen = false,
   editingSong,
+  existingSongs = [],
   genres,
   onAddSong,
   onCancelEdit,
@@ -77,6 +120,7 @@ export default function CustomSongForm({
 
   const [form, setForm] = useState(() => getDefaultForm());
   const [isOpen, setIsOpen] = useState(defaultOpen);
+  const [duplicateCandidate, setDuplicateCandidate] = useState(null);
   const [message, setMessage] = useState("");
   const [messageTone, setMessageTone] = useState("error");
 
@@ -97,6 +141,7 @@ export default function CustomSongForm({
     setForm(songToForm(editingSong));
     setIsOpen(true);
     onOpenChange(true);
+    setDuplicateCandidate(null);
     setMessage("");
   }, [editingSong, onOpenChange]);
 
@@ -110,22 +155,30 @@ export default function CustomSongForm({
     setMessageTone("info");
   }
 
+  function setWarningMessage(value) {
+    setMessage(value);
+    setMessageTone("warning");
+  }
+
   function updateField(fieldName, value) {
     setForm((current) => ({
       ...current,
       [fieldName]: value,
     }));
+    setDuplicateCandidate(null);
     setMessage("");
   }
 
   function resetForm() {
     setForm(isEditing ? songToForm(editingSong) : songToForm(null));
+    setDuplicateCandidate(null);
     setMessage("");
   }
 
   function closeForm() {
     setIsOpen(false);
     onOpenChange(false);
+    setDuplicateCandidate(null);
     setMessage("");
     setForm(songToForm(null));
 
@@ -137,6 +190,8 @@ export default function CustomSongForm({
   }
 
   function applySongAnalysis(analysis) {
+    setDuplicateCandidate(null);
+
     const matchingGenre = getMatchingGenre(analysis.genre, genres);
     const appliedBpm = getAppliedBpm(analysis.bpm);
     const appliedFields = [
@@ -181,32 +236,35 @@ export default function CustomSongForm({
     };
   }
 
-  function handleSubmit(event) {
-    event.preventDefault();
-
+  function saveSong({ allowDuplicate = false } = {}) {
     const title = form.title.trim();
 
     if (!title) {
+      setDuplicateCandidate(null);
       setValidationMessage("Add a song title before saving.");
       return;
     }
 
     if (!form.genre) {
+      setDuplicateCandidate(null);
       setValidationMessage("Select a genre before saving.");
       return;
     }
 
     if (!form.key) {
+      setDuplicateCandidate(null);
       setValidationMessage("Select a key before saving.");
       return;
     }
 
     if (!form.difficulty) {
+      setDuplicateCandidate(null);
       setValidationMessage("Select a difficulty before saving.");
       return;
     }
 
     if (!hasStrummingPattern(strummingPattern)) {
+      setDuplicateCandidate(null);
       setValidationMessage("Add at least one down or up strum to the strumming pattern.");
       return;
     }
@@ -214,6 +272,7 @@ export default function CustomSongForm({
     const chords = parseCommaList(form.chords);
 
     if (!chords.length) {
+      setDuplicateCandidate(null);
       setValidationMessage("Add at least one chord.");
       return;
     }
@@ -242,17 +301,41 @@ export default function CustomSongForm({
       updatedAt: new Date().toISOString(),
     };
 
+    const likelyDuplicate = findLikelyDuplicateSong(song, existingSongs, editingSong?.id);
+
+    if (likelyDuplicate && !allowDuplicate) {
+      setDuplicateCandidate(likelyDuplicate);
+      setWarningMessage("Review the matching song below before saving anyway.");
+      return;
+    }
+
     if (isEditing) {
       onUpdateSong(song);
     } else {
       onAddSong(song);
     }
 
+    setDuplicateCandidate(null);
     setMessage("");
     setMessageTone("error");
     setForm(songToForm(null));
     setIsOpen(false);
     onOpenChange(false);
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    saveSong();
+  }
+
+  function handleKeepEditing() {
+    setDuplicateCandidate(null);
+    setMessage("");
+    setMessageTone("error");
+  }
+
+  function handleSaveAnyway() {
+    saveSong({ allowDuplicate: true });
   }
 
   return (
@@ -380,25 +463,46 @@ export default function CustomSongForm({
             <div>{previewChords.length ? previewChords.map((chord) => <strong key={chord}>{chord}</strong>) : <small>No chords yet</small>}</div>
           </div>
 
+          {duplicateCandidate ? (
+            <div className="custom-song-duplicate-warning" role="alert">
+              <strong>This looks similar to a song already in your library.</strong>
+              <span>{getSongDuplicateLabel(duplicateCandidate)}</span>
+            </div>
+          ) : null}
+
           <div className="custom-song-actions">
-            <p className={`custom-song-message ${messageTone === "error" ? "is-error" : "is-info"}`} aria-live="polite">
+            <p className={`custom-song-message is-${messageTone}`} aria-live="polite">
               {message}
             </p>
 
             <div className="custom-song-button-group">
-              {isEditing ? (
-                <button type="button" className="ghost-button" onClick={closeForm}>
-                  Cancel Edit
-                </button>
-              ) : (
-                <button type="button" className="preset-button" onClick={resetForm}>
-                  Reset Form
-                </button>
-              )}
+              {duplicateCandidate ? (
+                <>
+                  <button type="button" className="ghost-button" onClick={handleKeepEditing}>
+                    Keep Editing
+                  </button>
 
-              <button type="submit" className="complete-session-button">
-                {isEditing ? "Save Updated Song" : "Save Custom Song"}
-              </button>
+                  <button type="button" className="complete-session-button" onClick={handleSaveAnyway}>
+                    Save Anyway
+                  </button>
+                </>
+              ) : (
+                <>
+                  {isEditing ? (
+                    <button type="button" className="ghost-button" onClick={closeForm}>
+                      Cancel Edit
+                    </button>
+                  ) : (
+                    <button type="button" className="preset-button" onClick={resetForm}>
+                      Reset Form
+                    </button>
+                  )}
+
+                  <button type="submit" className="complete-session-button">
+                    {isEditing ? "Save Updated Song" : "Save Custom Song"}
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </form>

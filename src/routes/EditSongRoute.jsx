@@ -8,10 +8,14 @@ const { Fragment, useMemo } = React;
 const noop = () => {};
 
 export default function EditSongRoute() {
-  const { editSongRouteProps = {} } = useGuitarJourneyContext();
+  const {
+    editSongRouteProps = {},
+    sidebarProps = {},
+  } = useGuitarJourneyContext();
 
   const {
     customSongs = [],
+    existingSongs = sidebarProps.allSongs || customSongs,
     genres,
     onCancelEdit,
     onClose,
@@ -33,6 +37,7 @@ export default function EditSongRoute() {
       <CustomSongForm
         defaultOpen
         editingSong={songToEdit}
+        existingSongs={existingSongs}
         genres={genres}
         showToggle={false}
         onAddSong={noop}

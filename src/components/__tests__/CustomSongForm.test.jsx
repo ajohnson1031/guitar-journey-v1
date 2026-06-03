@@ -40,6 +40,7 @@ Practice the minor-key chord movement slowly, then loop the Verse and Refrain un
 function createProps(overrides = {}) {
   return {
     editingSong: null,
+    existingSongs: [],
     genres: GENRES,
     onAddSong: vi.fn(),
     onCancelEdit: vi.fn(),
@@ -273,6 +274,103 @@ describe("CustomSongForm", () => {
     expect(savedSong.strumming).toBe(`${DOWN_STRUM} · · · · · · ·`);
   });
 
+  it("warns before saving a likely duplicate song and can save anyway", () => {
+    const props = renderCustomSongForm({
+      defaultOpen: true,
+      existingSongs: [
+        {
+          id: "existing-custom-test-song",
+          title: "Custom Test Song",
+          artist: "Aaron Johnson",
+        },
+      ],
+      showToggle: false,
+    });
+
+    fillRequiredNewSongFields();
+
+    fireEvent.click(screen.getByRole("button", { name: "Save Custom Song" }));
+
+    expect(screen.getByText("This looks similar to a song already in your library.")).toBeTruthy();
+    expect(screen.getByText("Review the matching song below before saving anyway.")).toBeTruthy();
+    expect(screen.getByText("Custom Test Song by Aaron Johnson")).toBeTruthy();
+    expect(props.onAddSong).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Save Anyway" }));
+
+    expect(props.onAddSong).toHaveBeenCalledTimes(1);
+  });
+
+  it("lets the user keep editing when a likely duplicate is detected", () => {
+    const props = renderCustomSongForm({
+      defaultOpen: true,
+      existingSongs: [
+        {
+          id: "existing-custom-test-song",
+          title: "Custom Test Song",
+          artist: "Aaron Johnson",
+        },
+      ],
+      showToggle: false,
+    });
+
+    fillRequiredNewSongFields();
+
+    fireEvent.click(screen.getByRole("button", { name: "Save Custom Song" }));
+    fireEvent.click(screen.getByRole("button", { name: "Keep Editing" }));
+
+    expect(screen.queryByText("This looks similar to a song already in your library.")).toBeNull();
+    expect(screen.getByRole("button", { name: "Save Custom Song" })).toBeTruthy();
+    expect(props.onAddSong).not.toHaveBeenCalled();
+  });
+
+  it("falls back to title-only duplicate detection when the saved song has no artist", () => {
+    const props = renderCustomSongForm({
+      defaultOpen: true,
+      existingSongs: [
+        {
+          id: "existing-title-only-song",
+          title: "Custom Test Song",
+          artist: "Someone Else",
+        },
+      ],
+      showToggle: false,
+    });
+
+    fillRequiredNewSongFields();
+
+    fireEvent.change(screen.getByLabelText("Artist"), {
+      target: { value: "" },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Save Custom Song" }));
+
+    expect(screen.getByText("This looks similar to a song already in your library.")).toBeTruthy();
+    expect(screen.getByText("Review the matching song below before saving anyway.")).toBeTruthy();
+    expect(props.onAddSong).not.toHaveBeenCalled();
+  });
+
+  it("does not warn when the same title has a different artist", () => {
+    const props = renderCustomSongForm({
+      defaultOpen: true,
+      existingSongs: [
+        {
+          id: "existing-same-title-different-artist",
+          title: "Custom Test Song",
+          artist: "Different Artist",
+        },
+      ],
+      showToggle: false,
+    });
+
+    fillRequiredNewSongFields();
+
+    fireEvent.click(screen.getByRole("button", { name: "Save Custom Song" }));
+
+    expect(screen.queryByText("This looks similar to a song already in your library.")).toBeNull();
+    expect(props.onAddSong).toHaveBeenCalledTimes(1);
+  });
+
   it("can save a new custom song with sixteenth-note strumming", () => {
     const props = renderCustomSongForm({
       defaultOpen: true,
@@ -352,6 +450,7 @@ describe("CustomSongForm", () => {
     const props = renderCustomSongForm({
       defaultOpen: true,
       editingSong: createEditingSong(),
+      existingSongs: [createEditingSong()],
       showToggle: false,
     });
 
