@@ -33,6 +33,12 @@ vi.mock("../../hooks", () => ({
   useRecordingPlayback: () => mockPlaybackState,
 }));
 
+function getSessionTitle(title) {
+  return screen.getByText((_, element) => {
+    return element?.tagName.toLowerCase() === "strong" && element.textContent.startsWith(title);
+  });
+}
+
 function createSession(overrides = {}) {
   return {
     id: "session-test",
@@ -153,7 +159,7 @@ describe("SessionHistory", () => {
       },
     });
 
-    expect(screen.getByText("Worship Song")).toBeTruthy();
+    expect(getSessionTitle("Worship Song")).toBeTruthy();
     expect(screen.queryByText("Blues Song")).toBeNull();
   });
 
@@ -179,7 +185,7 @@ describe("SessionHistory", () => {
       },
     });
 
-    expect(screen.getByText("Notes Match Song")).toBeTruthy();
+    expect(getSessionTitle("Notes Match Song")).toBeTruthy();
     expect(screen.getByText("Focused on barre chord cleanup.")).toBeTruthy();
     expect(screen.queryByText("Notes Miss Song")).toBeNull();
   });
