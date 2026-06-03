@@ -135,8 +135,8 @@
 }
 
 .fretted-note {
-  fill: var(--color-primary-text);
-  stroke: rgba(255, 255, 255, 0.4);
+  fill: var(--diagram-note-fill);
+  stroke: var(--diagram-note-stroke);
   stroke-width: 1;
 }
 

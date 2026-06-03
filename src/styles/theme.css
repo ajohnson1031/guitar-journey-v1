@@ -130,9 +130,11 @@
   --diagram-string: rgba(244, 244, 245, 0.62);
   --diagram-fret: rgba(244, 244, 245, 0.48);
   --diagram-nut: rgba(244, 244, 245, 0.9);
-  --diagram-open-string: #7dd3fc;
+  --diagram-open-string: var(--color-primary-text);
   --diagram-muted-string: #fca5a5;
-  --diagram-finger-label: #ffffff;
+  --diagram-note-fill: var(--color-primary-fill);
+  --diagram-note-stroke: rgba(255, 255, 255, 0.38);
+  --diagram-finger-label: var(--color-primary-contrast);
 }
 
 :root[data-theme="light"] {
@@ -262,9 +264,11 @@
   --diagram-string: rgba(51, 65, 85, 0.64);
   --diagram-fret: rgba(100, 116, 139, 0.52);
   --diagram-nut: rgba(15, 23, 42, 0.82);
-  --diagram-open-string: #0284c7;
+  --diagram-open-string: var(--color-primary-text);
   --diagram-muted-string: #dc2626;
-  --diagram-finger-label: #ffffff;
+  --diagram-note-fill: var(--color-primary-fill);
+  --diagram-note-stroke: rgba(255, 255, 255, 0.52);
+  --diagram-finger-label: var(--color-primary-contrast);
 }
 
 /* =========================
@@ -294,7 +298,7 @@
   --color-edit: #c4b5fd;
   --color-edit-soft: rgba(196, 181, 253, 0.12);
   --color-edit-soft-hover: rgba(196, 181, 253, 0.18);
-  --diagram-open-string: #c4b5fd;
+  --diagram-open-string: var(--color-primary-text);
 }
 
 :root:not([data-theme="light"])[data-accent="teal"] {
@@ -320,7 +324,7 @@
   --color-edit: #5eead4;
   --color-edit-soft: rgba(94, 234, 212, 0.12);
   --color-edit-soft-hover: rgba(94, 234, 212, 0.18);
-  --diagram-open-string: #5eead4;
+  --diagram-open-string: var(--color-primary-text);
 }
 
 :root:not([data-theme="light"])[data-accent="rose"] {
@@ -346,7 +350,7 @@
   --color-edit: #fda4af;
   --color-edit-soft: rgba(253, 164, 175, 0.12);
   --color-edit-soft-hover: rgba(253, 164, 175, 0.18);
-  --diagram-open-string: #fda4af;
+  --diagram-open-string: var(--color-primary-text);
 }
 
 :root:not([data-theme="light"])[data-accent="amber"] {
@@ -372,7 +376,7 @@
   --color-edit: #fbbf24;
   --color-edit-soft: rgba(251, 191, 36, 0.12);
   --color-edit-soft-hover: rgba(251, 191, 36, 0.18);
-  --diagram-open-string: #fbbf24;
+  --diagram-open-string: var(--color-primary-text);
 }
 
 :root:not([data-theme="light"])[data-accent="green"] {
@@ -398,7 +402,7 @@
   --color-edit: #86efac;
   --color-edit-soft: rgba(134, 239, 172, 0.12);
   --color-edit-soft-hover: rgba(134, 239, 172, 0.18);
-  --diagram-open-string: #86efac;
+  --diagram-open-string: var(--color-primary-text);
 }
 
 :root:not([data-theme="light"])[data-accent="chartreuse"] {
@@ -424,7 +428,7 @@
   --color-edit: #d9f99d;
   --color-edit-soft: rgba(217, 249, 157, 0.12);
   --color-edit-soft-hover: rgba(217, 249, 157, 0.18);
-  --diagram-open-string: #d9f99d;
+  --diagram-open-string: var(--color-primary-text);
 }
 
 :root:not([data-theme="light"])[data-accent="chartreuse"] {
@@ -454,7 +458,7 @@
   --color-edit: #67e8f9;
   --color-edit-soft: rgba(103, 232, 249, 0.12);
   --color-edit-soft-hover: rgba(103, 232, 249, 0.18);
-  --diagram-open-string: #67e8f9;
+  --diagram-open-string: var(--color-primary-text);
 }
 
 :root:not([data-theme="light"])[data-accent="magenta"] {
@@ -480,7 +484,7 @@
   --color-edit: #f0abfc;
   --color-edit-soft: rgba(240, 171, 252, 0.12);
   --color-edit-soft-hover: rgba(240, 171, 252, 0.18);
-  --diagram-open-string: #f0abfc;
+  --diagram-open-string: var(--color-primary-text);
 }
 
 :root[data-theme="light"][data-accent="purple"] {

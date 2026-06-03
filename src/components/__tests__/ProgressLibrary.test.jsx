@@ -79,8 +79,8 @@ describe("ProgressLibrary", () => {
     expect(screen.getByText("tracked")).toBeTruthy();
     expect(screen.getByText("mastered")).toBeTruthy();
     expect(screen.getByText("in progress")).toBeTruthy();
-    expect(screen.getByText("(Mastered)")).toBeTruthy();
-    expect(screen.getByText("(In Progress)")).toBeTruthy();
+    expect(screen.getByText("Mastered", { selector: ".progress-song-title-status" })).toBeTruthy();
+    expect(screen.getByText("In Progress", { selector: ".progress-song-title-status" })).toBeTruthy();
   });
 
   it("filters songs by search, status, and genre", () => {
@@ -220,7 +220,7 @@ describe("ProgressLibrary", () => {
     });
 
     expect(screen.getByRole("button", { name: "Marked Mastered" }).className).toContain("is-mastered");
-    expect(screen.getByText("(Mastered)")).toBeTruthy();
+    expect(screen.getByText("Mastered", { selector: ".progress-song-title-status" })).toBeTruthy();
   });
 
   it("renders the empty state when there is no progress yet", () => {
