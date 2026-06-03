@@ -55,9 +55,9 @@
 }
 
 .chord-audio-button:hover {
-  border-color: var(--color-primary);
+  border-color: var(--color-primary-border);
   background: var(--color-primary-soft);
-  color: var(--color-primary);
+  color: var(--color-primary-text);
 }
 
 .chord-audio-button.is-playing {
@@ -135,7 +135,7 @@
 }
 
 .fretted-note {
-  fill: var(--color-primary);
+  fill: var(--color-primary-text);
   stroke: rgba(255, 255, 255, 0.4);
   stroke-width: 1;
 }

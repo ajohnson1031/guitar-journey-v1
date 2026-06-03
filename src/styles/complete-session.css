@@ -63,18 +63,8 @@
 }
 
 .session-primary-action {
-  display: inline-flex;
   width: 100%;
   min-height: 46px;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.session-primary-action svg {
-  width: 18px;
-  height: 18px;
-  flex: 0 0 auto;
 }
 
 .session-running-actions {
@@ -95,9 +85,9 @@
 }
 
 .session-icon-button:hover {
-  border-color: var(--color-primary);
+  border-color: var(--color-primary-border);
   background: var(--color-primary-soft);
-  color: var(--color-primary);
+  color: var(--color-primary-text);
 }
 
 .session-icon-button:disabled {

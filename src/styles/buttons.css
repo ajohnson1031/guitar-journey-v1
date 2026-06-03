@@ -30,28 +30,28 @@
 
 .selected-button,
 .primary-button {
-  border-color: var(--color-primary);
-  background: var(--color-primary);
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-fill);
   color: var(--color-primary-contrast, #ffffff);
 }
 
 .selected-button:hover,
 .primary-button:hover {
-  border-color: var(--color-primary-hover);
-  background: var(--color-primary-hover);
+  border-color: var(--color-primary-border-hover);
+  background: var(--color-primary-fill-hover);
   color: var(--color-primary-contrast, #ffffff);
 }
 
 .primary-outline-button {
-  border-color: var(--color-primary);
+  border-color: var(--color-primary-border);
   background: transparent;
-  color: var(--color-primary);
+  color: var(--color-primary-text);
 }
 
 .primary-outline-button:hover {
-  border-color: var(--color-primary-hover);
+  border-color: var(--color-primary-border-hover);
   background: var(--color-primary-soft-hover);
-  color: var(--color-primary-hover);
+  color: var(--color-primary-text-hover);
 }
 
 .success-button {

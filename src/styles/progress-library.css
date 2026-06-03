@@ -128,7 +128,7 @@
 
 .progress-search-field input:focus,
 .progress-select-field select:focus {
-  border-color: var(--color-primary);
+  border-color: var(--color-primary-border);
   outline: none;
 }
 
@@ -189,6 +189,7 @@
 .progress-song-title {
   display: inline-flex;
   align-items: baseline;
+  gap: 8px;
   margin: 0;
   color: var(--color-text);
   font-size: 17px;
@@ -196,8 +197,11 @@
 }
 
 .progress-song-title-status {
-  font-size: 17px;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
   line-height: inherit;
+  text-transform: uppercase;
   white-space: nowrap;
 }
 
@@ -272,7 +276,7 @@
 .progress-action-icon-button {
   border: 1px solid var(--color-border);
   border-radius: 999px;
-  background: transparent;
+  background: var(--color-surface-subtle);
   color: var(--color-text-muted-strong);
 }
 
@@ -283,21 +287,21 @@
 }
 
 .progress-practice-icon-button:hover {
-  border-color: var(--color-success);
-  background: var(--color-success-soft-hover);
-  color: var(--color-success);
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-soft-hover);
+  color: var(--color-primary-text);
 }
 
 .progress-history-icon-button:hover {
-  border-color: var(--color-neutral-action);
-  background: var(--color-neutral-action-soft-hover);
-  color: var(--color-neutral-action);
+  border-color: var(--color-edit);
+  background: var(--color-edit-soft-hover);
+  color: var(--color-edit);
 }
 
 .progress-mastered-icon-button {
   border: 1px solid var(--color-border);
   border-radius: 999px;
-  background: transparent;
+  background: var(--color-surface-subtle);
   color: var(--color-text-muted);
 }
 
