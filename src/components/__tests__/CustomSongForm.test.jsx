@@ -7,7 +7,35 @@ import CustomSongForm from "../CustomSongForm";
 
 const { Fragment } = React;
 
-const GENRES = ["Worship", "Blues", "Neo Soul"];
+const GENRES = ["Worship", "Blues", "Neo Soul", "Folk"];
+
+const GREENSLEEVES_SETUP = `Title: Greensleeves
+Artist: Traditional
+Instrument / Type: Chords
+Genre: Folk
+Difficulty: Intermediate
+Key: Em
+Tuning: Standard
+Capo: None
+BPM: 86
+
+Chords:
+Em, G, D, Bm, C, Am, B7
+
+Verse:
+Em - G - D - Bm
+C - Am - B7 - Em
+Em - G - D - Bm
+C - B7 - Em - Em
+
+Refrain:
+G - D - Bm - Em
+C - Am - B7 - B7
+G - D - Bm - Em
+C - B7 - Em - Em
+
+Practice Goal:
+Practice the minor-key chord movement slowly, then loop the Verse and Refrain until the transitions feel smooth.`;
 
 function createProps(overrides = {}) {
   return {
@@ -119,6 +147,15 @@ function createEditingSong() {
     createdAt: "2026-01-01T00:00:00.000Z",
     updatedAt: "2026-01-01T00:00:00.000Z",
   };
+}
+
+function analyzeAndApplySetupText(text = GREENSLEEVES_SETUP) {
+  fireEvent.change(screen.getByLabelText("Practice setup song details"), {
+    target: { value: text },
+  });
+
+  fireEvent.click(screen.getByRole("button", { name: "Analyze Paste" }));
+  fireEvent.click(screen.getByRole("button", { name: "Apply Analysis" }));
 }
 
 describe("CustomSongForm", () => {
@@ -255,6 +292,59 @@ describe("CustomSongForm", () => {
     expect(savedSong.strummingPattern.slots).toHaveLength(16);
     expect(savedSong.strummingPattern.slots[0].direction).toBe(DOWN_STRUM);
     expect(savedSong.strummingPattern.slots[1].direction).toBe(UP_STRUM);
+  });
+
+  it("applies Practice Setup Assistant metadata to manual song fields", () => {
+    renderCustomSongForm({
+      defaultOpen: true,
+      showToggle: false,
+    });
+
+    analyzeAndApplySetupText();
+
+    expect(screen.getByLabelText("Song Title").value).toBe("Greensleeves");
+    expect(screen.getByLabelText("Artist").value).toBe("Traditional");
+    expect(screen.getByLabelText("Instrument / Type").value).toBe("Chords");
+    expect(screen.getByLabelText("Genre").value).toBe("Folk");
+    expect(screen.getByLabelText("Difficulty").value).toBe("Intermediate");
+    expect(screen.getByLabelText("Key").value).toBe("Em");
+    expect(screen.getByLabelText("Tuning").value).toBe("Standard");
+    expect(screen.getByLabelText("BPM").value).toBe("86");
+    expect(screen.getByLabelText("Capo").value).toBe("No capo");
+    expect(screen.getByLabelText("Chords").value).toBe("Em, G, D, Bm, C, Am, B7");
+    expect(screen.getByLabelText("Transitions").value).toContain("Em → G");
+    expect(screen.getByLabelText("Song Sections").value).toContain("Verse: Em - G - D - Bm - C - Am - B7");
+    expect(screen.getByLabelText("Song Sections").value).toContain("Refrain: G - D - Bm - Em - C - Am - B7");
+    expect(screen.getByLabelText("Practice Goal").value).toContain("Learn Greensleeves");
+    expect(screen.getByText("Song analysis applied. Review and edit anything before saving.")).toBeTruthy();
+  });
+
+  it("does not auto-create or overwrite an unmatched pasted genre", () => {
+    renderCustomSongForm({
+      defaultOpen: true,
+      genres: ["Worship", "Blues", "Neo Soul"],
+      showToggle: false,
+    });
+
+    fireEvent.change(screen.getByLabelText("Genre"), {
+      target: { value: "Blues" },
+    });
+
+    analyzeAndApplySetupText(GREENSLEEVES_SETUP.replace("Genre: Folk", "Genre: Country"));
+
+    expect(screen.getByLabelText("Song Title").value).toBe("Greensleeves");
+    expect(screen.getByLabelText("Genre").value).toBe("Blues");
+  });
+
+  it("clamps pasted BPM metadata when applying analysis", () => {
+    renderCustomSongForm({
+      defaultOpen: true,
+      showToggle: false,
+    });
+
+    analyzeAndApplySetupText(GREENSLEEVES_SETUP.replace("BPM: 86", "BPM: 320"));
+
+    expect(screen.getByLabelText("BPM").value).toBe("220");
   });
 
   it("prepopulates editing fields and saves updates through onUpdateSong", () => {
