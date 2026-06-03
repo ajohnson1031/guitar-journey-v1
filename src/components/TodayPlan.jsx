@@ -10,7 +10,7 @@ const { Fragment, useEffect, useMemo, useRef, useState } = React;
 
 const SESSION_RECORDING_LEVEL_BAR_COUNT = 6;
 
-const SESSION_TAG_OPTIONS = ["Timing", "Chord changes", "Strumming", "Rhythm", "Clean tone", "Memorization", "Barre chords", "Lead / melody"];
+const SESSION_TAG_OPTIONS = ["Timing", "Chord Changes", "Strumming", "Rhythm", "Clean Tone", "Memorizing", "Barre Chords", "Lead"];
 
 function getSessionMessageIntent(message, intent) {
   const normalizedMessage = String(message || "");
@@ -331,17 +331,21 @@ export default function TodayPlan({
             <p className={`session-rating-label ${hasStartedSession ? "" : "is-muted"}`}>Rate this session</p>
 
             <div className="rating-row" aria-label="Rate this session">
-              {SESSION_RATINGS.map((rating) => (
-                <button
-                  key={rating}
-                  type="button"
-                  onClick={() => onSessionRatingChange(rating)}
-                  className={sessionRating === rating ? "selected-button" : "ghost-button"}
-                  disabled={!hasStartedSession}
-                >
-                  {rating}
-                </button>
-              ))}
+              {SESSION_RATINGS.map((rating) => {
+                const ratingClassName = rating.toLowerCase();
+
+                return (
+                  <button
+                    key={rating}
+                    type="button"
+                    onClick={() => onSessionRatingChange(rating)}
+                    className={`session-rating-button session-rating-button--${ratingClassName} ${sessionRating === rating ? "is-selected" : ""}`}
+                    disabled={!hasStartedSession}
+                  >
+                    {rating}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -353,7 +357,7 @@ export default function TodayPlan({
                 value={sessionPracticedSection}
                 onChange={(event) => onSessionPracticedSectionChange(event.target.value)}
               >
-                <option value="">Whole song</option>
+                <option value="">Whole Song</option>
                 {sectionOptions.map((section) => {
                   const sectionName = String(section?.name || "").trim();
 

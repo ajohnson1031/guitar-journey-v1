@@ -28,13 +28,40 @@ const PRACTICE_HISTORY_SORT_OPTIONS = [
   },
 ];
 
-const SESSION_TAG_DISPLAY_ORDER = ["Timing", "Chord changes", "Strumming", "Rhythm", "Clean tone", "Memorization", "Barre chords", "Lead / melody"];
+const SESSION_TAG_DISPLAY_ORDER = ["Timing", "Chord Changes", "Strumming", "Rhythm", "Clean Tone", "Memorizing", "Barre Chords", "Lead"];
+
+const SESSION_TAG_LABELS = new Map([
+  ["timing", "Timing"],
+  ["chord changes", "Chord Changes"],
+  ["strumming", "Strumming"],
+  ["rhythm", "Rhythm"],
+  ["clean tone", "Clean Tone"],
+  ["memorization", "Memorizing"],
+  ["memorizing", "Memorizing"],
+  ["barre chords", "Barre Chords"],
+  ["lead/melody", "Lead"],
+  ["lead / melody", "Lead"],
+  ["lead", "Lead"],
+]);
+
+function normalizeSessionTag(tag) {
+  const rawTag = String(tag || "").trim();
+
+  if (!rawTag) return "";
+
+  const normalizedKey = rawTag
+    .replace(/\s*\/\s*/g, "/")
+    .replace(/\s+/g, " ")
+    .toLowerCase();
+
+  return SESSION_TAG_LABELS.get(normalizedKey) || rawTag;
+}
 
 function getOrderedSessionTags(tags = []) {
   if (!Array.isArray(tags)) return [];
 
   const tagOrder = new Map(SESSION_TAG_DISPLAY_ORDER.map((tag, index) => [tag, index]));
-  const uniqueTags = [...new Set(tags.map((tag) => String(tag || "").trim()).filter(Boolean))];
+  const uniqueTags = [...new Set(tags.map(normalizeSessionTag).filter(Boolean))];
 
   return uniqueTags.sort((leftTag, rightTag) => {
     const leftIndex = tagOrder.has(leftTag) ? tagOrder.get(leftTag) : Number.POSITIVE_INFINITY;
@@ -43,6 +70,89 @@ function getOrderedSessionTags(tags = []) {
     if (leftIndex !== rightIndex) return leftIndex - rightIndex;
 
     return leftTag.localeCompare(rightTag);
+  });
+}
+
+const PRACTICE_HISTORY_RATING_ORDER = ["Easy", "Okay", "Hard"];
+
+function normalizePracticeFocus(focus) {
+  const rawFocus = String(focus || "").trim();
+
+  if (!rawFocus) return "Whole Song";
+  if (rawFocus.toLowerCase() === "whole song") return "Whole Song";
+
+  return rawFocus;
+}
+
+function getSessionPracticeFocus(session) {
+  const practicedSection = String(session?.practicedSection || "").trim();
+
+  return normalizePracticeFocus(practicedSection || "Whole Song");
+}
+
+function getPracticeHistoryFilterOptions(sessions = []) {
+  const focusSet = new Set();
+  const tagSet = new Set();
+  const ratingSet = new Set();
+
+  sessions.forEach((session) => {
+    focusSet.add(getSessionPracticeFocus(session));
+
+    getOrderedSessionTags(session?.tags).forEach((tag) => {
+      tagSet.add(tag);
+    });
+
+    const rating = String(session?.rating || "").trim();
+
+    if (rating) {
+      ratingSet.add(rating);
+    }
+  });
+
+  const focusOptions = [...focusSet].sort((leftFocus, rightFocus) => {
+    if (leftFocus === "Whole Song") return -1;
+    if (rightFocus === "Whole Song") return 1;
+
+    return leftFocus.localeCompare(rightFocus);
+  });
+
+  const tagOptions = getOrderedSessionTags([...tagSet]);
+  const ratingOptions = PRACTICE_HISTORY_RATING_ORDER.filter((rating) => ratingSet.has(rating));
+
+  return {
+    focusOptions,
+    ratingOptions,
+    tagOptions,
+  };
+}
+
+function filterPracticeSessionsByFacets(sessions = [], { focus = "", rating = "", tags = [] } = {}) {
+  const normalizedFocus = String(focus || "").trim();
+  const normalizedRating = String(rating || "").trim();
+  const normalizedTags = Array.isArray(tags) ? tags.map((tag) => String(tag || "").trim()).filter(Boolean) : [];
+
+  if (!normalizedFocus && !normalizedRating && !normalizedTags.length) {
+    return sessions;
+  }
+
+  return sessions.filter((session) => {
+    if (normalizedFocus && getSessionPracticeFocus(session) !== normalizedFocus) {
+      return false;
+    }
+
+    if (normalizedRating && String(session?.rating || "").trim() !== normalizedRating) {
+      return false;
+    }
+
+    if (normalizedTags.length) {
+      const sessionTagSet = new Set(getOrderedSessionTags(session?.tags));
+
+      if (!normalizedTags.every((tag) => sessionTagSet.has(tag))) {
+        return false;
+      }
+    }
+
+    return true;
   });
 }
 
@@ -133,7 +243,7 @@ function filterPracticeSessions(sessions = [], searchTerm = "") {
       session?.genre,
       session?.rating,
       session?.practicedSection,
-      ...(Array.isArray(session?.tags) ? session.tags : []),
+      ...getOrderedSessionTags(session?.tags),
       session?.notes,
     ]
       .filter(Boolean)
@@ -191,6 +301,9 @@ export default function SessionHistory({ historySongFilter = null, onClearHistor
   const [pendingDeleteSession, setPendingDeleteSession] = useState(null);
   const [practiceHistorySearchTerm, setPracticeHistorySearchTerm] = useState("");
   const [practiceHistorySortMode, setPracticeHistorySortMode] = useState("newest");
+  const [practiceHistoryFocusFilter, setPracticeHistoryFocusFilter] = useState("");
+  const [practiceHistoryRatingFilter, setPracticeHistoryRatingFilter] = useState("");
+  const [practiceHistoryTagFilters, setPracticeHistoryTagFilters] = useState([]);
 
   const stats = getPracticeHistoryStats(sessions);
   const hasActiveSongFilter = Boolean(historySongFilter?.songId);
@@ -198,10 +311,23 @@ export default function SessionHistory({ historySongFilter = null, onClearHistor
   const songFilteredSessions = useMemo(() => filterSessionsBySong(sessions, historySongFilter), [historySongFilter, sessions]);
   const activeSongStats = useMemo(() => getPracticeHistoryStats(songFilteredSessions), [songFilteredSessions]);
   const hasSongFilteredSessions = songFilteredSessions.length > 0;
-  const filteredSessions = useMemo(() => filterPracticeSessions(songFilteredSessions, practiceHistorySearchTerm), [practiceHistorySearchTerm, songFilteredSessions]);
+  const filterOptions = useMemo(() => getPracticeHistoryFilterOptions(songFilteredSessions), [songFilteredSessions]);
+  const searchedSessions = useMemo(() => filterPracticeSessions(songFilteredSessions, practiceHistorySearchTerm), [practiceHistorySearchTerm, songFilteredSessions]);
+  const filteredSessions = useMemo(
+    () =>
+      filterPracticeSessionsByFacets(searchedSessions, {
+        focus: practiceHistoryFocusFilter,
+        rating: practiceHistoryRatingFilter,
+        tags: practiceHistoryTagFilters,
+      }),
+    [practiceHistoryFocusFilter, practiceHistoryRatingFilter, practiceHistoryTagFilters, searchedSessions],
+  );
   const detailSession = useMemo(() => sessions.find((session) => session.id === detailSessionId) || null, [detailSessionId, sessions]);
   const recentSessionGroups = useMemo(() => getVisiblePracticeDayGroups(filteredSessions, practiceHistorySortMode).slice(0, 8), [filteredSessions, practiceHistorySortMode]);
   const visibleSessionCount = filteredSessions.length;
+  const hasPracticeHistoryFilters = Boolean(practiceHistoryFocusFilter || practiceHistoryRatingFilter || practiceHistoryTagFilters.length);
+  const hasPracticeHistorySearch = Boolean(String(practiceHistorySearchTerm || "").trim());
+  const hasPracticeHistoryFiltersOrSearch = hasPracticeHistoryFilters || hasPracticeHistorySearch;
   const shouldScrollHistory = visibleSessionCount > 5;
 
   const { activeRecordingId, isLoadingRecording, isPlayingRecording, playbackMessage, playbackMessageRecordingId, playbackState, playRecording, stopPlayback } =
@@ -252,6 +378,25 @@ export default function SessionHistory({ historySongFilter = null, onClearHistor
     };
   }, [historyActionMessage]);
 
+  useEffect(() => {
+    if (practiceHistoryFocusFilter && !filterOptions.focusOptions.includes(practiceHistoryFocusFilter)) {
+      setPracticeHistoryFocusFilter("");
+    }
+
+    if (practiceHistoryRatingFilter && !filterOptions.ratingOptions.includes(practiceHistoryRatingFilter)) {
+      setPracticeHistoryRatingFilter("");
+    }
+
+    if (practiceHistoryTagFilters.length) {
+      const validTagSet = new Set(filterOptions.tagOptions);
+      const nextTagFilters = practiceHistoryTagFilters.filter((tag) => validTagSet.has(tag));
+
+      if (nextTagFilters.length !== practiceHistoryTagFilters.length) {
+        setPracticeHistoryTagFilters(nextTagFilters);
+      }
+    }
+  }, [filterOptions.focusOptions, filterOptions.ratingOptions, filterOptions.tagOptions, practiceHistoryFocusFilter, practiceHistoryRatingFilter, practiceHistoryTagFilters]);
+
   function showHistoryActionMessage(message, tone = "success") {
     setHistoryActionMessage(message);
     setHistoryActionTone(tone);
@@ -263,6 +408,32 @@ export default function SessionHistory({ historySongFilter = null, onClearHistor
 
   function handlePracticeHistorySortChange(event) {
     setPracticeHistorySortMode(event.target.value);
+  }
+
+  function handlePracticeHistoryFocusFilterChange(focus) {
+    setPracticeHistoryFocusFilter(focus);
+  }
+
+  function handlePracticeHistoryRatingFilterChange(rating) {
+    setPracticeHistoryRatingFilter(rating);
+  }
+
+  function handleTogglePracticeHistoryTagFilter(tag) {
+    const normalizedTag = String(tag || "").trim();
+
+    if (!normalizedTag) return;
+
+    setPracticeHistoryTagFilters((currentFilters) => {
+      const safeFilters = Array.isArray(currentFilters) ? currentFilters : [];
+
+      return safeFilters.includes(normalizedTag) ? safeFilters.filter((currentTag) => currentTag !== normalizedTag) : [...safeFilters, normalizedTag];
+    });
+  }
+
+  function handleClearPracticeHistoryFilters() {
+    setPracticeHistoryFocusFilter("");
+    setPracticeHistoryRatingFilter("");
+    setPracticeHistoryTagFilters([]);
   }
 
   function handleClearHistorySongFilter() {
@@ -417,23 +588,116 @@ export default function SessionHistory({ historySongFilter = null, onClearHistor
         ) : null}
 
         {sessions.length ? (
-          <div className="history-controls" aria-label="Practice history controls">
-            <label className="history-search-field">
-              <span>Search sessions</span>
-              <input type="search" value={practiceHistorySearchTerm} onChange={handlePracticeHistorySearchChange} placeholder="Search by song, genre, rating, or notes..." />
-            </label>
+          <Fragment>
+            <div className="history-controls" aria-label="Practice history controls">
+              <label className="history-search-field">
+                <span>Search sessions</span>
+                <input type="search" value={practiceHistorySearchTerm} onChange={handlePracticeHistorySearchChange} placeholder="Search by song, genre, focus, tags, rating, or notes..." />
+              </label>
 
-            <label className="history-sort-field">
-              <span>Sort sessions</span>
-              <select value={practiceHistorySortMode} onChange={handlePracticeHistorySortChange}>
-                {PRACTICE_HISTORY_SORT_OPTIONS.map((option) => (
-                  <option key={option.id} value={option.id}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
+              <label className="history-sort-field">
+                <span>Sort sessions</span>
+                <select value={practiceHistorySortMode} onChange={handlePracticeHistorySortChange}>
+                  {PRACTICE_HISTORY_SORT_OPTIONS.map((option) => (
+                    <option key={option.id} value={option.id}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <div className="history-filter-panel" aria-label="Practice history filters">
+              {filterOptions.ratingOptions.length ? (
+                <div className="history-filter-group history-filter-group--rating">
+                  <span>Rating</span>
+
+                  <div className="history-filter-chip-row">
+                    <button type="button" className={`history-filter-chip ${practiceHistoryRatingFilter ? "" : "is-selected"}`} onClick={() => handlePracticeHistoryRatingFilterChange("")}>
+                      All
+                    </button>
+
+                    {filterOptions.ratingOptions.map((rating) => (
+                      <button
+                        key={rating}
+                        type="button"
+                        className={`history-filter-chip ${practiceHistoryRatingFilter === rating ? "is-selected" : ""}`}
+                        onClick={() => handlePracticeHistoryRatingFilterChange(rating)}
+                      >
+                        {rating}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              {filterOptions.focusOptions.length ? (
+                <div className="history-filter-group history-filter-group--focus">
+                  <span>Focus</span>
+
+                  <div className="history-filter-chip-row">
+                    <button type="button" className={`history-filter-chip ${practiceHistoryFocusFilter ? "" : "is-selected"}`} onClick={() => handlePracticeHistoryFocusFilterChange("")}>
+                      All
+                    </button>
+
+                    {filterOptions.focusOptions.map((focus) => (
+                      <button
+                        key={focus}
+                        type="button"
+                        className={`history-filter-chip ${practiceHistoryFocusFilter === focus ? "is-selected" : ""}`}
+                        onClick={() => handlePracticeHistoryFocusFilterChange(focus)}
+                      >
+                        {focus}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              {filterOptions.tagOptions.length ? (
+                <div className="history-filter-group history-filter-group--tags">
+                  <span>Tags</span>
+
+                  <div className="history-filter-chip-row">
+                    {filterOptions.tagOptions.map((tag) => {
+                      const isSelected = practiceHistoryTagFilters.includes(tag);
+
+                      return (
+                        <button
+                          key={tag}
+                          type="button"
+                          className={`history-filter-chip ${isSelected ? "is-selected" : ""}`}
+                          aria-pressed={isSelected}
+                          onClick={() => handleTogglePracticeHistoryTagFilter(tag)}
+                        >
+                          {tag}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : null}
+            </div>
+
+            {hasPracticeHistoryFilters ? (
+              <div className="history-active-filters" aria-label="Active practice history filters">
+                <span>Active filters</span>
+
+                <div className="history-active-filter-chip-row">
+                  {practiceHistoryFocusFilter ? <span>Focus: {practiceHistoryFocusFilter}</span> : null}
+                  {practiceHistoryRatingFilter ? <span>Rating: {practiceHistoryRatingFilter}</span> : null}
+                  {practiceHistoryTagFilters.map((tag) => (
+                    <span key={tag}>Tag: {tag}</span>
+                  ))}
+                </div>
+
+                <button type="button" className="history-clear-filters-button" onClick={handleClearPracticeHistoryFilters}>
+                  <XIcon />
+                  <span>Clear filters</span>
+                </button>
+              </div>
+            ) : null}
+          </Fragment>
         ) : null}
 
         {historyActionMessage ? <p className={`history-action-message history-action-message--${historyActionTone}`}>{historyActionMessage}</p> : null}
@@ -481,7 +745,7 @@ export default function SessionHistory({ historySongFilter = null, onClearHistor
                       <article key={session.id} className="history-card">
                         <div className="history-card-header">
                           <div>
-                            <strong>{session.songTitle}</strong>
+                            <strong>{session.songTitle}{session.rating ? ` (${session.rating})` : ""}</strong>
                             {session.genre ? <small>{session.genre}</small> : null}
                           </div>
 
@@ -500,13 +764,11 @@ export default function SessionHistory({ historySongFilter = null, onClearHistor
                               {session.completedStepCount}/{session.totalStepCount} steps
                             </span>
 
-                            {session.practicedSection ? <span>Focus: {session.practicedSection}</span> : null}
+                            {session.practicedSection ? <span className="history-focus-pill">Focus: {getSessionPracticeFocus(session)}</span> : null}
 
                             {sessionTags.map((tag) => (
-                              <span key={tag}>#{tag}</span>
+                              <span key={tag} className="history-tag-pill">#{tag}</span>
                             ))}
-
-                            <span>{session.rating}</span>
 
                             {hasStoredRecording ? <span>Recording {formatRecordingDuration(session.recordingDurationSeconds)}</span> : null}
                             {hasMissingRecording ? <span className="history-recording-missing-pill">Recording removed</span> : null}
@@ -655,13 +917,15 @@ export default function SessionHistory({ historySongFilter = null, onClearHistor
           </div>
         ) : sessions.length ? (
           <div className="history-empty">
-            <h3>{hasActiveSongFilter && !hasSongFilteredSessions ? "No sessions for this song yet" : "No sessions match this search"}</h3>
+            <h3>{hasActiveSongFilter && !hasSongFilteredSessions ? "No sessions for this song yet" : hasPracticeHistoryFilters ? "No sessions match these filters" : "No sessions match this search"}</h3>
             <p>
               {hasActiveSongFilter && !hasSongFilteredSessions
                 ? `No saved sessions for ${historySongFilterLabel} yet.`
                 : hasActiveSongFilter
-                  ? `No saved sessions match this search for ${historySongFilterLabel}.`
-                  : "Try a different search term or clear the session search."}
+                  ? `No saved sessions match ${hasPracticeHistoryFiltersOrSearch ? "the current search or filters" : "this view"} for ${historySongFilterLabel}.`
+                  : hasPracticeHistoryFilters
+                    ? "Try removing one or more filters."
+                    : "Try a different search term or clear the session search."}
             </p>
           </div>
         ) : (
@@ -775,7 +1039,7 @@ function SessionDetailDialog({
               <strong>Focus</strong>
             </div>
 
-            <p className="history-session-detail-focus-value">{session.practicedSection || "Whole song"}</p>
+            <p className="history-session-detail-focus-value">{getSessionPracticeFocus(session)}</p>
           </div>
 
           <div className="history-session-detail-section history-session-detail-tags-section">
@@ -784,11 +1048,7 @@ function SessionDetailDialog({
             </div>
 
             {sessionTags.length ? (
-              <div className="history-session-detail-tags">
-                {sessionTags.map((tag) => (
-                  <span key={tag}>#{tag}</span>
-                ))}
-              </div>
+              <p className="history-session-detail-tags-text">{sessionTags.join(", ")}</p>
             ) : (
               <p className="history-session-detail-empty">No tags saved for this session.</p>
             )}
