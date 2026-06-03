@@ -224,11 +224,16 @@
   top: -1px;
 }
 
-.progress-song-title-status.is-mastered,
 .progress-song-title-status.is-in-progress {
   border-color: var(--color-border);
   background: var(--color-surface-soft);
   color: var(--color-text-muted-strong);
+}
+
+.progress-song-title-status.is-mastered {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-hover);
 }
 
 .progress-song-card small {

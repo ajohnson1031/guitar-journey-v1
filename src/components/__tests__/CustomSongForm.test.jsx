@@ -316,7 +316,7 @@ describe("CustomSongForm", () => {
     expect(screen.getByLabelText("Song Sections").value).toContain("Verse: Em - G - D - Bm - C - Am - B7");
     expect(screen.getByLabelText("Song Sections").value).toContain("Refrain: G - D - Bm - Em - C - Am - B7");
     expect(screen.getByLabelText("Practice Goal").value).toContain("Learn Greensleeves");
-    expect(screen.getByText("Song analysis applied. Review and edit anything before saving.")).toBeTruthy();
+    expect(screen.getByText(/Applied: title, artist, instrument, genre, BPM/i)).toBeTruthy();
   });
 
   it("does not auto-create or overwrite an unmatched pasted genre", () => {
@@ -334,6 +334,7 @@ describe("CustomSongForm", () => {
 
     expect(screen.getByLabelText("Song Title").value).toBe("Greensleeves");
     expect(screen.getByLabelText("Genre").value).toBe("Blues");
+    expect(screen.getByText(/Not applied: genre “Country”/i)).toBeTruthy();
   });
 
   it("clamps pasted BPM metadata when applying analysis", () => {

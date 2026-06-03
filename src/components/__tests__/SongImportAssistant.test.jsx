@@ -33,7 +33,10 @@ Practice the minor-key chord movement slowly, then loop the Verse and Refrain un
 
 function renderSongImportAssistant(overrides = {}) {
   const props = {
-    onApplyAnalysis: vi.fn(),
+    onApplyAnalysis: vi.fn(() => ({
+      appliedFields: ["title", "artist", "genre", "BPM", "chords", "sections"],
+      skippedFields: [],
+    })),
     ...overrides,
   };
 
@@ -70,6 +73,9 @@ describe("SongImportAssistant", () => {
     fireEvent.click(analyzeButton);
 
     expect(screen.getByText(/Found 7 chords.*5 details/i)).toBeTruthy();
+    expect(screen.getByText("Detected details")).toBeTruthy();
+    expect(screen.getByText("Sections")).toBeTruthy();
+    expect(screen.getByText("Transitions")).toBeTruthy();
     expect(applyButton.disabled).toBe(false);
 
     fireEvent.click(applyButton);
@@ -85,6 +91,7 @@ describe("SongImportAssistant", () => {
       title: "Greensleeves",
       tuning: "Standard",
     });
+    expect(screen.getByText(/Applied: title, artist, genre, BPM, chords and sections/i)).toBeTruthy();
 
     fireEvent.click(clearButton);
 
@@ -92,6 +99,26 @@ describe("SongImportAssistant", () => {
     expect(analyzeButton.disabled).toBe(true);
     expect(applyButton.disabled).toBe(true);
     expect(clearButton.disabled).toBe(true);
+  });
+
+  it("shows skipped field feedback returned by the apply handler", () => {
+    renderSongImportAssistant({
+      onApplyAnalysis: vi.fn(() => ({
+        appliedFields: ["title", "artist", "chords"],
+        skippedFields: ["genre “Country”"],
+      })),
+    });
+
+    fireEvent.change(screen.getByLabelText("Practice setup song details"), {
+      target: { value: GREENSLEEVES_SETUP.replace("Genre: Folk", "Genre: Country") },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Analyze Paste" }));
+    fireEvent.click(screen.getByRole("button", { name: "Apply Analysis" }));
+
+    expect(screen.getByText(/Applied: title, artist and chords/i)).toBeTruthy();
+    expect(screen.getByText(/Not applied: genre “Country”/i)).toBeTruthy();
+    expect(screen.getByText(/Add a matching genre first/i)).toBeTruthy();
   });
 
   it("opens a setup explainer dialog with copy and paste sample actions", () => {

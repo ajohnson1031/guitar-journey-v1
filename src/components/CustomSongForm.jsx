@@ -137,29 +137,48 @@ export default function CustomSongForm({
   }
 
   function applySongAnalysis(analysis) {
-    setForm((current) => {
-      const matchingGenre = getMatchingGenre(analysis.genre, genres);
-      const appliedBpm = getAppliedBpm(analysis.bpm);
+    const matchingGenre = getMatchingGenre(analysis.genre, genres);
+    const appliedBpm = getAppliedBpm(analysis.bpm);
+    const appliedFields = [
+      analysis.title ? "title" : "",
+      analysis.artist ? "artist" : "",
+      analysis.instrument ? "instrument" : "",
+      matchingGenre ? "genre" : "",
+      appliedBpm ? "BPM" : "",
+      analysis.difficulty ? "difficulty" : "",
+      analysis.key ? "key" : "",
+      analysis.tuning ? "tuning" : "",
+      analysis.capo ? "capo" : "",
+      analysis.chords?.length ? "chords" : "",
+      analysis.transitions?.length ? "transitions" : "",
+      analysis.sections?.length ? "sections" : "",
+      analysis.goal ? "practice goal" : "",
+    ].filter(Boolean);
+    const skippedFields = analysis.genre && !matchingGenre ? [`genre “${analysis.genre}”`] : [];
 
-      return {
-        ...current,
-        title: analysis.title || current.title,
-        artist: analysis.artist || current.artist,
-        instrument: analysis.instrument || current.instrument,
-        genre: matchingGenre || current.genre,
-        bpm: appliedBpm || current.bpm,
-        chords: analysis.chords.length ? analysis.chords.join(", ") : current.chords,
-        transitions: analysis.transitions.length ? analysis.transitions.join(", ") : current.transitions,
-        sections: analysis.sections.length ? sectionsToText(analysis.sections) : current.sections,
-        difficulty: analysis.difficulty || current.difficulty,
-        key: analysis.key || current.key,
-        tuning: analysis.tuning || current.tuning,
-        capo: analysis.capo || current.capo,
-        goal: !current.goal || current.goal === DEFAULT_CUSTOM_SONG_FORM.goal ? analysis.goal : current.goal,
-      };
-    });
+    setForm((current) => ({
+      ...current,
+      title: analysis.title || current.title,
+      artist: analysis.artist || current.artist,
+      instrument: analysis.instrument || current.instrument,
+      genre: matchingGenre || current.genre,
+      bpm: appliedBpm || current.bpm,
+      chords: analysis.chords.length ? analysis.chords.join(", ") : current.chords,
+      transitions: analysis.transitions.length ? analysis.transitions.join(", ") : current.transitions,
+      sections: analysis.sections.length ? sectionsToText(analysis.sections) : current.sections,
+      difficulty: analysis.difficulty || current.difficulty,
+      key: analysis.key || current.key,
+      tuning: analysis.tuning || current.tuning,
+      capo: analysis.capo || current.capo,
+      goal: !current.goal || current.goal === DEFAULT_CUSTOM_SONG_FORM.goal ? analysis.goal : current.goal,
+    }));
 
     setInfoMessage("Song analysis applied. Review and edit anything before saving.");
+
+    return {
+      appliedFields,
+      skippedFields,
+    };
   }
 
   function handleSubmit(event) {
