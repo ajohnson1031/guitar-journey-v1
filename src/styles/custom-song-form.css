@@ -182,6 +182,10 @@
   color: var(--color-text-muted);
 }
 
+.custom-song-preview p {
+  margin: 4px 0;
+}
+
 @media (max-width: 980px) {
   .form-grid.three {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -407,4 +411,3 @@
     justify-content: flex-end;
   }
 }
-
