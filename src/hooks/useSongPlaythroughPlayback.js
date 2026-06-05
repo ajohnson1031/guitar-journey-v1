@@ -8,11 +8,14 @@ const { useCallback, useEffect, useState } = React;
 const DEFAULT_BEATS_PER_CHORD = 2;
 const MELODY_MODE = "melody";
 const BACKING_MODE = "backing";
+const MIN_GAIN = 0.0001;
 
 let audioContext = null;
+let audioBus = null;
 let playbackCycleId = 0;
 let timeoutIds = [];
 
+const activeAudioStops = new Set();
 const transportSubscribers = new Set();
 
 let transportState = {
@@ -58,6 +61,42 @@ function getOrCreateAudioContext() {
   return audioContext;
 }
 
+function getAudioBus(context) {
+  if (audioBus?.context === context) return audioBus;
+
+  const compressor = context.createDynamicsCompressor();
+  const roomDelay = context.createDelay(1);
+  const feedbackGain = context.createGain();
+  const wetGain = context.createGain();
+  const masterGain = context.createGain();
+
+  compressor.threshold.setValueAtTime(-26, context.currentTime);
+  compressor.knee.setValueAtTime(18, context.currentTime);
+  compressor.ratio.setValueAtTime(5, context.currentTime);
+  compressor.attack.setValueAtTime(0.008, context.currentTime);
+  compressor.release.setValueAtTime(0.18, context.currentTime);
+
+  roomDelay.delayTime.setValueAtTime(0.095, context.currentTime);
+  feedbackGain.gain.setValueAtTime(0.17, context.currentTime);
+  wetGain.gain.setValueAtTime(0.11, context.currentTime);
+  masterGain.gain.setValueAtTime(0.82, context.currentTime);
+
+  compressor.connect(masterGain);
+  compressor.connect(roomDelay);
+  roomDelay.connect(feedbackGain);
+  feedbackGain.connect(roomDelay);
+  roomDelay.connect(wetGain);
+  wetGain.connect(masterGain);
+  masterGain.connect(context.destination);
+
+  audioBus = {
+    context,
+    input: compressor,
+  };
+
+  return audioBus;
+}
+
 function emitTransportState() {
   transportSubscribers.forEach((subscriber) => subscriber(transportState));
 }
@@ -77,6 +116,28 @@ function clearPlaybackTimers() {
   playbackCycleId += 1;
 }
 
+function registerAudioStop(stopCallback, lifetimeMs) {
+  activeAudioStops.add(stopCallback);
+
+  window.setTimeout(() => {
+    activeAudioStops.delete(stopCallback);
+  }, Math.max(250, lifetimeMs));
+}
+
+function stopActiveAudioNodes() {
+  const callbacks = Array.from(activeAudioStops);
+
+  activeAudioStops.clear();
+
+  callbacks.forEach((stopCallback) => {
+    try {
+      stopCallback();
+    } catch {
+      // Nodes may already be stopped by their scheduled envelope.
+    }
+  });
+}
+
 function getSongTransportState({ beatsPerChord = DEFAULT_BEATS_PER_CHORD, bpm, selectedSong }) {
   const steps = createPlaythroughSteps(selectedSong);
   const safeBpm = getSafePlaybackBpm(bpm ?? getEffectiveSongBpm(selectedSong));
@@ -94,30 +155,84 @@ function getSongTransportState({ beatsPerChord = DEFAULT_BEATS_PER_CHORD, bpm, s
   };
 }
 
+function getChordToneConfig(mode) {
+  if (mode === BACKING_MODE) {
+    return {
+      detuneCents: 3,
+      filterFrequency: 1320,
+      masterPeak: 0.092,
+      oscillatorTypes: ["triangle", "sine", "sine", "triangle"],
+      releaseTailSeconds: 0.72,
+      sustainGain: 0.034,
+    };
+  }
+
+  return {
+    detuneCents: 4,
+    filterFrequency: 1650,
+    masterPeak: 0.105,
+    oscillatorTypes: ["triangle", "sine", "sine", "triangle"],
+    releaseTailSeconds: 0.58,
+    sustainGain: 0.04,
+  };
+}
+
+function setSmoothEnvelope(gainParam, startTime, peakGain, sustainGain, releaseStartTime, stopTime) {
+  gainParam.setValueAtTime(MIN_GAIN, startTime);
+  gainParam.exponentialRampToValueAtTime(peakGain, startTime + 0.035);
+  gainParam.exponentialRampToValueAtTime(sustainGain, startTime + 0.22);
+  gainParam.setTargetAtTime(MIN_GAIN, releaseStartTime, Math.max(0.055, (stopTime - releaseStartTime) / 4));
+  gainParam.exponentialRampToValueAtTime(MIN_GAIN, stopTime);
+}
+
 function playSynthMelodyOverlay(context, frequencies, startTime, durationSeconds) {
   const melodyFrequency = (frequencies[1] || frequencies[0] || 220) * 2;
   const oscillator = context.createOscillator();
+  const vibrato = context.createOscillator();
+  const vibratoGain = context.createGain();
   const gain = context.createGain();
   const filter = context.createBiquadFilter();
+  const bus = getAudioBus(context);
   const melodyStartTime = startTime + 0.08;
-  const melodyStopTime = melodyStartTime + Math.max(0.16, durationSeconds * 0.48);
+  const melodyReleaseStartTime = melodyStartTime + Math.max(0.18, durationSeconds * 0.62);
+  const melodyStopTime = melodyReleaseStartTime + 0.28;
 
-  oscillator.type = "sine";
+  oscillator.type = "triangle";
   oscillator.frequency.setValueAtTime(melodyFrequency, melodyStartTime);
 
+  vibrato.type = "sine";
+  vibrato.frequency.setValueAtTime(5.2, melodyStartTime);
+  vibratoGain.gain.setValueAtTime(5.5, melodyStartTime);
+
   filter.type = "lowpass";
-  filter.frequency.setValueAtTime(2400, melodyStartTime);
+  filter.frequency.setValueAtTime(2850, melodyStartTime);
+  filter.Q.setValueAtTime(0.85, melodyStartTime);
 
-  gain.gain.setValueAtTime(0.0001, melodyStartTime);
-  gain.gain.exponentialRampToValueAtTime(0.055, melodyStartTime + 0.025);
-  gain.gain.exponentialRampToValueAtTime(0.0001, melodyStopTime);
+  gain.gain.setValueAtTime(MIN_GAIN, melodyStartTime);
+  gain.gain.exponentialRampToValueAtTime(0.047, melodyStartTime + 0.032);
+  gain.gain.setTargetAtTime(0.026, melodyStartTime + 0.16, 0.18);
+  gain.gain.setTargetAtTime(MIN_GAIN, melodyReleaseStartTime, 0.085);
+  gain.gain.exponentialRampToValueAtTime(MIN_GAIN, melodyStopTime);
 
+  vibrato.connect(vibratoGain);
+  vibratoGain.connect(oscillator.frequency);
   oscillator.connect(filter);
   filter.connect(gain);
-  gain.connect(context.destination);
+  gain.connect(bus.input);
 
   oscillator.start(melodyStartTime);
-  oscillator.stop(melodyStopTime + 0.04);
+  vibrato.start(melodyStartTime);
+  oscillator.stop(melodyStopTime + 0.06);
+  vibrato.stop(melodyStopTime + 0.06);
+
+  registerAudioStop(() => {
+    const now = context.currentTime;
+
+    gain.gain.cancelScheduledValues(now);
+    gain.gain.setTargetAtTime(MIN_GAIN, now, 0.025);
+    oscillator.stop(now + 0.08);
+    vibrato.stop(now + 0.08);
+  }, (melodyStopTime - context.currentTime + 0.2) * 1000);
 }
 
 function playSyntheticChord(context, chord, durationSeconds, mode = MELODY_MODE) {
@@ -127,50 +242,67 @@ function playSyntheticChord(context, chord, durationSeconds, mode = MELODY_MODE)
 
   if (!frequencies.length) return;
 
+  const config = getChordToneConfig(mode);
   const startTime = context.currentTime + 0.025;
-  const stopTime = startTime + durationSeconds;
+  const releaseStartTime = startTime + durationSeconds;
+  const stopTime = releaseStartTime + Math.min(config.releaseTailSeconds, Math.max(0.28, durationSeconds * 0.52));
   const masterGain = context.createGain();
   const lowPassFilter = context.createBiquadFilter();
+  const bus = getAudioBus(context);
+  const oscillators = [];
 
   lowPassFilter.type = "lowpass";
-  lowPassFilter.frequency.setValueAtTime(mode === BACKING_MODE ? 1500 : 1800, startTime);
-  lowPassFilter.Q.setValueAtTime(0.7, startTime);
-  masterGain.gain.setValueAtTime(0.0001, startTime);
-  masterGain.gain.exponentialRampToValueAtTime(mode === BACKING_MODE ? 0.1 : 0.12, startTime + 0.025);
-  masterGain.gain.exponentialRampToValueAtTime(0.045, startTime + Math.min(0.22, durationSeconds * 0.35));
-  masterGain.gain.exponentialRampToValueAtTime(0.0001, stopTime);
+  lowPassFilter.frequency.setValueAtTime(config.filterFrequency, startTime);
+  lowPassFilter.Q.setValueAtTime(0.78, startTime);
+
+  setSmoothEnvelope(masterGain.gain, startTime, config.masterPeak, config.sustainGain, releaseStartTime, stopTime);
 
   masterGain.connect(lowPassFilter);
-  lowPassFilter.connect(context.destination);
+  lowPassFilter.connect(bus.input);
 
   frequencies.forEach((frequency, index) => {
     const oscillator = context.createOscillator();
     const noteGain = context.createGain();
-    const noteStartTime = startTime + index * 0.012;
-    const noteStopTime = stopTime + 0.035;
+    const noteStartTime = startTime + index * 0.014;
+    const noteStopTime = stopTime + 0.08;
+    const oscillatorType = config.oscillatorTypes[index % config.oscillatorTypes.length];
 
-    oscillator.type = index === 0 ? "triangle" : "sine";
+    oscillator.type = oscillatorType;
     oscillator.frequency.setValueAtTime(frequency, noteStartTime);
-    oscillator.detune.setValueAtTime(index % 2 === 0 ? -4 : 4, noteStartTime);
+    oscillator.detune.setValueAtTime(index % 2 === 0 ? -config.detuneCents : config.detuneCents, noteStartTime);
 
-    noteGain.gain.setValueAtTime(0.0001, noteStartTime);
-    noteGain.gain.exponentialRampToValueAtTime(1 / Math.max(2.5, frequencies.length), noteStartTime + 0.018);
-    noteGain.gain.exponentialRampToValueAtTime(0.0001, stopTime);
+    noteGain.gain.setValueAtTime(MIN_GAIN, noteStartTime);
+    noteGain.gain.exponentialRampToValueAtTime(1 / Math.max(2.8, frequencies.length), noteStartTime + 0.024);
+    noteGain.gain.setTargetAtTime(MIN_GAIN, releaseStartTime, 0.16);
+    noteGain.gain.exponentialRampToValueAtTime(MIN_GAIN, stopTime);
 
     oscillator.connect(noteGain);
     noteGain.connect(masterGain);
     oscillator.start(noteStartTime);
     oscillator.stop(noteStopTime);
+    oscillators.push(oscillator);
   });
 
   if (mode === MELODY_MODE) {
     playSynthMelodyOverlay(context, frequencies, startTime, durationSeconds);
   }
+
+  registerAudioStop(() => {
+    const now = context.currentTime;
+
+    masterGain.gain.cancelScheduledValues(now);
+    masterGain.gain.setTargetAtTime(MIN_GAIN, now, 0.03);
+
+    oscillators.forEach((oscillator) => {
+      oscillator.stop(now + 0.08);
+    });
+  }, (stopTime - context.currentTime + 0.25) * 1000);
 }
 
 function stopTransportPlayback({ message = "" } = {}) {
   clearPlaybackTimers();
   clearSharedPlaybackClock();
+  stopActiveAudioNodes();
   setTransportState({
     activeStepIndex: -1,
     isPlaying: false,
@@ -207,7 +339,7 @@ function schedulePlaybackCycle(context, mode = transportState.playbackMode) {
       setTransportState({
         activeStepIndex: stepIndex,
       });
-      playSyntheticChord(context, step.chord, stepDurationSeconds * 0.88, mode);
+      playSyntheticChord(context, step.chord, stepDurationSeconds * 0.92, mode);
     }, stepIndex * transportState.stepDurationMs);
 
     timeoutIds.push(timeoutId);
@@ -222,7 +354,7 @@ function schedulePlaybackCycle(context, mode = transportState.playbackMode) {
     }
 
     stopTransportPlayback({ message: "Playthrough preview complete." });
-  }, transportState.steps.length * transportState.stepDurationMs + 80);
+  }, transportState.steps.length * transportState.stepDurationMs + 120);
 
   timeoutIds.push(completionTimeoutId);
 }
