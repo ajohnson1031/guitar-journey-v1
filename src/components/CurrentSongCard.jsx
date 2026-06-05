@@ -170,16 +170,10 @@ function BpmInfoCard({ effectiveBpm, isAdjusted, originalBpm, onRevertBpm }) {
     <div className={`info-card bpm-info-card ${isAdjusted ? "is-adjusted" : ""}`}>
       <span>BPM</span>
       <strong>
-        <span className="bpm-value">{effectiveBpm}</span>
-        {isAdjusted ? <em>Adj.</em> : null}
+        <span>{effectiveBpm}</span>
+        {isAdjusted ? <em>Adjusted</em> : null}
         {isAdjusted ? (
-          <button
-            type="button"
-            className="bpm-revert-button"
-            aria-label={`Revert to original BPM ${originalBpm}`}
-            title={`Revert to original BPM ${originalBpm}`}
-            onClick={onRevertBpm}
-          >
+          <button type="button" className="bpm-revert-button" aria-label={`Revert to original BPM ${originalBpm}`} title={`Revert to original BPM ${originalBpm}`} onClick={onRevertBpm}>
             <Undo2Icon />
           </button>
         ) : null}

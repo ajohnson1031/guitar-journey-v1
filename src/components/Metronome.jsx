@@ -114,7 +114,7 @@ export default function Metronome({ selectedSong, songBpm, songTitle, strummingP
 
       {tempo.isAdjusted ? (
         <p className="metronome-adjusted-note">
-          Adjusted. [Original: <strong>{tempo.originalBpm}]</strong>
+          Adjusted (Original: <strong>{tempo.originalBpm} BPM)</strong>
         </p>
       ) : null}
 
