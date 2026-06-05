@@ -32,6 +32,7 @@ import {
   Star,
   Metronome as LucideMetronome,
   Trash2,
+  Undo2,
   Upload,
   X,
 } from "lucide-react";
@@ -93,6 +94,7 @@ const StopIcon = createIcon(Square, {
 });
 const MetronomeIcon = createIcon(LucideMetronome);
 const TrashIcon = createIcon(Trash2);
+const Undo2Icon = createIcon(Undo2);
 const UploadIcon = createIcon(Upload);
 const XIcon = createIcon(X);
 
@@ -130,6 +132,7 @@ export {
   StopIcon,
   MetronomeIcon,
   TrashIcon,
+  Undo2Icon,
   UploadIcon,
   XIcon,
 };

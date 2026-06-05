@@ -69,7 +69,7 @@ export default function AppSidebar({
           onUpdateGenre={onUpdateGenre}
         />
 
-        <Metronome songTitle={selectedSong.title} songBpm={selectedSong.bpm} strummingPattern={selectedSong.strummingPattern || selectedSong.strumming} />
+        <Metronome selectedSong={selectedSong} />
       </aside>
     </Fragment>
   );

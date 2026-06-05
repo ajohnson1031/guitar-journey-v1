@@ -1,6 +1,7 @@
 import * as React from "react";
 import useSharedMetronomeState from "../hooks/useSharedMetronomeState";
 import useStrummingPlayback from "../hooks/useStrummingPlayback";
+import useTempoOverride from "../hooks/useTempoOverride";
 import { PlayIcon, StopIcon } from "./AppIcons";
 import StrummingPlaybackGuide from "./StrummingPlaybackGuide";
 
@@ -18,46 +19,70 @@ function clampBpm(value) {
   return Math.min(MAX_BPM, Math.max(MIN_BPM, Math.round(bpm)));
 }
 
-export default function Metronome({ songBpm, songTitle, strummingPattern }) {
-  const [bpmInput, setBpmInput] = useState(() => String(clampBpm(songBpm)));
+export default function Metronome({ selectedSong, songBpm, songTitle, strummingPattern }) {
+  const fallbackSong = selectedSong || {
+    bpm: songBpm,
+    id: songTitle || "selected-song",
+    strumming: strummingPattern,
+    title: songTitle,
+  };
+  const tempo = useTempoOverride(fallbackSong);
+  const [bpmInput, setBpmInput] = useState(() => String(tempo.effectiveBpm));
   const { currentBeat, isMetronomeRunning: isRunning, metronomeStartAtMs, setMetronomeBpm, stopMetronome, toggleMetronomeRunning } = useSharedMetronomeState();
 
   const safeBpm = clampBpm(bpmInput);
+  const selectedStrummingPattern = fallbackSong.strummingPattern || fallbackSong.strumming || strummingPattern;
 
   const playback = useStrummingPlayback({
     bpm: safeBpm,
     isRunning,
-    pattern: strummingPattern,
+    pattern: selectedStrummingPattern,
     startAtMs: metronomeStartAtMs,
   });
 
   useEffect(() => {
-    setBpmInput(String(clampBpm(songBpm)));
+    setBpmInput(String(tempo.effectiveBpm));
+  }, [tempo.effectiveBpm]);
+
+  useEffect(() => {
     stopMetronome();
-  }, [songBpm, songTitle, stopMetronome]);
+  }, [fallbackSong.id, stopMetronome]);
 
   useEffect(() => {
     setMetronomeBpm(safeBpm);
   }, [safeBpm, setMetronomeBpm]);
 
+  function updateTemporaryBpm(value) {
+    const nextBpm = clampBpm(value);
+
+    setBpmInput(String(nextBpm));
+    tempo.setAdjustedBpm(nextBpm);
+  }
+
   function handleBpmChange(value) {
     setBpmInput(value);
+
+    if (value !== "") {
+      tempo.setAdjustedBpm(value);
+    }
   }
 
   function handleBpmBlur() {
     setBpmInput(String(safeBpm));
+    tempo.setAdjustedBpm(safeBpm);
   }
 
   function decreaseBpm() {
-    setBpmInput((current) => String(clampBpm(clampBpm(current) - 1)));
+    updateTemporaryBpm(safeBpm - 1);
   }
 
   function increaseBpm() {
-    setBpmInput((current) => String(clampBpm(clampBpm(current) + 1)));
+    updateTemporaryBpm(safeBpm + 1);
   }
 
   async function toggleMetronome() {
     setBpmInput(String(safeBpm));
+    tempo.setAdjustedBpm(safeBpm);
     await toggleMetronomeRunning({ bpm: safeBpm });
   }
 
@@ -86,6 +111,12 @@ export default function Metronome({ songBpm, songTitle, strummingPattern }) {
           +
         </button>
       </div>
+
+      {tempo.isAdjusted ? (
+        <p className="metronome-adjusted-note">
+          Adjusted. [Original: <strong>{tempo.originalBpm}]</strong>
+        </p>
+      ) : null}
 
       <div className="beat-dots" aria-label="Metronome beats">
         {[1, 2, 3, 4].map((beat) => (

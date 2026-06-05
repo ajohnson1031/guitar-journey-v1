@@ -432,9 +432,11 @@ describe("CustomSongForm", () => {
     analyzeAndApplySetupText(GREENSLEEVES_SETUP.replace("Genre: Folk", "Genre: Country"));
 
     expect(screen.getByLabelText("Song Title").value).toBe("Greensleeves");
-    expect(screen.getByLabelText("Genre").value).toBe("Country");
-    expect(screen.getByText("Country", { selector: "span.custom-song-pending-genre-value" })).toBeTruthy();
-    expect(screen.getByText("New")).toBeTruthy();
+
+    const genreSelect = screen.getByRole("combobox", { name: "Genre" });
+
+    expect(genreSelect.value).toBe("Country");
+    expect(screen.getByText("New", { selector: ".custom-song-pending-genre-badge" })).toBeTruthy();
     expect(screen.getByText(/Matching genre not found; genre “Country” will be created when you save this song/i)).toBeTruthy();
 
     fireEvent.click(screen.getByLabelText("Set 1 to down strum"));

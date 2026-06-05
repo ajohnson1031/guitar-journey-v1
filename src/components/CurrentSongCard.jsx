@@ -2,7 +2,8 @@ import * as React from "react";
 import useSharedMetronomeState from "../hooks/useSharedMetronomeState";
 import useSongPlaythroughPlayback from "../hooks/useSongPlaythroughPlayback";
 import useStrummingPlayback from "../hooks/useStrummingPlayback";
-import { EditIcon, StarIcon, TrashIcon } from "./AppIcons";
+import useTempoOverride from "../hooks/useTempoOverride";
+import { EditIcon, StarIcon, TrashIcon, Undo2Icon } from "./AppIcons";
 import ConfirmDialog from "./ConfirmDialog";
 import SongPlaythroughControls from "./SongPlaythroughControls";
 import StrummingPatternDisplay from "./StrummingPatternDisplay";
@@ -13,11 +14,15 @@ export default function CurrentSongCard({ filteredSongs, masteredSongs, onDelete
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const isMastered = Boolean(masteredSongs[selectedSong.id]);
   const artistByline = selectedSong.artist?.trim();
-  const playthrough = useSongPlaythroughPlayback({ selectedSong });
+  const tempo = useTempoOverride(selectedSong);
+  const playthrough = useSongPlaythroughPlayback({
+    bpmOverride: tempo.effectiveBpm,
+    selectedSong,
+  });
   const { isMetronomeRunning, metronomeStartAtMs } = useSharedMetronomeState();
   const selectedStrummingPattern = selectedSong.strummingPattern || selectedSong.strumming;
   const strummingPlayback = useStrummingPlayback({
-    bpm: selectedSong.bpm,
+    bpm: tempo.effectiveBpm,
     isRunning: isMetronomeRunning,
     pattern: selectedStrummingPattern,
     startAtMs: metronomeStartAtMs,
@@ -128,7 +133,7 @@ export default function CurrentSongCard({ filteredSongs, masteredSongs, onDelete
           <div className="info-grid compact-info-grid song-detail-grid">
             <InfoCard label="Key" value={selectedSong.key} />
             <InfoCard label="Capo" value={selectedSong.capo} />
-            <InfoCard label="BPM" value={selectedSong.bpm} />
+            <BpmInfoCard effectiveBpm={tempo.effectiveBpm} isAdjusted={tempo.isAdjusted} originalBpm={tempo.originalBpm} onRevertBpm={tempo.clearAdjustedBpm} />
           </div>
         </div>
 
@@ -157,6 +162,29 @@ export default function CurrentSongCard({ filteredSongs, masteredSongs, onDelete
         onConfirm={handleConfirmDeleteCustomSong}
       />
     </Fragment>
+  );
+}
+
+function BpmInfoCard({ effectiveBpm, isAdjusted, originalBpm, onRevertBpm }) {
+  return (
+    <div className={`info-card bpm-info-card ${isAdjusted ? "is-adjusted" : ""}`}>
+      <span>BPM</span>
+      <strong>
+        <span className="bpm-value">{effectiveBpm}</span>
+        {isAdjusted ? <em>Adj.</em> : null}
+        {isAdjusted ? (
+          <button
+            type="button"
+            className="bpm-revert-button"
+            aria-label={`Revert to original BPM ${originalBpm}`}
+            title={`Revert to original BPM ${originalBpm}`}
+            onClick={onRevertBpm}
+          >
+            <Undo2Icon />
+          </button>
+        ) : null}
+      </strong>
+    </div>
   );
 }
 

@@ -1,12 +1,36 @@
 import * as React from "react";
 import { clearSharedPlaybackClock, registerSharedPlaybackClock } from "./useSharedMetronomeState";
+import useTempoOverride, { getEffectiveSongBpm } from "./useTempoOverride";
 import { createPlaythroughSteps, getChordFrequencies, getSafePlaybackBpm } from "../utils/songPlaythroughUtils";
 
-const { useCallback, useEffect, useMemo, useRef, useState } = React;
+const { useCallback, useEffect, useState } = React;
 
 const DEFAULT_BEATS_PER_CHORD = 2;
 const MELODY_MODE = "melody";
 const BACKING_MODE = "backing";
+
+let audioContext = null;
+let playbackCycleId = 0;
+let timeoutIds = [];
+
+const transportSubscribers = new Set();
+
+let transportState = {
+  activeStepIndex: -1,
+  backingMode: BACKING_MODE,
+  beatsPerChord: DEFAULT_BEATS_PER_CHORD,
+  currentSongId: null,
+  hasSteps: false,
+  isLooping: false,
+  isPlaying: false,
+  melodyMode: MELODY_MODE,
+  playbackMode: MELODY_MODE,
+  safeBpm: 72,
+  sectionCount: 0,
+  statusMessage: "",
+  stepDurationMs: Math.round((60 / 72) * DEFAULT_BEATS_PER_CHORD * 1000),
+  steps: [],
+};
 
 function getNowMs() {
   if (typeof performance !== "undefined" && typeof performance.now === "function") {
@@ -22,23 +46,59 @@ function getAudioContextConstructor() {
   return window.AudioContext || window.webkitAudioContext || null;
 }
 
-function getOrCreateAudioContext(audioContextRef) {
-  if (audioContextRef.current) return audioContextRef.current;
+function getOrCreateAudioContext() {
+  if (audioContext) return audioContext;
 
   const AudioContextConstructor = getAudioContextConstructor();
 
   if (!AudioContextConstructor) return null;
 
-  audioContextRef.current = new AudioContextConstructor();
+  audioContext = new AudioContextConstructor();
 
-  return audioContextRef.current;
+  return audioContext;
 }
 
-function playSynthMelodyOverlay(audioContext, frequencies, startTime, durationSeconds) {
+function emitTransportState() {
+  transportSubscribers.forEach((subscriber) => subscriber(transportState));
+}
+
+function setTransportState(nextState) {
+  transportState = {
+    ...transportState,
+    ...nextState,
+  };
+
+  emitTransportState();
+}
+
+function clearPlaybackTimers() {
+  timeoutIds.forEach((timeoutId) => window.clearTimeout(timeoutId));
+  timeoutIds = [];
+  playbackCycleId += 1;
+}
+
+function getSongTransportState({ beatsPerChord = DEFAULT_BEATS_PER_CHORD, bpm, selectedSong }) {
+  const steps = createPlaythroughSteps(selectedSong);
+  const safeBpm = getSafePlaybackBpm(bpm ?? getEffectiveSongBpm(selectedSong));
+  const stepDurationMs = Math.max(350, Math.round((60 / safeBpm) * beatsPerChord * 1000));
+  const sectionCount = new Set(steps.map((step) => step.sectionName)).size;
+
+  return {
+    beatsPerChord,
+    currentSongId: selectedSong?.id || null,
+    hasSteps: steps.length > 0,
+    safeBpm,
+    sectionCount,
+    stepDurationMs,
+    steps,
+  };
+}
+
+function playSynthMelodyOverlay(context, frequencies, startTime, durationSeconds) {
   const melodyFrequency = (frequencies[1] || frequencies[0] || 220) * 2;
-  const oscillator = audioContext.createOscillator();
-  const gain = audioContext.createGain();
-  const filter = audioContext.createBiquadFilter();
+  const oscillator = context.createOscillator();
+  const gain = context.createGain();
+  const filter = context.createBiquadFilter();
   const melodyStartTime = startTime + 0.08;
   const melodyStopTime = melodyStartTime + Math.max(0.16, durationSeconds * 0.48);
 
@@ -54,23 +114,23 @@ function playSynthMelodyOverlay(audioContext, frequencies, startTime, durationSe
 
   oscillator.connect(filter);
   filter.connect(gain);
-  gain.connect(audioContext.destination);
+  gain.connect(context.destination);
 
   oscillator.start(melodyStartTime);
   oscillator.stop(melodyStopTime + 0.04);
 }
 
-function playSyntheticChord(audioContext, chord, durationSeconds, mode = MELODY_MODE) {
-  if (!audioContext) return;
+function playSyntheticChord(context, chord, durationSeconds, mode = MELODY_MODE) {
+  if (!context) return;
 
   const frequencies = getChordFrequencies(chord);
 
   if (!frequencies.length) return;
 
-  const startTime = audioContext.currentTime + 0.025;
+  const startTime = context.currentTime + 0.025;
   const stopTime = startTime + durationSeconds;
-  const masterGain = audioContext.createGain();
-  const lowPassFilter = audioContext.createBiquadFilter();
+  const masterGain = context.createGain();
+  const lowPassFilter = context.createBiquadFilter();
 
   lowPassFilter.type = "lowpass";
   lowPassFilter.frequency.setValueAtTime(mode === BACKING_MODE ? 1500 : 1800, startTime);
@@ -81,11 +141,11 @@ function playSyntheticChord(audioContext, chord, durationSeconds, mode = MELODY_
   masterGain.gain.exponentialRampToValueAtTime(0.0001, stopTime);
 
   masterGain.connect(lowPassFilter);
-  lowPassFilter.connect(audioContext.destination);
+  lowPassFilter.connect(context.destination);
 
   frequencies.forEach((frequency, index) => {
-    const oscillator = audioContext.createOscillator();
-    const noteGain = audioContext.createGain();
+    const oscillator = context.createOscillator();
+    const noteGain = context.createGain();
     const noteStartTime = startTime + index * 0.012;
     const noteStopTime = stopTime + 0.035;
 
@@ -104,143 +164,195 @@ function playSyntheticChord(audioContext, chord, durationSeconds, mode = MELODY_
   });
 
   if (mode === MELODY_MODE) {
-    playSynthMelodyOverlay(audioContext, frequencies, startTime, durationSeconds);
+    playSynthMelodyOverlay(context, frequencies, startTime, durationSeconds);
   }
 }
 
-export default function useSongPlaythroughPlayback({ beatsPerChord = DEFAULT_BEATS_PER_CHORD, selectedSong }) {
-  const audioContextRef = useRef(null);
-  const isLoopingRef = useRef(false);
-  const playbackModeRef = useRef(MELODY_MODE);
-  const timeoutIdsRef = useRef([]);
-  const steps = useMemo(() => createPlaythroughSteps(selectedSong), [selectedSong]);
-  const safeBpm = getSafePlaybackBpm(selectedSong?.bpm);
-  const stepDurationMs = Math.max(350, Math.round((60 / safeBpm) * beatsPerChord * 1000));
-  const stepDurationSeconds = stepDurationMs / 1000;
-  const sectionCount = new Set(steps.map((step) => step.sectionName)).size;
-  const [activeStepIndex, setActiveStepIndex] = useState(-1);
-  const [isLooping, setIsLooping] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [playbackMode, setPlaybackMode] = useState(MELODY_MODE);
-  const [statusMessage, setStatusMessage] = useState("");
+function stopTransportPlayback({ message = "" } = {}) {
+  clearPlaybackTimers();
+  clearSharedPlaybackClock();
+  setTransportState({
+    activeStepIndex: -1,
+    isPlaying: false,
+    statusMessage: message,
+  });
+}
+
+function schedulePlaybackCycle(context, mode = transportState.playbackMode) {
+  const cycleId = playbackCycleId + 1;
+  const cycleStartMs = getNowMs();
+  const stepDurationSeconds = transportState.stepDurationMs / 1000;
+
+  playbackCycleId = cycleId;
+  timeoutIds.forEach((timeoutId) => window.clearTimeout(timeoutId));
+  timeoutIds = [];
+
+  registerSharedPlaybackClock({
+    bpm: transportState.safeBpm,
+    cycleStartMs,
+    isPlaying: true,
+  });
+
+  setTransportState({
+    activeStepIndex: -1,
+    isPlaying: true,
+    playbackMode: mode,
+    statusMessage: `${transportState.isLooping ? "Looping" : "Playing"} ${mode === BACKING_MODE ? "backing track" : "melody guide"} at ${transportState.safeBpm} BPM.`,
+  });
+
+  transportState.steps.forEach((step, stepIndex) => {
+    const timeoutId = window.setTimeout(() => {
+      if (cycleId !== playbackCycleId) return;
+
+      setTransportState({
+        activeStepIndex: stepIndex,
+      });
+      playSyntheticChord(context, step.chord, stepDurationSeconds * 0.88, mode);
+    }, stepIndex * transportState.stepDurationMs);
+
+    timeoutIds.push(timeoutId);
+  });
+
+  const completionTimeoutId = window.setTimeout(() => {
+    if (cycleId !== playbackCycleId) return;
+
+    if (transportState.isLooping) {
+      schedulePlaybackCycle(context, mode);
+      return;
+    }
+
+    stopTransportPlayback({ message: "Playthrough preview complete." });
+  }, transportState.steps.length * transportState.stepDurationMs + 80);
+
+  timeoutIds.push(completionTimeoutId);
+}
+
+function updateTransportSong({ beatsPerChord = DEFAULT_BEATS_PER_CHORD, bpm, selectedSong }) {
+  if (!selectedSong) return;
+
+  const nextSongState = getSongTransportState({
+    beatsPerChord,
+    bpm,
+    selectedSong,
+  });
+
+  const songChanged = Boolean(transportState.currentSongId && transportState.currentSongId !== nextSongState.currentSongId);
+  const bpmChanged = transportState.currentSongId === nextSongState.currentSongId && transportState.safeBpm !== nextSongState.safeBpm;
+
+  if (transportState.isPlaying && songChanged) {
+    stopTransportPlayback({ message: "Playthrough stopped because the selected song changed." });
+  }
+
+  setTransportState({
+    ...nextSongState,
+    activeStepIndex: transportState.isPlaying && !songChanged ? transportState.activeStepIndex : -1,
+  });
+
+  if (transportState.isPlaying && !songChanged && bpmChanged && audioContext) {
+    schedulePlaybackCycle(audioContext, transportState.playbackMode);
+  }
+}
+
+function startTransportPlayback({ beatsPerChord = DEFAULT_BEATS_PER_CHORD, bpm, mode = MELODY_MODE, selectedSong }) {
+  const nextSongState = getSongTransportState({
+    beatsPerChord,
+    bpm,
+    selectedSong,
+  });
+
+  if (!nextSongState.hasSteps) {
+    setTransportState({
+      ...nextSongState,
+      statusMessage: "Add song sections before using Playthrough Preview.",
+    });
+    return;
+  }
+
+  const context = getOrCreateAudioContext();
+
+  if (!context) {
+    setTransportState({
+      ...nextSongState,
+      statusMessage: "Audio playback is not available in this browser.",
+    });
+    return;
+  }
+
+  if (context.state === "suspended") {
+    void context.resume();
+  }
+
+  setTransportState({
+    ...nextSongState,
+  });
+  schedulePlaybackCycle(context, mode);
+}
+
+function toggleTransportLoop() {
+  setTransportState({
+    isLooping: !transportState.isLooping,
+  });
+}
+
+export default function useSongPlaythroughPlayback({ beatsPerChord = DEFAULT_BEATS_PER_CHORD, bpmOverride = null, selectedSong }) {
+  const tempo = useTempoOverride(selectedSong);
+  const effectiveBpm = bpmOverride ?? tempo.effectiveBpm;
+  const [state, setState] = useState(() => transportState);
 
   useEffect(() => {
-    isLoopingRef.current = isLooping;
-  }, [isLooping]);
+    transportSubscribers.add(setState);
 
-  useEffect(() => {
-    playbackModeRef.current = playbackMode;
-  }, [playbackMode]);
-
-  const clearPlaybackTimers = useCallback(() => {
-    timeoutIdsRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
-    timeoutIdsRef.current = [];
+    return () => {
+      transportSubscribers.delete(setState);
+    };
   }, []);
 
-  const stopPlayback = useCallback(
-    ({ message = "" } = {}) => {
-      clearPlaybackTimers();
-      clearSharedPlaybackClock();
-      setActiveStepIndex(-1);
-      setIsPlaying(false);
-      setStatusMessage(message);
-    },
-    [clearPlaybackTimers],
-  );
-
-  const schedulePlaybackCycle = useCallback(
-    (audioContext, mode = playbackModeRef.current) => {
-      const cycleStartMs = getNowMs();
-
-      clearPlaybackTimers();
-      registerSharedPlaybackClock({
-        bpm: safeBpm,
-        cycleStartMs,
-        isPlaying: true,
-      });
-      setIsPlaying(true);
-      setPlaybackMode(mode);
-      setStatusMessage(`${isLoopingRef.current ? "Looping" : "Playing"} ${mode === BACKING_MODE ? "backing track" : "melody guide"} at ${safeBpm} BPM.`);
-
-      steps.forEach((step, stepIndex) => {
-        const timeoutId = window.setTimeout(() => {
-          setActiveStepIndex(stepIndex);
-          playSyntheticChord(audioContext, step.chord, stepDurationSeconds * 0.88, mode);
-        }, stepIndex * stepDurationMs);
-
-        timeoutIdsRef.current.push(timeoutId);
-      });
-
-      const completionTimeoutId = window.setTimeout(() => {
-        if (isLoopingRef.current) {
-          schedulePlaybackCycle(audioContext, mode);
-          return;
-        }
-
-        stopPlayback({ message: "Playthrough preview complete." });
-      }, steps.length * stepDurationMs + 80);
-
-      timeoutIdsRef.current.push(completionTimeoutId);
-    },
-    [clearPlaybackTimers, safeBpm, stepDurationMs, stepDurationSeconds, steps, stopPlayback],
-  );
+  useEffect(() => {
+    updateTransportSong({
+      beatsPerChord,
+      bpm: effectiveBpm,
+      selectedSong,
+    });
+  }, [beatsPerChord, effectiveBpm, selectedSong]);
 
   const startPlayback = useCallback(
     ({ mode = MELODY_MODE } = {}) => {
-      if (!steps.length) {
-        setStatusMessage("Add song sections before using Playthrough Preview.");
-        return;
-      }
-
-      const audioContext = getOrCreateAudioContext(audioContextRef);
-
-      if (!audioContext) {
-        setStatusMessage("Audio playback is not available in this browser.");
-        return;
-      }
-
-      if (audioContext.state === "suspended") {
-        void audioContext.resume();
-      }
-
-      schedulePlaybackCycle(audioContext, mode);
+      startTransportPlayback({
+        beatsPerChord,
+        bpm: effectiveBpm,
+        mode,
+        selectedSong,
+      });
     },
-    [schedulePlaybackCycle, steps.length],
+    [beatsPerChord, effectiveBpm, selectedSong],
   );
 
-  const toggleLoop = useCallback(() => {
-    setIsLooping((currentValue) => !currentValue);
+  const stopPlayback = useCallback((options = {}) => {
+    stopTransportPlayback(options);
   }, []);
 
-  useEffect(() => {
-    stopPlayback();
-  }, [selectedSong?.id, stopPlayback]);
+  const toggleLoop = useCallback(() => {
+    toggleTransportLoop();
+  }, []);
 
-  useEffect(() => {
-    return () => {
-      clearPlaybackTimers();
-      clearSharedPlaybackClock();
-    };
-  }, [clearPlaybackTimers]);
-
-  const activeStep = steps[activeStepIndex] || null;
+  const activeStep = state.steps[state.activeStepIndex] || null;
 
   return {
     activeStep,
-    activeStepIndex,
+    activeStepIndex: state.activeStepIndex,
     backingMode: BACKING_MODE,
     beatsPerChord,
-    hasSteps: steps.length > 0,
-    isLooping,
-    isPlaying,
+    hasSteps: state.hasSteps,
+    isLooping: state.isLooping,
+    isPlaying: state.isPlaying,
     melodyMode: MELODY_MODE,
-    playbackMode,
-    safeBpm,
-    sectionCount,
+    playbackMode: state.playbackMode,
+    safeBpm: state.safeBpm,
+    sectionCount: state.sectionCount,
     startPlayback,
-    statusMessage,
-    stepDurationMs,
-    steps,
+    statusMessage: state.statusMessage,
+    stepDurationMs: state.stepDurationMs,
+    steps: state.steps,
     stopPlayback,
     toggleLoop,
   };
