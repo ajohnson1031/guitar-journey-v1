@@ -13,6 +13,7 @@ export default function NewSongRoute() {
   const {
     existingSongs = sidebarProps.allSongs || [],
     genres,
+    onAddGenre = sidebarProps.onAddGenre,
     onAddSong,
     onCancelEdit,
     onClose,
@@ -27,6 +28,7 @@ export default function NewSongRoute() {
         existingSongs={existingSongs}
         genres={genres}
         showToggle={false}
+        onAddGenre={onAddGenre}
         onAddSong={onAddSong}
         onCancelEdit={onCancelEdit}
         onClose={onClose}

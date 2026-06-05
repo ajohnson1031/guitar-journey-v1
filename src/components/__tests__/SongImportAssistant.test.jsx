@@ -101,11 +101,11 @@ describe("SongImportAssistant", () => {
     expect(clearButton.disabled).toBe(true);
   });
 
-  it("shows skipped field feedback returned by the apply handler", () => {
+  it("shows pending genre feedback returned by the apply handler", () => {
     renderSongImportAssistant({
       onApplyAnalysis: vi.fn(() => ({
-        appliedFields: ["title", "artist", "chords"],
-        skippedFields: ["genre “Country”"],
+        appliedFields: ["title", "artist", "genre", "chords"],
+        pendingFields: ["genre “Country”"],
       })),
     });
 
@@ -116,9 +116,8 @@ describe("SongImportAssistant", () => {
     fireEvent.click(screen.getByRole("button", { name: "Analyze Paste" }));
     fireEvent.click(screen.getByRole("button", { name: "Apply Analysis" }));
 
-    expect(screen.getByText(/Applied: title, artist and chords/i)).toBeTruthy();
-    expect(screen.getByText(/Not applied: genre “Country”/i)).toBeTruthy();
-    expect(screen.getByText(/Add a matching genre first/i)).toBeTruthy();
+    expect(screen.getByText(/Applied: title, artist, genre and chords/i)).toBeTruthy();
+    expect(screen.getByText(/Matching genre not found; genre “Country” will be created when you save this song/i)).toBeTruthy();
   });
 
   it("opens a setup explainer dialog with copy and paste sample actions", () => {
