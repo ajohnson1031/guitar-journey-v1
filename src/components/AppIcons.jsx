@@ -1,4 +1,5 @@
 import {
+  AudioLines,
   CalendarDays,
   Check,
   Circle,
@@ -29,6 +30,7 @@ import {
   Settings,
   Square,
   Star,
+  Metronome as LucideMetronome,
   Trash2,
   Upload,
   X,
@@ -52,6 +54,7 @@ function createIcon(Component, defaultProps = {}) {
   return memo(AppIcon);
 }
 
+const AudioLinesIcon = createIcon(AudioLines);
 const CalendarDaysIcon = createIcon(CalendarDays);
 const CheckIcon = createIcon(Check);
 const CirclePlusIcon = createIcon(CirclePlus);
@@ -88,11 +91,13 @@ const StarIcon = createIcon(Star);
 const StopIcon = createIcon(Square, {
   fill: "currentColor",
 });
+const MetronomeIcon = createIcon(LucideMetronome);
 const TrashIcon = createIcon(Trash2);
 const UploadIcon = createIcon(Upload);
 const XIcon = createIcon(X);
 
 export {
+  AudioLinesIcon,
   CalendarDaysIcon,
   CheckIcon,
   CirclePlusIcon,
@@ -123,6 +128,7 @@ export {
   SettingsIcon,
   StarIcon,
   StopIcon,
+  MetronomeIcon,
   TrashIcon,
   UploadIcon,
   XIcon,

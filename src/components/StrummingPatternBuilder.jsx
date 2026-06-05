@@ -75,7 +75,7 @@ export default function StrummingPatternBuilder({ value, onChange }) {
 
       <div className="custom-song-preview">
         <span>Presets</span>
-        <div>
+        <div className="strumming-preset-row">
           {STRUMMING_PRESETS.map((preset) => (
             <button
               key={preset.id}

@@ -14,6 +14,14 @@ function normalizeBpm(value) {
   return bpm;
 }
 
+function getNowMs() {
+  if (typeof performance !== "undefined" && typeof performance.now === "function") {
+    return performance.now();
+  }
+
+  return Date.now();
+}
+
 export function getStrummingDirectionLabel(direction) {
   if (direction === DOWN_STRUM) return "Down";
   if (direction === UP_STRUM) return "Up";
@@ -28,7 +36,7 @@ export function getStrummingDirectionClass(direction) {
   return "is-rest";
 }
 
-export default function useStrummingPlayback({ bpm, isRunning, pattern }) {
+export default function useStrummingPlayback({ bpm, isRunning, pattern, startAtMs = null }) {
   const patternData = useMemo(() => normalizeStrummingPatternData(pattern), [pattern]);
   const slots = patternData.slots;
   const [activeSlot, setActiveSlot] = useState(0);
@@ -45,17 +53,36 @@ export default function useStrummingPlayback({ bpm, isRunning, pattern }) {
 
     const safeBpm = normalizeBpm(bpm);
     const slotDurationMs = Math.max(45, getStrummingSlotDurationMs(safeBpm, patternData));
+    const startDelayMs = startAtMs ? Math.max(0, startAtMs - getNowMs()) : 0;
+    let intervalId = null;
+    let timeoutId = null;
 
-    const intervalId = window.setInterval(() => {
-      setActiveSlot((currentSlot) => (currentSlot + 1) % slots.length);
-    }, slotDurationMs);
+    function startSlotClock() {
+      setActiveSlot(0);
+      intervalId = window.setInterval(() => {
+        setActiveSlot((currentSlot) => (currentSlot + 1) % slots.length);
+      }, slotDurationMs);
+    }
+
+    if (startDelayMs > 20) {
+      setActiveSlot(-1);
+      timeoutId = window.setTimeout(startSlotClock, startDelayMs);
+    } else {
+      startSlotClock();
+    }
 
     return () => {
-      window.clearInterval(intervalId);
-    };
-  }, [bpm, isRunning, patternData, slots.length]);
+      if (timeoutId) {
+        window.clearTimeout(timeoutId);
+      }
 
-  const activeSlotData = slots[activeSlot] || slots[0];
+      if (intervalId) {
+        window.clearInterval(intervalId);
+      }
+    };
+  }, [bpm, isRunning, patternData, slots.length, startAtMs]);
+
+  const activeSlotData = activeSlot >= 0 ? slots[activeSlot] || slots[0] : null;
 
   return {
     activeSlot,
