@@ -15,6 +15,7 @@ import {
   NewSongRoute,
   ProgressRoute,
   RecordingsRoute,
+  SearchRoute,
   SettingsRoute,
   SongSectionsRoute,
   TransitionsRoute,
@@ -74,25 +75,16 @@ function AppLayout() {
 
             <Routes>
               <Route index element={<DashboardRoute />} />
-
+              <Route path="search" element={<SearchRoute />} />
               <Route path="transitions" element={<TransitionsRoute />} />
-
               <Route path="sections" element={<SongSectionsRoute />} />
-
               <Route path="history" element={<HistoryRoute />} />
-
               <Route path="progress" element={<ProgressRoute />} />
-
               <Route path="recordings" element={<RecordingsRoute />} />
-
               <Route path="weekly-plan" element={<WeeklyPlanRoute />} />
-
               <Route path="songs/new" element={<NewSongRoute />} />
-
               <Route path="songs/edit/:songId" element={<EditSongRoute />} />
-
               <Route path="settings" element={<SettingsRoute />} />
-
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </section>

@@ -1,10 +1,12 @@
 import * as React from "react";
+import { useLocation } from "react-router-dom";
 import { CustomSongForm } from "../components";
 import { useGuitarJourneyContext } from "../context";
 
 const { Fragment } = React;
 
 export default function NewSongRoute() {
+  const location = useLocation();
   const {
     newSongRouteProps = {},
     sidebarProps = {},
@@ -27,6 +29,7 @@ export default function NewSongRoute() {
         editingSong={null}
         existingSongs={existingSongs}
         genres={genres}
+        initialSongDraft={location.state?.draftSong || null}
         showToggle={false}
         onAddGenre={onAddGenre}
         onAddSong={onAddSong}

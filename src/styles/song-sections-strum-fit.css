@@ -1,0 +1,59 @@
+/* =========================
+   Song Sections Strum Pattern Fit
+========================= */
+
+/*
+  Keep the Song Sections strum pattern pill inside the detail card.
+
+  The shared .section-heading-row styles are flex-based and the strum pill can
+  grow past the available width when the reference player/timed arrangement
+  content makes the page narrower. This scoped override gives Song Sections a
+  predictable two-column header and lets the strum display shrink inside the
+  card instead of overflowing it.
+*/
+
+.detail-section-card > .section-heading-row {
+  display: grid;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  grid-template-columns: minmax(220px, 0.34fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+}
+
+.detail-section-card > .section-heading-row > div:first-child {
+  min-width: 0;
+}
+
+.detail-section-card > .section-heading-row .section-copy {
+  max-width: 100%;
+}
+
+.detail-section-card > .section-heading-row .strum-pattern-pill {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  justify-self: stretch;
+}
+
+.detail-section-card > .section-heading-row .strum-pattern-pill .strumming-pattern-display.is-compact,
+.detail-section-card > .section-heading-row .strum-pattern-pill .strumming-slot-display-grid {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.detail-section-card > .section-heading-row .strum-pattern-pill .strumming-display-slot {
+  min-width: 0;
+}
+
+@media (max-width: 860px) {
+  .detail-section-card > .section-heading-row {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-section-card > .section-heading-row .strum-pattern-pill {
+    justify-self: stretch;
+  }
+}
