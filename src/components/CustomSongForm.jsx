@@ -1,7 +1,7 @@
 import * as React from "react";
 import { DEFAULT_CUSTOM_SONG_FORM, KEY_OPTIONS } from "../constants";
 import { parseCommaList, parseSections, slugify } from "../utils/songFormUtils";
-import { hasStrummingPattern, normalizeStrummingPatternData, serializeStrummingPattern } from "../utils/strummingUtils";
+import { STRUMMING_PRESETS, createPresetStrummingPattern, hasStrummingPattern, normalizeStrummingPatternData, serializeStrummingPattern } from "../utils/strummingUtils";
 import { SongImportAssistant, StrummingPatternBuilder, TransitionInput } from "./";
 
 const { useEffect, useMemo, useState } = React;
@@ -55,6 +55,63 @@ function getAppliedBpm(value) {
   if (!Number.isFinite(bpm)) return "";
 
   return String(Math.min(220, Math.max(40, Math.round(bpm))));
+}
+
+function normalizeSuggestionText(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase();
+}
+
+function findStrummingPreset(presetId) {
+  return STRUMMING_PRESETS.find((preset) => preset.id === presetId) || null;
+}
+
+function getSuggestedStrummingPreset({ bpm, difficulty, genre } = {}) {
+  const normalizedGenre = normalizeSuggestionText(genre);
+  const normalizedDifficulty = normalizeSuggestionText(difficulty);
+  const safeBpm = Number(bpm);
+
+  if (normalizedDifficulty === "beginner" || (Number.isFinite(safeBpm) && safeBpm <= 74)) {
+    return findStrummingPreset("beginner-downstrums");
+  }
+
+  if (/worship|gospel|praise/.test(normalizedGenre)) {
+    return findStrummingPreset("worship-build");
+  }
+
+  if (/folk|country|americana|singer/.test(normalizedGenre)) {
+    return findStrummingPreset("classic-folk");
+  }
+
+  if (/pop|island|reggae|calypso/.test(normalizedGenre)) {
+    return findStrummingPreset("pop-island");
+  }
+
+  if (/r&b|rnb|neo soul|soul/.test(normalizedGenre) && normalizedDifficulty !== "beginner" && (!Number.isFinite(safeBpm) || safeBpm <= 118)) {
+    return findStrummingPreset("sixteenth-pop-push");
+  }
+
+  if (Number.isFinite(safeBpm) && safeBpm >= 132) {
+    return null;
+  }
+
+  return findStrummingPreset("classic-folk");
+}
+
+function getPatternSignature(pattern) {
+  const normalizedPattern = normalizeStrummingPatternData(pattern);
+
+  return `${normalizedPattern.subdivision}:${normalizedPattern.slots.map((slot) => slot.direction || "-").join("")}`;
+}
+
+function isDefaultOrEmptyStrummingPattern(pattern) {
+  const normalizedPattern = normalizeStrummingPatternData(pattern);
+  const defaultPattern = normalizeStrummingPatternData(DEFAULT_CUSTOM_SONG_FORM.strummingPattern);
+
+  if (!hasStrummingPattern(normalizedPattern)) return true;
+
+  return getPatternSignature(normalizedPattern) === getPatternSignature(defaultPattern);
 }
 
 function normalizeSongIdentityValue(value) {
@@ -226,6 +283,13 @@ export default function CustomSongForm({
     const pendingAnalysisGenre = analysis.genre && !matchingGenre ? normalizeGenreValue(analysis.genre) : "";
     const appliedGenre = matchingGenre || pendingAnalysisGenre;
     const appliedBpm = getAppliedBpm(analysis.bpm);
+    const suggestedStrummingPreset = getSuggestedStrummingPreset({
+      bpm: appliedBpm,
+      difficulty: analysis.difficulty,
+      genre: appliedGenre,
+    });
+    const shouldApplySuggestedStrumming = Boolean(suggestedStrummingPreset && isDefaultOrEmptyStrummingPattern(form.strummingPattern));
+    const suggestedStrummingPattern = shouldApplySuggestedStrumming ? createPresetStrummingPattern(suggestedStrummingPreset) : null;
     const appliedFields = [
       analysis.title ? "title" : "",
       analysis.artist ? "artist" : "",
@@ -236,6 +300,7 @@ export default function CustomSongForm({
       analysis.key ? "key" : "",
       analysis.tuning ? "tuning" : "",
       analysis.capo ? "capo" : "",
+      shouldApplySuggestedStrumming ? "strumming pattern" : "",
       analysis.chords?.length ? "chords" : "",
       analysis.transitions?.length ? "transitions" : "",
       analysis.sections?.length ? "sections" : "",
@@ -259,10 +324,15 @@ export default function CustomSongForm({
       key: analysis.key || current.key,
       tuning: analysis.tuning || current.tuning,
       capo: analysis.capo || current.capo,
+      strummingPattern: suggestedStrummingPattern || current.strummingPattern,
       goal: !current.goal || current.goal === DEFAULT_CUSTOM_SONG_FORM.goal ? analysis.goal : current.goal,
     }));
 
-    setInfoMessage("Song analysis applied. Review and edit anything before saving.");
+    setInfoMessage(
+      shouldApplySuggestedStrumming
+        ? `Song analysis applied. Suggested strumming: ${suggestedStrummingPreset.name}. Review and edit anything before saving.`
+        : "Song analysis applied. Review and edit anything before saving.",
+    );
 
     return {
       appliedFields,

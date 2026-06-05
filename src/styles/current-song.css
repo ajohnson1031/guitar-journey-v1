@@ -180,6 +180,7 @@
   }
 }
 
+
 .bpm-info-card strong {
   display: flex;
   align-items: center;
@@ -205,12 +206,6 @@
   text-transform: uppercase;
 }
 
-.bpm-info-card strong .bpm-value {
-  font-size: 18px;
-  letter-spacing: normal;
-  color: initial;
-}
-
 .bpm-revert-button {
   display: inline-grid;
   width: 24px;
@@ -225,9 +220,9 @@
 }
 
 .bpm-revert-button:hover {
-  border-color: var(--color-primary);
-  background: var(--color-primary-soft);
-  color: var(--color-primary);
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
 }
 
 .bpm-revert-button svg {
