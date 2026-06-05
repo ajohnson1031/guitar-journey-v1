@@ -48,6 +48,64 @@
   padding: 12px;
 }
 
+.strumming-slot-display-grid {
+  display: grid;
+  min-width: calc(var(--strumming-slot-count, 8) * 30px);
+  grid-template-columns: repeat(var(--strumming-slot-count, 8), minmax(24px, 1fr));
+  gap: 6px;
+  align-items: stretch;
+  text-align: center;
+}
+
+.strumming-display-slot {
+  box-sizing: border-box;
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  gap: 4px;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  padding: 4px 3px;
+}
+
+.strumming-display-slot.is-current-beat {
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-soft);
+}
+
+.strumming-display-slot.is-current-beat .strumming-direction,
+.strumming-display-slot.is-current-beat .strumming-beat-label {
+  color: var(--color-primary-text);
+}
+
+.strumming-beat-label {
+  display: grid;
+  min-height: 13px;
+  place-items: center;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.strumming-pattern-display.is-compact .strumming-slot-display-grid {
+  min-width: calc(var(--strumming-slot-count, 8) * 18px);
+  grid-template-columns: repeat(var(--strumming-slot-count, 8), minmax(14px, 1fr));
+  gap: 3px;
+}
+
+.strumming-pattern-display.is-compact .strumming-display-slot {
+  gap: 2px;
+  border-radius: 12px;
+  padding: 3px 1px;
+}
+
+.strumming-pattern-display.is-compact .strumming-beat-label {
+  min-height: 11px;
+  font-size: 11px;
+}
+
 .strumming-arrow-row,
 .strumming-beat-row {
   display: grid;
@@ -100,6 +158,12 @@
 
 .strumming-pattern-display.is-compact .strumming-beat-row span {
   font-size: 11px;
+}
+
+.strumming-preset-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .strumming-slot-grid {
@@ -192,3 +256,4 @@
   font-weight: 900;
   line-height: 1;
 }
+

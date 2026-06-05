@@ -1,6 +1,10 @@
 import * as React from "react";
+import useSharedMetronomeState from "../hooks/useSharedMetronomeState";
+import useSongPlaythroughPlayback from "../hooks/useSongPlaythroughPlayback";
+import useStrummingPlayback from "../hooks/useStrummingPlayback";
 import { EditIcon, StarIcon, TrashIcon } from "./AppIcons";
 import ConfirmDialog from "./ConfirmDialog";
+import SongPlaythroughControls from "./SongPlaythroughControls";
 import StrummingPatternDisplay from "./StrummingPatternDisplay";
 
 const { Fragment, useMemo, useState } = React;
@@ -9,6 +13,15 @@ export default function CurrentSongCard({ filteredSongs, masteredSongs, onDelete
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const isMastered = Boolean(masteredSongs[selectedSong.id]);
   const artistByline = selectedSong.artist?.trim();
+  const playthrough = useSongPlaythroughPlayback({ selectedSong });
+  const { isMetronomeRunning, metronomeStartAtMs } = useSharedMetronomeState();
+  const selectedStrummingPattern = selectedSong.strummingPattern || selectedSong.strumming;
+  const strummingPlayback = useStrummingPlayback({
+    bpm: selectedSong.bpm,
+    isRunning: isMetronomeRunning,
+    pattern: selectedStrummingPattern,
+    startAtMs: metronomeStartAtMs,
+  });
 
   const songSelectOptions = useMemo(() => {
     const options = filteredSongs.length ? filteredSongs : selectedSong ? [selectedSong] : [];
@@ -119,11 +132,17 @@ export default function CurrentSongCard({ filteredSongs, masteredSongs, onDelete
           </div>
         </div>
 
-        <div>
-          <span className="strum-pill">
-            <span>Strum Pattern:</span>
-            <StrummingPatternDisplay pattern={selectedSong.strummingPattern || selectedSong.strumming} compact />
-          </span>
+        <div className="current-song-rhythm-row">
+          <div className="current-song-playthrough-controls">
+            <SongPlaythroughControls compact layout="grid" playback={playthrough} showStatus={false} />
+          </div>
+
+          <div className="current-song-strum-wrap">
+            <span className="strum-pill strum-pattern-pill">
+              <span>Strum Pattern:</span>
+              <StrummingPatternDisplay activeSlot={isMetronomeRunning ? strummingPlayback.activeSlot : null} pattern={selectedStrummingPattern} compact />
+            </span>
+          </div>
         </div>
       </section>
 

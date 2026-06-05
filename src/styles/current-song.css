@@ -16,7 +16,7 @@
 .section-heading-row {
   display: flex;
   align-items: flex-start;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 16px;
 }
 
@@ -142,6 +142,42 @@
 
 .compact-info-grid .info-card strong {
   font-size: 18px;
+}
+
+.current-song-rhythm-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.current-song-strum-wrap {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  justify-content: flex-start;
+}
+
+.current-song-strum-wrap .strum-pattern-pill {
+  width: 100%;
+  min-width: 0;
+}
+
+.current-song-playthrough-controls {
+  display: flex;
+  flex: 0 0 auto;
+  justify-content: flex-start;
+}
+
+@media (max-width: 720px) {
+  .current-song-rhythm-row {
+    grid-template-columns: 1fr;
+  }
+
+  .current-song-strum-wrap,
+  .current-song-playthrough-controls {
+    justify-content: flex-start;
+  }
 }
 
 /* =========================

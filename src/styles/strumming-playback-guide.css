@@ -103,6 +103,13 @@
   box-shadow: 0 0 0 5px rgba(245, 158, 11, 0.08);
 }
 
+.strumming-playback-slot.is-active.is-rest {
+  border-color: var(--border);
+  background: var(--surface-soft);
+  box-shadow: none;
+  transform: none;
+}
+
 .strumming-playback-slot-stack {
   display: flex;
   flex-direction: column;

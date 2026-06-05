@@ -6,7 +6,7 @@ const { Fragment } = React;
 
 export default function StrummingPlaybackGuide({ activeSlot = 0, isRunning = false, slots = [], subdivision = "eighth" }) {
   const displaySlots = slots.length ? slots : [];
-  const active = displaySlots[activeSlot] || displaySlots[0];
+  const active = activeSlot >= 0 ? displaySlots[activeSlot] || displaySlots[0] : null;
   const activeDirectionClass = getStrummingDirectionClass(active?.direction);
   const activeDirectionLabel = getStrummingDirectionLabel(active?.direction);
   const activeBeat = active?.beat || "1";
@@ -23,10 +23,10 @@ export default function StrummingPlaybackGuide({ activeSlot = 0, isRunning = fal
         <div className="strumming-playback-grid" aria-label="Strumming playback guide">
           {displaySlots.map((slot) => {
             const directionClass = getStrummingDirectionClass(slot.direction);
-            const isActive = slot.slot === activeSlot;
+            const isActiveStrokeSlot = Boolean(slot.direction) && slot.slot === activeSlot;
 
             return (
-              <div key={slot.slot} className={`strumming-playback-slot ${directionClass} ${isActive ? "is-active" : ""}`}>
+              <div key={slot.slot} className={`strumming-playback-slot ${directionClass} ${isActiveStrokeSlot ? "is-active" : ""}`}>
                 <div className="strumming-playback-slot-stack">
                   <span className="strumming-playback-slot-direction">{slot.direction || REST_STRUM}</span>
                   <span className="strumming-playback-slot-beat">{slot.beat}</span>

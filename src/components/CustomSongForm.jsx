@@ -422,13 +422,7 @@ export default function CustomSongForm({
                     </option>
                   ))}
                 </select>
-
-                {shouldShowPendingGenre ? (
-                  <span className="custom-song-pending-genre-display" aria-hidden="true">
-                    <span className="custom-song-pending-genre-value">{pendingGenre}</span>
-                    <span className="custom-song-pending-genre-badge">New</span>
-                  </span>
-                ) : null}
+                {shouldShowPendingGenre ? <span className="custom-song-pending-genre-badge">New</span> : null}
               </div>
             </label>
 
@@ -509,7 +503,7 @@ export default function CustomSongForm({
 
           <div className="custom-song-preview">
             <span>Preview chords</span>
-            <div>{previewChords.length ? previewChords.map((chord) => <strong key={chord}>{chord}</strong>) : <small>No chords yet</small>}</div>
+            <div className="analysis-chip-row">{previewChords.length ? previewChords.map((chord) => <strong key={chord}>{chord}</strong>) : <small>No chords yet</small>}</div>
           </div>
 
           {duplicateCandidate ? (
