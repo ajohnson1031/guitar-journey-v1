@@ -2,7 +2,10 @@ import * as React from "react";
 import useSharedMetronomeState from "../hooks/useSharedMetronomeState";
 import useStrummingPlayback from "../hooks/useStrummingPlayback";
 import useTempoOverride from "../hooks/useTempoOverride";
+import { buildReferenceTimestampUrl, formatReferenceMarkerTime, getReferenceMarkerForSection } from "../utils/referenceMarkerUtils";
+import ReferenceTrackCard from "./ReferenceTrackCard";
 import SongPlaythroughPreview from "./SongPlaythroughPreview";
+import TimedPracticeArrangement from "./TimedPracticeArrangement";
 import StrummingPatternDisplay from "./StrummingPatternDisplay";
 
 const { Fragment } = React;
@@ -34,15 +37,31 @@ export default function SongSections({ selectedSong }) {
           </span>
         </div>
 
+        <ReferenceTrackCard markers={selectedSong.referenceMarkers} referenceTrack={selectedSong.referenceTrack} showEmbed sourceUrl={selectedSong.sourceUrl} />
+
+        <TimedPracticeArrangement selectedSong={selectedSong} />
+
         <SongPlaythroughPreview selectedSong={selectedSong} />
 
         <div className="section-list">
-          {selectedSong.sections.map((section) => (
-            <div key={`${section.name}-${section.progression}`} className="song-section-card">
-              <span>{section.name}</span>
-              <strong>{section.progression}</strong>
-            </div>
-          ))}
+          {selectedSong.sections.map((section) => {
+            const sectionMarker = getReferenceMarkerForSection(selectedSong.referenceMarkers, section.name);
+            const referenceUrl = sectionMarker ? buildReferenceTimestampUrl(selectedSong.referenceTrack || { url: selectedSong.sourceUrl, platform: "generic" }, sectionMarker.seconds) : "";
+
+            return (
+              <div key={`${section.name}-${section.progression}`} className="song-section-card">
+                <div className="song-section-card-header">
+                  <span>{section.name}</span>
+                  {sectionMarker ? (
+                    <a className="song-section-reference-link" href={referenceUrl} target="_blank" rel="noreferrer">
+                      {formatReferenceMarkerTime(sectionMarker.seconds)}
+                    </a>
+                  ) : null}
+                </div>
+                <strong>{section.progression}</strong>
+              </div>
+            );
+          })}
         </div>
       </section>
     </Fragment>

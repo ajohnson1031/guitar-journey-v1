@@ -1,5 +1,8 @@
 import * as React from "react";
 import { DEFAULT_CUSTOM_SONG_FORM, KEY_OPTIONS } from "../constants";
+import { parseReferenceTrackUrl } from "../utils/referenceTrackUtils";
+import { formatReferenceMarkerTime, parseReferenceMarkers, referenceMarkersToText } from "../utils/referenceMarkerUtils";
+import { getReferenceDurationSeconds, getSuggestedReferenceMarkerSummary, suggestedReferenceMarkersToText, mergeReferenceMarkerDraft, parseReferenceDurationInput } from "../utils/referenceMarkerSuggestionUtils";
 import { parseCommaList, parseSections, slugify } from "../utils/songFormUtils";
 import { STRUMMING_PRESETS, createPresetStrummingPattern, hasStrummingPattern, normalizeStrummingPatternData, serializeStrummingPattern } from "../utils/strummingUtils";
 import { SongImportAssistant, StrummingPatternBuilder, TransitionInput } from "./";
@@ -21,6 +24,8 @@ function sectionsToText(sections) {
 function getDefaultForm() {
   return {
     ...DEFAULT_CUSTOM_SONG_FORM,
+    referenceDuration: "",
+    referenceMarkers: "",
     strummingPattern: normalizeStrummingPatternData(DEFAULT_CUSTOM_SONG_FORM.strummingPattern),
   };
 }
@@ -55,6 +60,10 @@ function getAppliedBpm(value) {
   if (!Number.isFinite(bpm)) return "";
 
   return String(Math.min(220, Math.max(40, Math.round(bpm))));
+}
+
+function formatReferenceDurationInput(seconds) {
+  return seconds ? formatReferenceMarkerTime(seconds) : "";
 }
 
 function normalizeSuggestionText(value) {
@@ -160,6 +169,9 @@ function songToForm(song) {
   if (!song) return getDefaultForm();
 
   return {
+    sourceUrl: song.sourceUrl || song.referenceTrack?.url || "",
+    referenceDuration: song.referenceDurationSeconds ? formatReferenceDurationInput(song.referenceDurationSeconds) : "",
+    referenceMarkers: referenceMarkersToText(song.referenceMarkers || song.sectionMarkers || []),
     artist: song.artist || "",
     instrument: song.instrument || "",
     title: song.title || "",
@@ -177,10 +189,36 @@ function songToForm(song) {
   };
 }
 
+function draftToForm(draft) {
+  if (!draft) return getDefaultForm();
+
+  return {
+    ...getDefaultForm(),
+    sourceUrl: draft.sourceUrl || draft.referenceTrack?.url || "",
+    referenceDuration: draft.referenceDurationSeconds ? formatReferenceDurationInput(draft.referenceDurationSeconds) : draft.referenceDuration || "",
+    referenceMarkers: referenceMarkersToText(draft.referenceMarkers || draft.sectionMarkers || []),
+    artist: draft.artist || "",
+    instrument: draft.instrument || "",
+    title: draft.title || "",
+    genre: draft.genre || "",
+    key: draft.key || "",
+    tuning: draft.tuning || "",
+    capo: draft.capo || "",
+    bpm: draft.bpm ? String(draft.bpm) : DEFAULT_CUSTOM_SONG_FORM.bpm,
+    difficulty: draft.difficulty || "",
+    chords: Array.isArray(draft.chords) ? draft.chords.join(", ") : draft.chords || DEFAULT_CUSTOM_SONG_FORM.chords,
+    transitions: Array.isArray(draft.transitions) ? draft.transitions.join(", ") : draft.transitions || "",
+    sections: Array.isArray(draft.sections) ? sectionsToText(draft.sections) : draft.sections || DEFAULT_CUSTOM_SONG_FORM.sections,
+    strummingPattern: normalizeStrummingPatternData(draft.strummingPattern || draft.strumming || DEFAULT_CUSTOM_SONG_FORM.strummingPattern),
+    goal: draft.goal || DEFAULT_CUSTOM_SONG_FORM.goal,
+  };
+}
+
 export default function CustomSongForm({
   defaultOpen = false,
   editingSong,
   existingSongs = [],
+  initialSongDraft = null,
   genres,
   onAddGenre = noop,
   onAddSong,
@@ -199,6 +237,7 @@ export default function CustomSongForm({
   const [message, setMessage] = useState("");
   const [messageTone, setMessageTone] = useState("error");
 
+  const referenceTrack = useMemo(() => parseReferenceTrackUrl(form.sourceUrl), [form.sourceUrl]);
   const previewChords = useMemo(() => parseCommaList(form.chords), [form.chords]);
   const strummingPattern = useMemo(() => normalizeStrummingPatternData(form.strummingPattern), [form.strummingPattern]);
   const strummingPatternText = serializeStrummingPattern(strummingPattern);
@@ -221,6 +260,17 @@ export default function CustomSongForm({
     setPendingGenre("");
     setMessage("");
   }, [editingSong, onOpenChange]);
+
+  useEffect(() => {
+    if (editingSong || !initialSongDraft) return;
+
+    setForm(draftToForm(initialSongDraft));
+    setIsOpen(true);
+    onOpenChange(true);
+    setDuplicateCandidate(null);
+    setPendingGenre("");
+    setMessage("");
+  }, [editingSong, initialSongDraft, onOpenChange]);
 
   function setValidationMessage(value) {
     setMessage(value);
@@ -340,12 +390,69 @@ export default function CustomSongForm({
     };
   }
 
+
+  function handleGenerateReferenceMarkerDraft() {
+    const sections = parseSections(form.sections);
+
+    if (!sections.length) {
+      setWarningMessage("Add song sections before generating a reference marker draft.");
+      return;
+    }
+
+    const referenceDurationSeconds = getReferenceDurationSeconds(form.referenceDuration);
+
+    if (form.referenceDuration.trim() && !referenceDurationSeconds) {
+      setWarningMessage("Enter reference duration as seconds, M:SS, or H:MM:SS before generating a marker draft.");
+      return;
+    }
+
+    const draftText = suggestedReferenceMarkersToText({
+      bpm: form.bpm,
+      referenceDurationSeconds,
+      sections,
+    });
+
+    if (!draftText) {
+      setWarningMessage("Add song sections before generating a reference marker draft.");
+      return;
+    }
+
+    const hasCurrentMarkers = parseReferenceMarkers(form.referenceMarkers).length > 0;
+    const nextMarkerText = hasCurrentMarkers
+      ? mergeReferenceMarkerDraft({
+          currentText: form.referenceMarkers,
+          draftText,
+        })
+      : draftText;
+
+    setForm((current) => ({
+      ...current,
+      referenceMarkers: nextMarkerText,
+    }));
+
+    setInfoMessage(
+      hasCurrentMarkers
+        ? "Missing section markers were added to the existing marker list. Review the timestamps before saving."
+        : getSuggestedReferenceMarkerSummary({
+            bpm: form.bpm,
+            referenceDurationSeconds,
+            sections,
+          }),
+    );
+  }
+
   function saveSong({ allowDuplicate = false } = {}) {
     const title = form.title.trim();
 
     if (!title) {
       setDuplicateCandidate(null);
       setValidationMessage("Add a song title before saving.");
+      return;
+    }
+
+    if (form.sourceUrl.trim() && !referenceTrack.isValid) {
+      setDuplicateCandidate(null);
+      setValidationMessage(referenceTrack.error || "Enter a valid reference track URL before saving.");
       return;
     }
 
@@ -383,8 +490,31 @@ export default function CustomSongForm({
 
     const bpm = Number(form.bpm);
 
+    const parsedReferenceTrack = form.sourceUrl.trim() ? referenceTrack : null;
+    const referenceDurationSeconds = parseReferenceDurationInput(form.referenceDuration);
+    const referenceMarkers = parseReferenceMarkers(form.referenceMarkers);
+
+    if (form.referenceDuration.trim() && !referenceDurationSeconds) {
+      setDuplicateCandidate(null);
+      setValidationMessage("Enter reference duration as seconds, M:SS, or H:MM:SS before saving.");
+      return;
+    }
+
     const song = {
       id: editingSong?.id || `custom-${slugify(title)}-${Date.now()}`,
+      sourceUrl: parsedReferenceTrack?.url || "",
+      referenceTrack: parsedReferenceTrack?.isValid
+        ? {
+            embedUrl: parsedReferenceTrack.embedUrl,
+            kind: parsedReferenceTrack.kind,
+            mediaId: parsedReferenceTrack.mediaId,
+            platform: parsedReferenceTrack.platform,
+            platformLabel: parsedReferenceTrack.platformLabel,
+            url: parsedReferenceTrack.url,
+          }
+        : null,
+      referenceDurationSeconds: referenceDurationSeconds || null,
+      referenceMarkers,
       title,
       artist: form.artist.trim(),
       instrument: form.instrument.trim(),
@@ -463,6 +593,67 @@ export default function CustomSongForm({
       {isOpen ? (
         <form className="custom-song-form" onSubmit={handleSubmit}>
           <SongImportAssistant onApplyAnalysis={applySongAnalysis} />
+
+          <div className="import-link-card reference-track-card">
+            <label>
+              <span>Reference Track URL</span>
+              <input
+                type="url"
+                value={form.sourceUrl}
+                placeholder="Paste a YouTube, Vimeo, Spotify, SoundCloud, or reference link"
+                onChange={(event) => updateField("sourceUrl", event.target.value)}
+              />
+            </label>
+
+            <p>Optional: save a reference track now so this song can support future timestamp sync and arrangement analysis.</p>
+
+            {!referenceTrack.isEmpty ? (
+              referenceTrack.isValid ? (
+                <div className="analysis-preview-section analysis-preview-section--review">
+                  <p>
+                    <strong>{referenceTrack.platformLabel}</strong>
+                    <span>{referenceTrack.kind ? `${referenceTrack.kind} reference detected.` : "Reference detected."}</span>
+                  </p>
+                </div>
+              ) : (
+                <p className="custom-song-message is-warning">{referenceTrack.error}</p>
+              )
+            ) : null}
+
+            <div className="reference-duration-field">
+              <label>
+                <span>Reference Duration</span>
+                <input
+                  type="text"
+                  value={form.referenceDuration}
+                  placeholder="Example: 4:34"
+                  onChange={(event) => updateField("referenceDuration", event.target.value)}
+                />
+              </label>
+              <p>Optional for now: add the full reference length so generated markers span the whole song instead of relying only on BPM estimates.</p>
+            </div>
+
+            <div className="reference-marker-field">
+              <div className="reference-marker-field-header">
+                <label htmlFor="reference-markers-textarea">
+                  <span>Reference Markers</span>
+                </label>
+
+                <button type="button" className="reference-marker-draft-button" onClick={handleGenerateReferenceMarkerDraft}>
+                  Generate marker draft
+                </button>
+              </div>
+
+              <textarea
+                id="reference-markers-textarea"
+                value={form.referenceMarkers}
+                placeholder={"Intro: 0:00\nVerse: 0:12\nChorus: 0:48"}
+                onChange={(event) => updateField("referenceMarkers", event.target.value)}
+              />
+            </div>
+
+            <p>Optional: generate a marker draft from song sections, then adjust the timestamps against the reference track.</p>
+          </div>
 
           <div className="form-grid three">
             <label>

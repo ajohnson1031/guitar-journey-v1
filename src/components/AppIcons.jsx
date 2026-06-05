@@ -10,6 +10,7 @@ import {
   Copy,
   Download,
   Edit3,
+  ExternalLink,
   Guitar,
   History,
   Info,
@@ -27,6 +28,7 @@ import {
   RefreshCcw,
   Repeat2,
   Save,
+  Search,
   Settings,
   Square,
   Star,
@@ -66,6 +68,7 @@ const CopyIcon = createIcon(Copy);
 const DashboardIcon = createIcon(LayoutDashboard);
 const DownloadIcon = createIcon(Download);
 const EditIcon = createIcon(Edit3);
+const ExternalLinkIcon = createIcon(ExternalLink);
 const GuitarIcon = createIcon(Guitar);
 const HistoryIcon = createIcon(History);
 const InfoIcon = createIcon(Info);
@@ -87,6 +90,7 @@ const RecordIcon = createIcon(Circle, {
 const ReplayIcon = createIcon(RefreshCcw);
 const RepeatIcon = createIcon(Repeat2);
 const SaveIcon = createIcon(Save);
+const SearchIcon = createIcon(Search);
 const SettingsIcon = createIcon(Settings);
 const StarIcon = createIcon(Star);
 const StopIcon = createIcon(Square, {
@@ -110,6 +114,7 @@ export {
   DashboardIcon,
   DownloadIcon,
   EditIcon,
+  ExternalLinkIcon,
   GuitarIcon,
   HistoryIcon,
   InfoIcon,
@@ -127,6 +132,7 @@ export {
   ReplayIcon,
   RepeatIcon,
   SaveIcon,
+  SearchIcon,
   SettingsIcon,
   StarIcon,
   StopIcon,

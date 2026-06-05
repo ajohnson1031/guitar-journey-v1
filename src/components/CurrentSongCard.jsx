@@ -5,6 +5,7 @@ import useStrummingPlayback from "../hooks/useStrummingPlayback";
 import useTempoOverride from "../hooks/useTempoOverride";
 import { EditIcon, StarIcon, TrashIcon, Undo2Icon } from "./AppIcons";
 import ConfirmDialog from "./ConfirmDialog";
+import ReferenceTrackCard from "./ReferenceTrackCard";
 import SongPlaythroughControls from "./SongPlaythroughControls";
 import StrummingPatternDisplay from "./StrummingPatternDisplay";
 
@@ -122,6 +123,8 @@ export default function CurrentSongCard({ filteredSongs, masteredSongs, onDelete
           {artistByline ? <p className="song-artist">{artistByline}</p> : null}
           <p className="goal">{selectedSong.goal}</p>
         </div>
+
+        <ReferenceTrackCard compact markers={selectedSong.referenceMarkers} referenceTrack={selectedSong.referenceTrack} sourceUrl={selectedSong.sourceUrl} />
 
         <div className="song-detail-grid-wrap">
           <div className="info-grid compact-info-grid song-detail-grid">

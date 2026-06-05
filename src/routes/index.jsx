@@ -4,6 +4,7 @@ export { default as HistoryRoute } from "./HistoryRoute";
 export { default as NewSongRoute } from "./NewSongRoute";
 export { default as ProgressRoute } from "./ProgressRoute";
 export { default as RecordingsRoute } from "./RecordingsRoute";
+export { default as SearchRoute } from "./SearchRoute";
 export { default as SettingsRoute } from "./SettingsRoute";
 export { default as SongSectionsRoute } from "./SongSectionsRoute";
 export { default as TransitionsRoute } from "./TransitionsRoute";

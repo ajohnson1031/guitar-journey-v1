@@ -5,6 +5,7 @@ import { getSectionRoute } from "../routes/routeConfig";
 import { getNavItemRoute, splitDashboardNavSections } from "../utils/navigationUtils";
 import ActiveSessionIndicator from "./ActiveSessionIndicator";
 import { CalendarDaysIcon, CirclePlusIcon, DashboardIcon, HistoryIcon, ListMusicIcon, MenuIcon, RecordIcon, RepeatIcon, SettingsIcon, StarIcon } from "./AppIcons";
+import SearchOmnibox from "./SearchOmnibox";
 
 const { Fragment, useEffect, useMemo, useRef, useState } = React;
 
@@ -71,6 +72,8 @@ export default function DashboardNav({ activeSession }) {
             <DashboardNavLink key={section.id} item={section} />
           ))}
         </div>
+
+        <SearchOmnibox />
 
         <div className="dashboard-nav-side">
           <ActiveSessionIndicator {...activeSession} />

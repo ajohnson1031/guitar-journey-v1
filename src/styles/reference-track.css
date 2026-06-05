@@ -1,0 +1,373 @@
+/* =========================
+   Reference Track
+========================= */
+
+.song-reference-track-card {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  background: var(--color-surface);
+  padding: 14px;
+}
+
+.song-reference-track-card.is-compact {
+  border-radius: 18px;
+  background: var(--color-surface-soft);
+  padding: 12px;
+}
+
+.song-reference-track-header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.song-reference-track-copy {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.song-reference-track-copy h3,
+.song-reference-track-copy p {
+  margin: 0;
+}
+
+.song-reference-track-copy h3 {
+  color: var(--color-text);
+  font-size: 15px;
+  line-height: 1.25;
+}
+
+.song-reference-track-copy p:not(.eyebrow) {
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.song-reference-track-action {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid var(--color-primary-border);
+  border-radius: 999px;
+  background: var(--color-primary-soft);
+  color: var(--color-primary-text);
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 900;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.song-reference-track-action:hover {
+  border-color: var(--color-primary-border-hover);
+  background: var(--color-primary-soft-hover);
+  color: var(--color-primary-text);
+}
+
+.song-reference-track-action svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+}
+
+.song-reference-track-embed {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: var(--color-surface-soft);
+}
+
+.song-reference-track-embed iframe {
+  display: block;
+  width: 100%;
+  min-height: 230px;
+  border: 0;
+}
+
+.song-reference-marker-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.song-reference-marker-pill,
+.song-section-reference-link {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted-strong);
+  padding: 5px 9px;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.song-reference-marker-pill:hover,
+.song-section-reference-link:hover {
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-text);
+}
+
+.song-reference-marker-pill span {
+  color: var(--color-text-muted);
+}
+
+.song-reference-marker-pill strong {
+  color: currentColor;
+}
+
+.song-section-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.song-section-reference-link {
+  flex: 0 0 auto;
+  color: var(--color-primary-text);
+}
+
+@media (max-width: 700px) {
+  .song-reference-track-header {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .song-reference-track-action {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+}
+
+
+/* =========================
+   Timed Practice Arrangement
+========================= */
+
+.timed-practice-arrangement-card {
+  display: grid;
+  gap: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  background: var(--color-surface);
+  padding: 14px;
+}
+
+.timed-practice-arrangement-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 16px;
+}
+
+.timed-practice-arrangement-header h3,
+.timed-practice-arrangement-header p {
+  margin: 0;
+}
+
+.timed-practice-arrangement-header h3 {
+  color: var(--color-text);
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.timed-practice-arrangement-header p:not(.eyebrow) {
+  color: var(--color-text-muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.timed-practice-arrangement-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.timed-practice-arrangement-meta span,
+.timed-practice-time-pill,
+.timed-practice-missing-pill,
+.timed-practice-unassigned-markers a,
+.timed-practice-unassigned-markers div > span {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted-strong);
+  padding: 5px 9px;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.timed-practice-arrangement-meta span:first-child {
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-text);
+}
+
+.timed-practice-section-list {
+  display: grid;
+  gap: 10px;
+}
+
+.timed-practice-section-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  background: var(--color-surface-soft);
+  padding: 12px;
+}
+
+.timed-practice-section-card.is-timed {
+  border-color: var(--color-primary-border);
+}
+
+.timed-practice-section-card.is-missing {
+  border-style: dashed;
+}
+
+.timed-practice-section-index {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-text-muted-strong);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.timed-practice-section-card.is-timed .timed-practice-section-index {
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-text);
+}
+
+.timed-practice-section-copy {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.timed-practice-section-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.timed-practice-section-title-row strong {
+  color: var(--color-text);
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.timed-practice-section-copy p,
+.timed-practice-section-copy small {
+  margin: 0;
+}
+
+.timed-practice-section-copy p {
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 850;
+  line-height: 1.35;
+}
+
+.timed-practice-section-copy small {
+  color: var(--color-text-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.timed-practice-time-pill {
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-text);
+}
+
+.timed-practice-time-pill:hover {
+  border-color: var(--color-primary-border-hover);
+  background: var(--color-primary-soft-hover);
+  color: var(--color-primary-text);
+}
+
+.timed-practice-time-pill svg {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+}
+
+.timed-practice-missing-pill {
+  color: var(--color-text-muted);
+}
+
+.timed-practice-unassigned-markers {
+  display: grid;
+  gap: 8px;
+  border-top: 1px solid var(--color-border);
+  padding-top: 12px;
+}
+
+.timed-practice-unassigned-markers > span {
+  color: var(--color-text-muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.timed-practice-unassigned-markers div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.timed-practice-unassigned-markers a:hover {
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-text);
+}
+
+@media (max-width: 700px) {
+  .timed-practice-arrangement-header {
+    grid-template-columns: 1fr;
+  }
+
+  .timed-practice-arrangement-meta {
+    justify-content: flex-start;
+  }
+
+  .timed-practice-section-title-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
