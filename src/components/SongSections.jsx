@@ -1,6 +1,7 @@
 import * as React from "react";
 import useSharedMetronomeState from "../hooks/useSharedMetronomeState";
 import useStrummingPlayback from "../hooks/useStrummingPlayback";
+import useTempoOverride from "../hooks/useTempoOverride";
 import SongPlaythroughPreview from "./SongPlaythroughPreview";
 import StrummingPatternDisplay from "./StrummingPatternDisplay";
 
@@ -8,9 +9,10 @@ const { Fragment } = React;
 
 export default function SongSections({ selectedSong }) {
   const { isMetronomeRunning, metronomeStartAtMs } = useSharedMetronomeState();
+  const tempo = useTempoOverride(selectedSong);
   const selectedStrummingPattern = selectedSong.strummingPattern || selectedSong.strumming;
   const strummingPlayback = useStrummingPlayback({
-    bpm: selectedSong.bpm,
+    bpm: tempo.effectiveBpm,
     isRunning: isMetronomeRunning,
     pattern: selectedStrummingPattern,
     startAtMs: metronomeStartAtMs,

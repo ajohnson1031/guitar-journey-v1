@@ -74,6 +74,18 @@
   font-weight: 900;
 }
 
+.metronome-adjusted-note {
+  margin: -6px 0 0;
+  color: var(--color-accent);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.metronome-adjusted-note strong {
+  font-weight: 900;
+}
+
 .beat-dots {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
