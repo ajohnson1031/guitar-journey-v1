@@ -88,6 +88,68 @@
   text-transform: uppercase;
 }
 
+.custom-song-genre-select-shell {
+  position: relative;
+  display: grid;
+  min-width: 0;
+}
+
+.custom-song-genre-select-shell.has-pending-genre select {
+  color: transparent;
+}
+
+.custom-song-pending-genre-display {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  display: inline-flex;
+  max-width: calc(100% - 78px);
+  align-items: center;
+  gap: 10px;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.custom-song-pending-genre-value {
+  overflow: hidden;
+  color: var(--color-text);
+  font-size: inherit;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.custom-song-pending-genre-display > span.custom-song-pending-genre-value {
+  text-transform: none;
+  font-weight: normal;
+  font-size: 16px;
+  color: var(--color-text);
+  letter-spacing: normal;
+}
+
+.custom-song-pending-genre-badge {
+  display: inline-flex;
+  min-height: 22px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-accent);
+  border-radius: 999px;
+  background: var(--color-accent-soft);
+  color: var(--color-accent-hover);
+  padding: 3px 8px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+:root[data-theme="dark"] .custom-song-pending-genre-badge,
+:root:not([data-theme="light"]) .custom-song-pending-genre-badge {
+  color: var(--color-accent);
+}
+
 .custom-song-message {
   min-height: 1.35em;
   margin: 0;
@@ -608,8 +670,6 @@
     justify-content: flex-end;
   }
 }
-
-
 
 .custom-song-preview p {
   margin: 4px 0;

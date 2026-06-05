@@ -87,11 +87,13 @@ function getDefaultAppliedFields(analysis) {
 
 function createApplyMessage(analysis, applyResult = {}) {
   const appliedFields = applyResult.appliedFields?.length ? applyResult.appliedFields : getDefaultAppliedFields(analysis);
+  const pendingFields = applyResult.pendingFields || [];
   const skippedFields = applyResult.skippedFields || [];
   const appliedMessage = appliedFields.length ? `Applied: ${formatFieldList(appliedFields)}.` : "Analysis applied.";
-  const skippedMessage = skippedFields.length ? ` Not applied: ${formatFieldList(skippedFields)}. Add a matching genre first if you want that field applied.` : "";
+  const pendingMessage = pendingFields.length ? ` Matching genre not found; ${formatFieldList(pendingFields)} will be created when you save this song.` : "";
+  const skippedMessage = skippedFields.length ? ` Not applied: ${formatFieldList(skippedFields)}. Review and edit this field manually.` : "";
 
-  return `${appliedMessage}${skippedMessage} Review and edit anything before saving.`;
+  return `${appliedMessage}${pendingMessage}${skippedMessage} Review and edit anything before saving.`;
 }
 
 export default function SongImportAssistant({ onApplyAnalysis }) {

@@ -42,6 +42,7 @@ function createProps(overrides = {}) {
     editingSong: null,
     existingSongs: [],
     genres: GENRES,
+    onAddGenre: vi.fn(),
     onAddSong: vi.fn(),
     onCancelEdit: vi.fn(),
     onClose: vi.fn(),
@@ -417,8 +418,8 @@ describe("CustomSongForm", () => {
     expect(screen.getByText(/Applied: title, artist, instrument, genre, BPM/i)).toBeTruthy();
   });
 
-  it("does not auto-create or overwrite an unmatched pasted genre", () => {
-    renderCustomSongForm({
+  it("marks an unmatched pasted genre as pending and creates it when the song is saved", () => {
+    const props = renderCustomSongForm({
       defaultOpen: true,
       genres: ["Worship", "Blues", "Neo Soul"],
       showToggle: false,
@@ -431,8 +432,36 @@ describe("CustomSongForm", () => {
     analyzeAndApplySetupText(GREENSLEEVES_SETUP.replace("Genre: Folk", "Genre: Country"));
 
     expect(screen.getByLabelText("Song Title").value).toBe("Greensleeves");
-    expect(screen.getByLabelText("Genre").value).toBe("Blues");
-    expect(screen.getByText(/Not applied: genre “Country”/i)).toBeTruthy();
+    expect(screen.getByLabelText("Genre").value).toBe("Country");
+    expect(screen.getByText("Country", { selector: "span.custom-song-pending-genre-value" })).toBeTruthy();
+    expect(screen.getByText("New")).toBeTruthy();
+    expect(screen.getByText(/Matching genre not found; genre “Country” will be created when you save this song/i)).toBeTruthy();
+
+    fireEvent.click(screen.getByLabelText("Set 1 to down strum"));
+    fireEvent.click(screen.getByRole("button", { name: "Save Custom Song" }));
+
+    expect(props.onAddGenre).toHaveBeenCalledWith("Country");
+    expect(props.onAddSong).toHaveBeenCalledTimes(1);
+    expect(props.onAddSong.mock.calls[0][0].genre).toBe("Country");
+  });
+
+  it("clears the pending genre when the user selects an existing genre before saving", () => {
+    const props = renderCustomSongForm({
+      defaultOpen: true,
+      genres: ["Worship", "Blues", "Neo Soul"],
+      showToggle: false,
+    });
+
+    analyzeAndApplySetupText(GREENSLEEVES_SETUP.replace("Genre: Folk", "Genre: Country"));
+
+    fireEvent.change(screen.getByLabelText("Genre"), {
+      target: { value: "Blues" },
+    });
+    fireEvent.click(screen.getByLabelText("Set 1 to down strum"));
+    fireEvent.click(screen.getByRole("button", { name: "Save Custom Song" }));
+
+    expect(props.onAddGenre).not.toHaveBeenCalled();
+    expect(props.onAddSong.mock.calls[0][0].genre).toBe("Blues");
   });
 
   it("clamps pasted BPM metadata when applying analysis", () => {

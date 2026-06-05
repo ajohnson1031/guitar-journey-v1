@@ -17,6 +17,7 @@ export default function EditSongRoute() {
     customSongs = [],
     existingSongs = sidebarProps.allSongs || customSongs,
     genres,
+    onAddGenre = sidebarProps.onAddGenre,
     onCancelEdit,
     onClose,
     onUpdateSong,
@@ -40,6 +41,7 @@ export default function EditSongRoute() {
         existingSongs={existingSongs}
         genres={genres}
         showToggle={false}
+        onAddGenre={onAddGenre}
         onAddSong={noop}
         onCancelEdit={onCancelEdit}
         onClose={onClose}

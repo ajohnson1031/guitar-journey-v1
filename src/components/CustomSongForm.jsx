@@ -25,12 +25,28 @@ function getDefaultForm() {
   };
 }
 
+function normalizeGenreValue(value) {
+  return String(value || "")
+    .trim()
+    .replace(/\s+/g, " ");
+}
+
 function getMatchingGenre(value, genres = []) {
-  const normalizedValue = String(value || "").trim().toLowerCase();
+  const normalizedValue = normalizeGenreValue(value).toLowerCase();
 
   if (!normalizedValue) return "";
 
-  return genres.find((genre) => String(genre || "").trim().toLowerCase() === normalizedValue) || "";
+  return genres.find((genre) => normalizeGenreValue(genre).toLowerCase() === normalizedValue) || "";
+}
+
+function shouldCreatePendingGenre(value, pendingGenre, genres = []) {
+  const normalizedValue = normalizeGenreValue(value);
+  const normalizedPendingGenre = normalizeGenreValue(pendingGenre);
+
+  if (!normalizedValue || !normalizedPendingGenre) return false;
+  if (normalizedValue.toLowerCase() !== normalizedPendingGenre.toLowerCase()) return false;
+
+  return !getMatchingGenre(normalizedPendingGenre, genres);
 }
 
 function getAppliedBpm(value) {
@@ -109,6 +125,7 @@ export default function CustomSongForm({
   editingSong,
   existingSongs = [],
   genres,
+  onAddGenre = noop,
   onAddSong,
   onCancelEdit,
   onClose = noop,
@@ -121,12 +138,14 @@ export default function CustomSongForm({
   const [form, setForm] = useState(() => getDefaultForm());
   const [isOpen, setIsOpen] = useState(defaultOpen);
   const [duplicateCandidate, setDuplicateCandidate] = useState(null);
+  const [pendingGenre, setPendingGenre] = useState("");
   const [message, setMessage] = useState("");
   const [messageTone, setMessageTone] = useState("error");
 
   const previewChords = useMemo(() => parseCommaList(form.chords), [form.chords]);
   const strummingPattern = useMemo(() => normalizeStrummingPatternData(form.strummingPattern), [form.strummingPattern]);
   const strummingPatternText = serializeStrummingPattern(strummingPattern);
+  const shouldShowPendingGenre = shouldCreatePendingGenre(form.genre, pendingGenre, genres);
 
   useEffect(() => {
     if (!defaultOpen) return;
@@ -142,6 +161,7 @@ export default function CustomSongForm({
     setIsOpen(true);
     onOpenChange(true);
     setDuplicateCandidate(null);
+    setPendingGenre("");
     setMessage("");
   }, [editingSong, onOpenChange]);
 
@@ -165,6 +185,14 @@ export default function CustomSongForm({
       ...current,
       [fieldName]: value,
     }));
+
+    if (fieldName === "genre") {
+      setPendingGenre((currentPendingGenre) => {
+        if (!currentPendingGenre) return "";
+        return normalizeGenreValue(value).toLowerCase() === normalizeGenreValue(currentPendingGenre).toLowerCase() ? currentPendingGenre : "";
+      });
+    }
+
     setDuplicateCandidate(null);
     setMessage("");
   }
@@ -172,6 +200,7 @@ export default function CustomSongForm({
   function resetForm() {
     setForm(isEditing ? songToForm(editingSong) : songToForm(null));
     setDuplicateCandidate(null);
+    setPendingGenre("");
     setMessage("");
   }
 
@@ -179,6 +208,7 @@ export default function CustomSongForm({
     setIsOpen(false);
     onOpenChange(false);
     setDuplicateCandidate(null);
+    setPendingGenre("");
     setMessage("");
     setForm(songToForm(null));
 
@@ -193,12 +223,14 @@ export default function CustomSongForm({
     setDuplicateCandidate(null);
 
     const matchingGenre = getMatchingGenre(analysis.genre, genres);
+    const pendingAnalysisGenre = analysis.genre && !matchingGenre ? normalizeGenreValue(analysis.genre) : "";
+    const appliedGenre = matchingGenre || pendingAnalysisGenre;
     const appliedBpm = getAppliedBpm(analysis.bpm);
     const appliedFields = [
       analysis.title ? "title" : "",
       analysis.artist ? "artist" : "",
       analysis.instrument ? "instrument" : "",
-      matchingGenre ? "genre" : "",
+      appliedGenre ? "genre" : "",
       appliedBpm ? "BPM" : "",
       analysis.difficulty ? "difficulty" : "",
       analysis.key ? "key" : "",
@@ -209,14 +241,16 @@ export default function CustomSongForm({
       analysis.sections?.length ? "sections" : "",
       analysis.goal ? "practice goal" : "",
     ].filter(Boolean);
-    const skippedFields = analysis.genre && !matchingGenre ? [`genre “${analysis.genre}”`] : [];
+    const pendingFields = pendingAnalysisGenre ? [`genre “${pendingAnalysisGenre}”`] : [];
+
+    setPendingGenre(pendingAnalysisGenre);
 
     setForm((current) => ({
       ...current,
       title: analysis.title || current.title,
       artist: analysis.artist || current.artist,
       instrument: analysis.instrument || current.instrument,
-      genre: matchingGenre || current.genre,
+      genre: appliedGenre || current.genre,
       bpm: appliedBpm || current.bpm,
       chords: analysis.chords.length ? analysis.chords.join(", ") : current.chords,
       transitions: analysis.transitions.length ? analysis.transitions.join(", ") : current.transitions,
@@ -232,7 +266,7 @@ export default function CustomSongForm({
 
     return {
       appliedFields,
-      skippedFields,
+      pendingFields,
     };
   }
 
@@ -309,6 +343,10 @@ export default function CustomSongForm({
       return;
     }
 
+    if (shouldCreatePendingGenre(song.genre, pendingGenre, genres)) {
+      onAddGenre(song.genre);
+    }
+
     if (isEditing) {
       onUpdateSong(song);
     } else {
@@ -316,6 +354,7 @@ export default function CustomSongForm({
     }
 
     setDuplicateCandidate(null);
+    setPendingGenre("");
     setMessage("");
     setMessageTone("error");
     setForm(songToForm(null));
@@ -373,14 +412,24 @@ export default function CustomSongForm({
 
             <label>
               <span>Genre</span>
-              <select value={form.genre} onChange={(event) => updateField("genre", event.target.value)}>
-                <option value="">Select a genre...</option>
-                {genres.map((genre) => (
-                  <option key={genre} value={genre}>
-                    {genre}
-                  </option>
-                ))}
-              </select>
+              <div className={`custom-song-genre-select-shell ${shouldShowPendingGenre ? "has-pending-genre" : ""}`}>
+                <select aria-label="Genre" value={form.genre} onChange={(event) => updateField("genre", event.target.value)}>
+                  <option value="">Select a genre...</option>
+                  {shouldShowPendingGenre ? <option value={pendingGenre}>{pendingGenre}</option> : null}
+                  {genres.map((genre) => (
+                    <option key={genre} value={genre}>
+                      {genre}
+                    </option>
+                  ))}
+                </select>
+
+                {shouldShowPendingGenre ? (
+                  <span className="custom-song-pending-genre-display" aria-hidden="true">
+                    <span className="custom-song-pending-genre-value">{pendingGenre}</span>
+                    <span className="custom-song-pending-genre-badge">New</span>
+                  </span>
+                ) : null}
+              </div>
             </label>
 
             <label>
