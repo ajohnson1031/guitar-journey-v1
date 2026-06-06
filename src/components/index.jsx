@@ -11,6 +11,7 @@ export { default as Metronome } from "./Metronome";
 export { default as ProgressLibrary } from "./ProgressLibrary";
 export { default as RecordingsLibrary } from "./RecordingsLibrary";
 export { default as ReferenceServiceLogo } from "./ReferenceServiceLogo";
+export { default as ReferenceDurationResolver } from "./ReferenceDurationResolver";
 export { default as ReferenceTrackCard } from "./ReferenceTrackCard";
 export { default as RequiredChords } from "./RequiredChords";
 export { default as SessionHistory } from "./SessionHistory";

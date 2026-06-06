@@ -29,6 +29,7 @@
 @import "./styles/settings.css";
 @import "./styles/custom-song-form.css";
 @import "./styles/reference-marker-suggestions.css";
+@import "./styles/reference-duration.css";
 @import "./styles/strumming.css";
 @import "./styles/strumming-playback-guide.css";
 @import "./styles/responsive.css";
