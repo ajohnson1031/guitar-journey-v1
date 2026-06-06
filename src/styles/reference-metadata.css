@@ -1,0 +1,63 @@
+/* =========================
+   Reference Metadata
+========================= */
+
+.reference-metadata-status,
+.reference-review-card .reference-metadata-status {
+  display: block;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.reference-metadata-status.is-info {
+  color: var(--color-primary-text);
+}
+
+.reference-metadata-status.is-success {
+  color: var(--color-success-text, var(--color-success));
+}
+
+.reference-metadata-status.is-warning {
+  color: var(--color-accent-hover);
+}
+
+.reference-metadata-status.is-muted {
+  color: var(--color-text-muted);
+}
+
+.reference-metadata-status.is-idle {
+  display: none;
+}
+
+.song-reference-thumbnail,
+.search-result-thumbnail-image {
+  display: block;
+  object-fit: cover;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-soft);
+}
+
+.song-reference-thumbnail {
+  width: 64px;
+  height: 64px;
+  flex: 0 0 auto;
+  border-radius: 20px;
+}
+
+.song-reference-thumbnail.is-compact {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+}
+
+.search-result-thumbnail-image {
+  padding: 0;
+}
+
+.reference-review-card .reference-metadata-status {
+  margin-top: 5px;
+}

@@ -1,0 +1,65 @@
+/* =========================
+   Reference Timestamp Extraction
+========================= */
+
+.reference-timestamp-extraction-field {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+
+.reference-timestamp-extraction-field textarea {
+  min-height: 118px;
+}
+
+.reference-timestamp-extraction-field p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.detected-reference-markers-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--color-primary-border);
+  border-radius: 16px;
+  background: var(--color-primary-soft);
+  color: var(--color-primary-text);
+  padding: 11px 12px;
+}
+
+.detected-reference-markers-card div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.detected-reference-markers-card strong {
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.detected-reference-markers-card span {
+  overflow: hidden;
+  color: currentColor;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.35;
+  opacity: 0.86;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .detected-reference-markers-card {
+    grid-template-columns: 1fr;
+  }
+
+  .detected-reference-markers-card .reference-marker-draft-button {
+    justify-self: start;
+  }
+}

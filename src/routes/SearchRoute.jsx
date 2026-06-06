@@ -3,10 +3,11 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { SiSoundcloud, SiSpotify, SiVimeo, SiYoutube } from "react-icons/si";
 import { useGuitarJourneyContext } from "../context";
 import { ExternalLinkIcon, PlusIcon } from "../components/AppIcons";
+import ReferenceMetadataResolver from "../components/ReferenceMetadataResolver";
 import { parseReferenceTrackUrl } from "../utils/referenceTrackUtils";
 import { getArtistById, getPaginatedItems, searchArtists, searchSongs } from "../utils/searchCatalogUtils";
 
-const { Fragment, useMemo } = React;
+const { Fragment, useMemo, useState } = React;
 
 const REFERENCE_SERVICE_LOGOS = {
   generic: {
@@ -59,18 +60,26 @@ function getCreatePracticeStateFromSong(song) {
   };
 }
 
-function getCreatePracticeStateFromReference(referenceTrack) {
+function getCreatePracticeStateFromReference(referenceTrack, metadata = null) {
   return {
     draftSong: {
-      artist: "",
+      artist: metadata?.authorName || "",
+      referenceDurationSeconds: metadata?.durationSeconds || null,
+      referenceMarkers: metadata?.extractedMarkers || [],
       sourceUrl: referenceTrack.url,
-      title: "",
+      title: metadata?.title || "",
       referenceTrack: {
+        authorName: metadata?.authorName || "",
+        durationSeconds: metadata?.durationSeconds || null,
         embedUrl: referenceTrack.embedUrl,
         kind: referenceTrack.kind,
         mediaId: referenceTrack.mediaId,
         platform: referenceTrack.platform,
         platformLabel: referenceTrack.platformLabel,
+        extractedMarkers: metadata?.extractedMarkers || [],
+        providerName: metadata?.providerName || referenceTrack.platformLabel,
+        thumbnailUrl: metadata?.thumbnailUrl || "",
+        title: metadata?.title || "",
         url: referenceTrack.url,
       },
     },
@@ -102,11 +111,11 @@ export default function SearchRoute() {
     });
   }
 
-  function handleCreatePracticeFromReference() {
+  function handleCreatePracticeFromReference(metadata = null) {
     if (!referenceTrack.isValid) return;
 
     navigate("/songs/new", {
-      state: getCreatePracticeStateFromReference(referenceTrack),
+      state: getCreatePracticeStateFromReference(referenceTrack, metadata),
     });
   }
 
@@ -176,6 +185,12 @@ export default function SearchRoute() {
 }
 
 function ReferenceReviewCard({ onCreatePractice, referenceTrack }) {
+  const [metadata, setMetadata] = useState(null);
+  const [metadataStatus, setMetadataStatus] = useState({
+    message: "",
+    tone: "idle",
+  });
+
   if (!referenceTrack.isValid) {
     return (
       <div className="reference-review-card is-warning">
@@ -185,14 +200,25 @@ function ReferenceReviewCard({ onCreatePractice, referenceTrack }) {
     );
   }
 
+  const title = metadata?.title || (referenceTrack.kind ? `${referenceTrack.kind} reference detected` : "Reference detected");
+  const subtitle = metadata?.authorName ? `${metadata.authorName} · ${referenceTrack.url}` : referenceTrack.url;
+
   return (
     <div className="reference-review-card">
-      <ReferenceServiceLogo platform={referenceTrack.platform} platformLabel={referenceTrack.platformLabel} />
+      <ReferenceMetadataResolver referenceTrack={referenceTrack} onResolve={setMetadata} onStatusChange={setMetadataStatus} />
+
+      {metadata?.thumbnailUrl ? (
+        <img className="search-result-thumbnail search-result-thumbnail-image is-large" src={metadata.thumbnailUrl} alt="" loading="lazy" />
+      ) : (
+        <ReferenceServiceLogo platform={referenceTrack.platform} platformLabel={referenceTrack.platformLabel} />
+      )}
 
       <div>
         <p className="eyebrow">{referenceTrack.platformLabel}</p>
-        <h2>{referenceTrack.kind ? `${referenceTrack.kind} reference detected` : "Reference detected"}</h2>
-        <p>{referenceTrack.url}</p>
+        <h2>{title}</h2>
+        <p>{subtitle}</p>
+        {metadata?.extractedMarkers?.length ? <small className="reference-metadata-status is-success">{metadata.extractedMarkers.length} possible section markers detected.</small> : null}
+        {metadataStatus.message ? <small className={`reference-metadata-status is-${metadataStatus.tone}`}>{metadataStatus.message}</small> : null}
       </div>
 
       <div className="search-result-actions">
@@ -200,7 +226,7 @@ function ReferenceReviewCard({ onCreatePractice, referenceTrack }) {
           <ExternalLinkIcon />
         </a>
 
-        <button type="button" className="complete-session-button search-create-button" onClick={onCreatePractice}>
+        <button type="button" className="complete-session-button search-create-button" onClick={() => onCreatePractice(metadata)}>
           <PlusIcon />
           <span>Set Up Practice</span>
         </button>
