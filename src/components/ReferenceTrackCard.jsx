@@ -31,12 +31,19 @@ export default function ReferenceTrackCard({ compact = false, markers = [], refe
   return (
     <article className={`song-reference-track-card ${compact ? "is-compact" : ""} ${canEmbed ? "has-embed" : ""}`}>
       <div className="song-reference-track-header">
-        <ReferenceServiceLogo isLarge={!compact} platform={resolvedReference.platform} platformLabel={resolvedReference.platformLabel} />
+        {resolvedReference.thumbnailUrl ? (
+          <img className={`song-reference-thumbnail ${compact ? "is-compact" : ""}`} src={resolvedReference.thumbnailUrl} alt="" loading="lazy" />
+        ) : (
+          <ReferenceServiceLogo isLarge={!compact} platform={resolvedReference.platform} platformLabel={resolvedReference.platformLabel} />
+        )}
 
         <div className="song-reference-track-copy">
           <p className="eyebrow">Reference Track</p>
-          <h3>{resolvedReference.platformLabel} {resolvedReference.kind ? resolvedReference.kind : "link"}</h3>
-          <p>{resolvedReference.url}</p>
+          <h3>{resolvedReference.title || `${resolvedReference.platformLabel} ${resolvedReference.kind ? resolvedReference.kind : "link"}`}</h3>
+          <p>
+            {resolvedReference.authorName ? `${resolvedReference.authorName} · ` : ""}
+            {resolvedReference.url}
+          </p>
         </div>
 
         <a className="song-reference-track-action" href={resolvedReference.url} target="_blank" rel="noreferrer" aria-label="Open reference track" title="Open reference track">
