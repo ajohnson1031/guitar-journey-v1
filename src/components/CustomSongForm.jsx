@@ -5,6 +5,7 @@ import { formatReferenceMarkerTime, parseReferenceMarkers, referenceMarkersToTex
 import { getReferenceDurationSeconds, getSuggestedReferenceMarkerSummary, suggestedReferenceMarkersToText, mergeReferenceMarkerDraft, parseReferenceDurationInput } from "../utils/referenceMarkerSuggestionUtils";
 import { parseCommaList, parseSections, slugify } from "../utils/songFormUtils";
 import { STRUMMING_PRESETS, createPresetStrummingPattern, hasStrummingPattern, normalizeStrummingPatternData, serializeStrummingPattern } from "../utils/strummingUtils";
+import ReferenceDurationResolver from "./ReferenceDurationResolver";
 import { SongImportAssistant, StrummingPatternBuilder, TransitionInput } from "./";
 
 const { useEffect, useMemo, useState } = React;
@@ -236,6 +237,11 @@ export default function CustomSongForm({
   const [pendingGenre, setPendingGenre] = useState("");
   const [message, setMessage] = useState("");
   const [messageTone, setMessageTone] = useState("error");
+  const [referenceDurationStatus, setReferenceDurationStatus] = useState({
+    message: "",
+    tone: "idle",
+  });
+  const [hasManuallyEditedReferenceDuration, setHasManuallyEditedReferenceDuration] = useState(false);
 
   const referenceTrack = useMemo(() => parseReferenceTrackUrl(form.sourceUrl), [form.sourceUrl]);
   const previewChords = useMemo(() => parseCommaList(form.chords), [form.chords]);
@@ -259,6 +265,11 @@ export default function CustomSongForm({
     setDuplicateCandidate(null);
     setPendingGenre("");
     setMessage("");
+    setReferenceDurationStatus({
+      message: "",
+      tone: "idle",
+    });
+    setHasManuallyEditedReferenceDuration(false);
   }, [editingSong, onOpenChange]);
 
   useEffect(() => {
@@ -270,6 +281,11 @@ export default function CustomSongForm({
     setDuplicateCandidate(null);
     setPendingGenre("");
     setMessage("");
+    setReferenceDurationStatus({
+      message: "",
+      tone: "idle",
+    });
+    setHasManuallyEditedReferenceDuration(false);
   }, [editingSong, initialSongDraft, onOpenChange]);
 
   function setValidationMessage(value) {
@@ -288,10 +304,36 @@ export default function CustomSongForm({
   }
 
   function updateField(fieldName, value) {
-    setForm((current) => ({
-      ...current,
-      [fieldName]: value,
-    }));
+    setForm((current) => {
+      if (fieldName === "sourceUrl") {
+        return {
+          ...current,
+          sourceUrl: value,
+          referenceDuration: "",
+        };
+      }
+
+      return {
+        ...current,
+        [fieldName]: value,
+      };
+    });
+
+    if (fieldName === "sourceUrl") {
+      setReferenceDurationStatus({
+        message: "",
+        tone: "idle",
+      });
+      setHasManuallyEditedReferenceDuration(false);
+    }
+
+    if (fieldName === "referenceDuration") {
+      setHasManuallyEditedReferenceDuration(true);
+      setReferenceDurationStatus({
+        message: value.trim() ? "Manual duration override active." : "",
+        tone: value.trim() ? "muted" : "idle",
+      });
+    }
 
     if (fieldName === "genre") {
       setPendingGenre((currentPendingGenre) => {
@@ -390,6 +432,25 @@ export default function CustomSongForm({
     };
   }
 
+
+  function handleReferenceDurationResolved(seconds) {
+    const formattedDuration = formatReferenceDurationInput(seconds);
+
+    if (!formattedDuration) return;
+
+    setForm((current) => {
+      if (hasManuallyEditedReferenceDuration || current.referenceDuration.trim()) return current;
+
+      return {
+        ...current,
+        referenceDuration: formattedDuration,
+      };
+    });
+  }
+
+  function shouldAutoDetectReferenceDuration() {
+    return Boolean(referenceTrack.isValid && !referenceTrack.isEmpty && !hasManuallyEditedReferenceDuration && !form.referenceDuration.trim());
+  }
 
   function handleGenerateReferenceMarkerDraft() {
     const sections = parseSections(form.sections);
@@ -620,6 +681,13 @@ export default function CustomSongForm({
               )
             ) : null}
 
+            <ReferenceDurationResolver
+              enabled={shouldAutoDetectReferenceDuration()}
+              referenceTrack={referenceTrack}
+              onResolve={handleReferenceDurationResolved}
+              onStatusChange={setReferenceDurationStatus}
+            />
+
             <div className="reference-duration-field">
               <label>
                 <span>Reference Duration</span>
@@ -630,7 +698,8 @@ export default function CustomSongForm({
                   onChange={(event) => updateField("referenceDuration", event.target.value)}
                 />
               </label>
-              <p>Optional for now: add the full reference length so generated markers span the whole song instead of relying only on BPM estimates.</p>
+              <p>Auto-detected when possible. Add or edit manually if the source does not provide duration.</p>
+              {referenceDurationStatus.message ? <p className={`reference-duration-status is-${referenceDurationStatus.tone}`}>{referenceDurationStatus.message}</p> : null}
             </div>
 
             <div className="reference-marker-field">

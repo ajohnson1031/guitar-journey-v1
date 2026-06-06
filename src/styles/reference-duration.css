@@ -1,0 +1,41 @@
+/* =========================
+   Reference Duration Detection
+========================= */
+
+.reference-duration-probe {
+  position: fixed;
+  top: -9999px;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.reference-duration-status {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.reference-duration-status.is-info {
+  color: var(--color-primary-text);
+}
+
+.reference-duration-status.is-success {
+  color: var(--color-success-text, var(--color-success));
+}
+
+.reference-duration-status.is-warning {
+  color: var(--color-accent-hover);
+}
+
+.reference-duration-status.is-muted {
+  color: var(--color-text-muted);
+}
+
+.reference-duration-status.is-idle {
+  display: none;
+}
