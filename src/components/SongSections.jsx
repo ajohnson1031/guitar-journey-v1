@@ -1,8 +1,10 @@
 import * as React from "react";
+import { Link } from "react-router-dom";
 import useSharedMetronomeState from "../hooks/useSharedMetronomeState";
 import useStrummingPlayback from "../hooks/useStrummingPlayback";
 import useTempoOverride from "../hooks/useTempoOverride";
 import { buildReferenceTimestampUrl, formatReferenceMarkerTime, getReferenceMarkerForSection } from "../utils/referenceMarkerUtils";
+import { EditIcon } from "./AppIcons";
 import ReferenceTrackCard from "./ReferenceTrackCard";
 import SongPlaythroughPreview from "./SongPlaythroughPreview";
 import TimedPracticeArrangement from "./TimedPracticeArrangement";
@@ -25,9 +27,20 @@ export default function SongSections({ selectedSong }) {
     <Fragment>
       <section className="panel-card detail-section-card">
         <div className="section-heading-row">
-          <div>
+          <div className="song-sections-heading-copy">
             <p className="eyebrow">Practice Detail</p>
-            <h2>Song Sections</h2>
+
+            <div className="song-sections-title-action-row">
+              <h2>Song Sections</h2>
+
+              {selectedSong.isCustom ? (
+                <Link className="song-sections-edit-link" to={`/songs/edit/${selectedSong.id}`}>
+                  <EditIcon />
+                  <span>Edit Song</span>
+                </Link>
+              ) : null}
+            </div>
+
             <p className="section-copy">Break the song into manageable pieces before the full playthrough.</p>
           </div>
 
