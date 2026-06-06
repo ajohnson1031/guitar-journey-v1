@@ -1,9 +1,10 @@
 import * as React from "react";
+import { Link } from "react-router-dom";
 import useSharedMetronomeState from "../hooks/useSharedMetronomeState";
 import useSongPlaythroughPlayback from "../hooks/useSongPlaythroughPlayback";
 import useStrummingPlayback from "../hooks/useStrummingPlayback";
 import useTempoOverride from "../hooks/useTempoOverride";
-import { EditIcon, StarIcon, TrashIcon, Undo2Icon } from "./AppIcons";
+import { EditIcon, ListMusicIcon, StarIcon, TrashIcon, Undo2Icon } from "./AppIcons";
 import ConfirmDialog from "./ConfirmDialog";
 import ReferenceTrackCard from "./ReferenceTrackCard";
 import SongPlaythroughControls from "./SongPlaythroughControls";
@@ -77,6 +78,15 @@ export default function CurrentSongCard({ filteredSongs, masteredSongs, onDelete
             </select>
 
             <div className="song-header-actions song-icon-actions">
+              <Link
+                to="/sections"
+                className="icon-button ghost-button song-sections-icon-button"
+                title="View Song Sections"
+                aria-label="View Song Sections"
+              >
+                <ListMusicIcon />
+              </Link>
+
               {selectedSong.isCustom ? (
                 <button
                   type="button"

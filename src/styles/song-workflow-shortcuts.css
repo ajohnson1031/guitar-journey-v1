@@ -1,0 +1,75 @@
+/* =========================
+   Song Workflow Shortcuts
+========================= */
+
+.song-sections-icon-button {
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-text);
+  text-decoration: none;
+}
+
+.song-sections-icon-button:hover {
+  border-color: var(--color-primary-border-hover);
+  background: var(--color-primary-soft-hover);
+  color: var(--color-primary-text);
+}
+
+.song-sections-heading-copy {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.song-sections-heading-copy .eyebrow,
+.song-sections-heading-copy .section-copy {
+  margin: 0;
+}
+
+.song-sections-title-action-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.song-sections-title-action-row h2 {
+  margin: 0;
+}
+
+.song-sections-edit-link {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid var(--color-edit);
+  border-radius: 999px;
+  background: var(--color-edit-soft);
+  color: var(--color-edit);
+  padding: 7px 11px;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.song-sections-edit-link:hover {
+  border-color: var(--color-edit);
+  background: var(--color-edit-soft-hover);
+  color: var(--color-edit);
+}
+
+.song-sections-edit-link svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 640px) {
+  .song-sections-title-action-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
