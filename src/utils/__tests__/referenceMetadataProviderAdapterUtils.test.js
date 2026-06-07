@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   getReferenceMetadataProviderSupport,
   normalizeProviderMetadata,
@@ -14,6 +14,10 @@ const MOCK_REFERENCE = {
   platformLabel: "YouTube",
   url: "https://www.youtube.com/watch?v=guitar-journey-demo",
 };
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 describe("referenceMetadataProviderAdapterUtils", () => {
   it("normalizes provider metadata with extracted markers", () => {
@@ -81,6 +85,40 @@ describe("referenceMetadataProviderAdapterUtils", () => {
 
     expect(metadata.sourceType).toBe("mock");
     expect(metadata.extractedMarkers.length).toBeGreaterThan(4);
+  });
+
+  it("resolves backend metadata before oEmbed fallback", async () => {
+    const fetchImpl = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        metadata: {
+          authorName: "Backend Artist",
+          chapterText: "0:00 Intro\n0:30 Verse",
+          durationSeconds: 210,
+          title: "Backend Song",
+        },
+      }),
+    }));
+
+    const metadata = await resolveReferenceMetadataFromProvider(
+      {
+        ...MOCK_REFERENCE,
+        mediaId: "backend-id",
+        url: "https://www.youtube.com/watch?v=backend-id",
+      },
+      {
+        endpoint: "/api/reference-metadata",
+        fetchImpl,
+      },
+    );
+
+    expect(metadata).toMatchObject({
+      authorName: "Backend Artist",
+      durationSeconds: 210,
+      sourceType: "backend",
+      title: "Backend Song",
+    });
+    expect(metadata.extractedMarkers).toHaveLength(2);
   });
 
   it("resolves through the adapter with forced mock", async () => {
