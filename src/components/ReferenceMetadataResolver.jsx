@@ -1,5 +1,9 @@
 import * as React from "react";
-import { getMetadataSourceLabel, getReferenceMetadataSupport, resolveReferenceMetadata } from "../utils/referenceMetadataUtils";
+import {
+  getProviderMetadataSourceLabel,
+  getReferenceMetadataProviderSupport,
+  resolveReferenceMetadataFromProvider,
+} from "../utils/referenceMetadataProviderAdapterUtils";
 
 const { useEffect, useRef } = React;
 
@@ -20,8 +24,8 @@ export default function ReferenceMetadataResolver({ enabled = true, onResolve, o
       return undefined;
     }
 
-    const support = getReferenceMetadataSupport(referenceTrack);
-    const sourceLabel = getMetadataSourceLabel(referenceTrack);
+    const support = getReferenceMetadataProviderSupport(referenceTrack);
+    const sourceLabel = getProviderMetadataSourceLabel(referenceTrack);
 
     if (support === "unsupported") {
       onStatusChangeRef.current?.({
@@ -38,26 +42,18 @@ export default function ReferenceMetadataResolver({ enabled = true, onResolve, o
       tone: "info",
     });
 
-    resolveReferenceMetadata(referenceTrack)
+    resolveReferenceMetadataFromProvider(referenceTrack)
       .then((metadata) => {
         if (isCancelled) return;
 
-      if (metadata) {
-        // ! REMOVE THIS DEV-ONLY LOGGING BEFORE LAUNCH
-        if (import.meta.env.DEV) {
-          console.group("[ReferenceMetadataResolver] Resolved metadata");
-          console.log("referenceTrack:", referenceTrack);
-          console.log("metadata:", metadata);
-          console.groupEnd();
+        if (metadata) {
+          onResolveRef.current?.(metadata);
+          onStatusChangeRef.current?.({
+            message: `Detected metadata from ${sourceLabel}. Review the song details before saving.`,
+            tone: "success",
+          });
+          return;
         }
-        // ! REMOVE THE ABOVE DEV-ONLY LOGGING BEFORE LAUNCH
-        onResolveRef.current?.(metadata);
-        onStatusChangeRef.current?.({
-          message: `Detected metadata from ${sourceLabel}. Review the song details before saving.`,
-          tone: "success",
-        });
-        return;
-      }
 
         onStatusChangeRef.current?.({
           message: `Could not detect metadata from ${sourceLabel}. Fill in the song details manually.`,
