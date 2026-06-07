@@ -1,0 +1,63 @@
+/* =========================
+   Reference Metadata Source
+========================= */
+
+.reference-metadata-source-row {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1.3;
+}
+
+.reference-metadata-source-row > span:first-child {
+  color: var(--color-text-muted);
+}
+
+.reference-metadata-source-pill {
+  display: inline-flex;
+  width: fit-content;
+  min-height: 24px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted-strong);
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/*
+  Keep source pills visually calm. The label already communicates the source;
+  the color should not compete with the platform/metadata status styling.
+*/
+
+.reference-metadata-source-pill.is-backend,
+.reference-metadata-source-pill.is-backend-mock {
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-text);
+}
+
+.reference-metadata-source-pill.is-mock,
+.reference-metadata-source-pill.is-oembed {
+  border-color: var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-muted-strong);
+}
+
+.reference-metadata-source-pill.is-manual,
+.reference-metadata-source-pill.is-unknown {
+  border-style: dashed;
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted);
+}

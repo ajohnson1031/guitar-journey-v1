@@ -6,6 +6,7 @@ import { ExternalLinkIcon, PlusIcon } from "../components/AppIcons";
 import ReferenceMetadataResolver from "../components/ReferenceMetadataResolver";
 import { parseReferenceTrackUrl } from "../utils/referenceTrackUtils";
 import { getArtistById, getPaginatedItems, searchArtists, searchSongs } from "../utils/searchCatalogUtils";
+import { getReferenceMetadataSourceClassName, getReferenceMetadataSourceLabel } from "../utils/referenceMetadataSourceUtils";
 
 const { Fragment, useMemo, useState } = React;
 
@@ -217,6 +218,11 @@ function ReferenceReviewCard({ onCreatePractice, referenceTrack }) {
         <p className="eyebrow">{referenceTrack.platformLabel}</p>
         <h2>{title}</h2>
         <p>{subtitle}</p>
+        {metadata ? (
+          <span className={`reference-metadata-source-pill ${getReferenceMetadataSourceClassName(metadata)}`} title={`Metadata source: ${getReferenceMetadataSourceLabel(metadata)}`}>
+            {getReferenceMetadataSourceLabel(metadata)}
+          </span>
+        ) : null}
         {metadata?.extractedMarkers?.length ? <small className="reference-metadata-status is-success">{metadata.extractedMarkers.length} possible section markers detected.</small> : null}
         {metadataStatus.message ? <small className={`reference-metadata-status is-${metadataStatus.tone}`}>{metadataStatus.message}</small> : null}
       </div>

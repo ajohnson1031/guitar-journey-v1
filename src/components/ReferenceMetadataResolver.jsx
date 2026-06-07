@@ -4,6 +4,10 @@ import {
   getReferenceMetadataProviderSupport,
   resolveReferenceMetadataFromProvider,
 } from "../utils/referenceMetadataProviderAdapterUtils";
+import {
+  createReferenceMetadataSourceStatus,
+  getReferenceMetadataSourceLabel,
+} from "../utils/referenceMetadataSourceUtils";
 
 const { useEffect, useRef } = React;
 
@@ -30,6 +34,8 @@ export default function ReferenceMetadataResolver({ enabled = true, onResolve, o
     if (support === "unsupported") {
       onStatusChangeRef.current?.({
         message: "Could not auto-detect metadata for this source yet. Fill in the song details manually.",
+        sourceLabel: "Manual",
+        sourceType: "manual",
         tone: "muted",
       });
       return undefined;
@@ -39,6 +45,8 @@ export default function ReferenceMetadataResolver({ enabled = true, onResolve, o
 
     onStatusChangeRef.current?.({
       message: `Detecting metadata from ${sourceLabel}…`,
+      sourceLabel,
+      sourceType: support,
       tone: "info",
     });
 
@@ -47,9 +55,14 @@ export default function ReferenceMetadataResolver({ enabled = true, onResolve, o
         if (isCancelled) return;
 
         if (metadata) {
+          const sourceStatus = createReferenceMetadataSourceStatus(metadata);
+          const detectedSourceLabel = getReferenceMetadataSourceLabel(metadata);
+
           onResolveRef.current?.(metadata);
           onStatusChangeRef.current?.({
-            message: `Detected metadata from ${sourceLabel}. Review the song details before saving.`,
+            message: `Detected metadata from ${detectedSourceLabel}. Review the song details before saving.`,
+            sourceLabel: sourceStatus.label,
+            sourceType: sourceStatus.sourceType,
             tone: "success",
           });
           return;
@@ -57,6 +70,8 @@ export default function ReferenceMetadataResolver({ enabled = true, onResolve, o
 
         onStatusChangeRef.current?.({
           message: `Could not detect metadata from ${sourceLabel}. Fill in the song details manually.`,
+          sourceLabel: "Manual",
+          sourceType: "manual",
           tone: "warning",
         });
       })
@@ -65,6 +80,8 @@ export default function ReferenceMetadataResolver({ enabled = true, onResolve, o
 
         onStatusChangeRef.current?.({
           message: `Could not detect metadata from ${sourceLabel}. Fill in the song details manually.`,
+          sourceLabel: "Manual",
+          sourceType: "manual",
           tone: "warning",
         });
       });
