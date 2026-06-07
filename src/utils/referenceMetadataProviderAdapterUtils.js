@@ -1,3 +1,4 @@
+import { getReferenceMetadataFromBackend } from "./referenceMetadataBackendContractUtils";
 import {
   getMetadataSourceLabel,
   getReferenceMetadataSupport,
@@ -103,6 +104,12 @@ function getProviderMetadataSourceLabel(referenceTrack = {}) {
 async function resolveReferenceMetadataFromProvider(referenceTrack = {}, options = {}) {
   if (shouldUseMockProviderMetadata(referenceTrack, options)) {
     return resolveMockReferenceMetadata(referenceTrack, options);
+  }
+
+  const backendMetadata = await getReferenceMetadataFromBackend(referenceTrack, options);
+
+  if (backendMetadata) {
+    return backendMetadata;
   }
 
   const oEmbedMetadata = await resolveOEmbedReferenceMetadata(referenceTrack);
