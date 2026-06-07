@@ -12,9 +12,10 @@ function normalizeReferenceMetadata(metadata = {}) {
   const authorName = String(metadata.authorName || metadata.author_name || metadata.author || "").trim();
   const providerName = String(metadata.providerName || metadata.provider_name || metadata.provider || "").trim();
   const thumbnailUrl = String(metadata.thumbnailUrl || metadata.thumbnail_url || metadata.thumbnail || "").trim();
-  const description = String(metadata.description || metadata.summary || "").trim();
+  const descriptionText = String(metadata.descriptionText || metadata.description || metadata.summary || "").trim();
+  const chapterText = String(metadata.chapterText || metadata.chapters || "").trim();
   const html = String(metadata.html || "").trim();
-  const metadataText = [title, authorName, providerName, description, html, metadata.metadataText]
+  const metadataText = [title, authorName, providerName, descriptionText, chapterText, html, metadata.metadataText]
     .filter(Boolean)
     .join("\n");
   const extractedMarkers = Array.isArray(metadata.extractedMarkers)
@@ -25,7 +26,8 @@ function normalizeReferenceMetadata(metadata = {}) {
 
   return {
     authorName,
-    description,
+    chapterText,
+    descriptionText,
     durationSeconds,
     extractedMarkers,
     metadataText,
@@ -89,6 +91,7 @@ function normalizeOEmbedMetadata(data = {}, referenceTrack = {}) {
     providerName: normalized.providerName || getMetadataSourceLabel(referenceTrack),
     source: referenceTrack.platform || "generic",
     sourceLabel: getMetadataSourceLabel(referenceTrack),
+    sourceType: "oembed",
   };
 }
 

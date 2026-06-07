@@ -760,30 +760,33 @@ export default function CustomSongForm({
           <SongImportAssistant onApplyAnalysis={applySongAnalysis} />
 
           <div className="import-link-card reference-track-card">
-            <label>
-              <span>Reference Track URL</span>
-              <input
-                type="url"
-                value={form.sourceUrl}
-                placeholder="Paste a YouTube, Vimeo, Spotify, SoundCloud, or reference link"
-                onChange={(event) => updateField("sourceUrl", event.target.value)}
-              />
-            </label>
+            <div className="reference-track-inline-fields">
+              <label className="reference-track-url-field">
+                <span>Reference Track URL</span>
+                <input
+                  type="url"
+                  value={form.sourceUrl}
+                  placeholder="Paste a YouTube, Vimeo, Spotify, SoundCloud, or reference link"
+                  onChange={(event) => updateField("sourceUrl", event.target.value)}
+                />
+              </label>
+
+              <div className="reference-duration-field reference-duration-field--inline">
+                <label>
+                  <span>Reference Duration</span>
+                  <input
+                    type="text"
+                    value={form.referenceDuration}
+                    placeholder="4:34"
+                    onChange={(event) => updateField("referenceDuration", event.target.value)}
+                  />
+                </label>
+              </div>
+            </div>
 
             <p>Optional: save a reference track now so this song can support future timestamp sync and arrangement analysis.</p>
 
-            {!referenceTrack.isEmpty ? (
-              referenceTrack.isValid ? (
-                <div className="analysis-preview-section analysis-preview-section--review">
-                  <p>
-                    <strong>{referenceTrack.platformLabel}</strong>
-                    <span>{referenceTrack.kind ? `${referenceTrack.kind} reference detected.` : "Reference detected."}</span>
-                  </p>
-                </div>
-              ) : (
-                <p className="custom-song-message is-warning">{referenceTrack.error}</p>
-              )
-            ) : null}
+            {!referenceTrack.isEmpty && !referenceTrack.isValid ? <p className="custom-song-message is-warning">{referenceTrack.error}</p> : null}
 
             <ReferenceMetadataResolver
               enabled={shouldAutoDetectReferenceMetadata()}
@@ -799,23 +802,8 @@ export default function CustomSongForm({
               onStatusChange={setReferenceDurationStatus}
             />
 
-            {referenceMetadataStatus.message ? (
-            <p className={`reference-metadata-status is-${referenceMetadataStatus.tone}`}>{referenceMetadataStatus.message}</p>
-          ) : null}
-
-          <div className="reference-duration-field">
-              <label>
-                <span>Reference Duration</span>
-                <input
-                  type="text"
-                  value={form.referenceDuration}
-                  placeholder="Example: 4:34"
-                  onChange={(event) => updateField("referenceDuration", event.target.value)}
-                />
-              </label>
-              <p>Auto-detected when possible. Add or edit manually if the source does not provide duration.</p>
-              {referenceDurationStatus.message ? <p className={`reference-duration-status is-${referenceDurationStatus.tone}`}>{referenceDurationStatus.message}</p> : null}
-            </div>
+            {referenceMetadataStatus.message ? <p className={`reference-metadata-status is-${referenceMetadataStatus.tone}`}>{referenceMetadataStatus.message}</p> : null}
+            {referenceDurationStatus.message ? <p className={`reference-duration-status is-${referenceDurationStatus.tone}`}>{referenceDurationStatus.message}</p> : null}
 
             <div className="reference-timestamp-extraction-field">
               <div className="reference-marker-field-header">

@@ -1,0 +1,41 @@
+/* =========================
+   Reference Form Layout
+========================= */
+
+.reference-track-inline-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(150px, 180px);
+  align-items: end;
+  gap: 12px;
+  min-width: 0;
+}
+
+.reference-track-url-field,
+.reference-duration-field--inline {
+  min-width: 0;
+}
+
+.reference-track-url-field input,
+.reference-duration-field--inline input {
+  width: 100%;
+}
+
+.reference-duration-field--inline {
+  display: grid;
+  gap: 0;
+}
+
+.reference-duration-field--inline label {
+  max-width: none;
+}
+
+.reference-track-card > .reference-metadata-status,
+.reference-track-card > .reference-duration-status {
+  margin-top: -2px;
+}
+
+@media (max-width: 720px) {
+  .reference-track-inline-fields {
+    grid-template-columns: 1fr;
+  }
+}
