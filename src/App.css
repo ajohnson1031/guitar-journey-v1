@@ -32,6 +32,7 @@
 @import "./styles/reference-duration.css";
 @import "./styles/reference-form-layout.css";
 @import "./styles/reference-metadata.css";
+@import "./styles/reference-metadata-source.css";
 @import "./styles/reference-timestamp-extraction.css";
 @import "./styles/strumming.css";
 @import "./styles/strumming-playback-guide.css";

@@ -1,6 +1,7 @@
 import * as React from "react";
 import { DEFAULT_CUSTOM_SONG_FORM, KEY_OPTIONS } from "../constants";
 import { getStoredReferenceMetadata } from "../utils/referenceMetadataUtils";
+import { getReferenceMetadataSourceClassName, getReferenceMetadataSourceLabel } from "../utils/referenceMetadataSourceUtils";
 import { extractReferenceMarkersFromText, getReferenceTimestampExtractionSummary, referenceTimestampMarkersToText } from "../utils/referenceTimestampExtractionUtils";
 import { parseReferenceTrackUrl } from "../utils/referenceTrackUtils";
 import { formatReferenceMarkerTime, parseReferenceMarkers, referenceMarkersToText } from "../utils/referenceMarkerUtils";
@@ -803,6 +804,16 @@ export default function CustomSongForm({
             />
 
             {referenceMetadataStatus.message ? <p className={`reference-metadata-status is-${referenceMetadataStatus.tone}`}>{referenceMetadataStatus.message}</p> : null}
+
+            {referenceMetadata ? (
+              <div className="reference-metadata-source-row">
+                <span>Metadata source</span>
+                <span className={`reference-metadata-source-pill ${getReferenceMetadataSourceClassName(referenceMetadata)}`}>
+                  {getReferenceMetadataSourceLabel(referenceMetadata)}
+                </span>
+              </div>
+            ) : null}
+
             {referenceDurationStatus.message ? <p className={`reference-duration-status is-${referenceDurationStatus.tone}`}>{referenceDurationStatus.message}</p> : null}
 
             <div className="reference-timestamp-extraction-field">
