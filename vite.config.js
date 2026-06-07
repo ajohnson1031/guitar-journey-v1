@@ -1,8 +1,9 @@
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
+import { referenceMetadataMockApiPlugin } from "./dev/referenceMetadataMockApiPlugin.js";
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), referenceMetadataMockApiPlugin()],
   build: {
     rollupOptions: {
       onwarn(warning, warn) {
