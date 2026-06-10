@@ -1,0 +1,77 @@
+/* =========================
+   Reference Metadata Debug
+========================= */
+
+.reference-metadata-debug-panel {
+  display: grid;
+  gap: 8px;
+  max-width: 100%;
+  border: 1px dashed var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted-strong);
+  padding: 8px 10px;
+}
+
+.reference-metadata-debug-panel summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  cursor: pointer;
+  color: var(--color-text-muted-strong);
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  list-style: none;
+  text-transform: uppercase;
+}
+
+.reference-metadata-debug-panel summary::-webkit-details-marker {
+  display: none;
+}
+
+.reference-metadata-debug-panel summary::before {
+  content: "▸";
+  color: var(--color-text-muted);
+  font-size: 12px;
+  transition: transform 160ms ease;
+}
+
+.reference-metadata-debug-panel[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.reference-metadata-debug-panel summary span:first-child {
+  margin-right: auto;
+}
+
+.reference-metadata-debug-panel summary span:last-child {
+  display: inline-flex;
+  min-height: 22px;
+  align-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  padding: 4px 8px;
+  color: var(--color-text-muted);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+}
+
+.reference-metadata-debug-panel pre {
+  overflow: auto;
+  max-height: 340px;
+  max-width: 100%;
+  margin: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  padding: 10px;
+  font-size: 11px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}

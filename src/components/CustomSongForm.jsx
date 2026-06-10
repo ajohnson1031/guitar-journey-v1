@@ -10,6 +10,7 @@ import { parseCommaList, parseSections, slugify } from "../utils/songFormUtils";
 import { STRUMMING_PRESETS, createPresetStrummingPattern, hasStrummingPattern, normalizeStrummingPatternData, serializeStrummingPattern } from "../utils/strummingUtils";
 import ReferenceDurationResolver from "./ReferenceDurationResolver";
 import ReferenceMetadataResolver from "./ReferenceMetadataResolver";
+import ReferenceMetadataDebugPanel from "./ReferenceMetadataDebugPanel";
 import { SongImportAssistant, StrummingPatternBuilder, TransitionInput } from "./";
 
 const { useEffect, useMemo, useState } = React;
@@ -815,6 +816,12 @@ export default function CustomSongForm({
             ) : null}
 
             {referenceDurationStatus.message ? <p className={`reference-duration-status is-${referenceDurationStatus.tone}`}>{referenceDurationStatus.message}</p> : null}
+
+            <ReferenceMetadataDebugPanel
+              metadata={referenceMetadata}
+              metadataStatus={referenceMetadataStatus}
+              referenceTrack={referenceTrack}
+            />
 
             <div className="reference-timestamp-extraction-field">
               <div className="reference-marker-field-header">

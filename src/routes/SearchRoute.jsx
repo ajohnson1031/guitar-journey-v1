@@ -4,6 +4,7 @@ import { SiSoundcloud, SiSpotify, SiVimeo, SiYoutube } from "react-icons/si";
 import { useGuitarJourneyContext } from "../context";
 import { ExternalLinkIcon, PlusIcon } from "../components/AppIcons";
 import ReferenceMetadataResolver from "../components/ReferenceMetadataResolver";
+import ReferenceMetadataDebugPanel from "../components/ReferenceMetadataDebugPanel";
 import { parseReferenceTrackUrl } from "../utils/referenceTrackUtils";
 import { getArtistById, getPaginatedItems, searchArtists, searchSongs } from "../utils/searchCatalogUtils";
 import { getReferenceMetadataSourceClassName, getReferenceMetadataSourceLabel } from "../utils/referenceMetadataSourceUtils";
@@ -225,6 +226,11 @@ function ReferenceReviewCard({ onCreatePractice, referenceTrack }) {
         ) : null}
         {metadata?.extractedMarkers?.length ? <small className="reference-metadata-status is-success">{metadata.extractedMarkers.length} possible section markers detected.</small> : null}
         {metadataStatus.message ? <small className={`reference-metadata-status is-${metadataStatus.tone}`}>{metadataStatus.message}</small> : null}
+        <ReferenceMetadataDebugPanel
+          metadata={metadata}
+          metadataStatus={metadataStatus}
+          referenceTrack={referenceTrack}
+        />
       </div>
 
       <div className="search-result-actions">
