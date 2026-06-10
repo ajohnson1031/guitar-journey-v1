@@ -49,7 +49,7 @@ export default function ReferenceMarkerReviewDraft({
         </div>
       </div>
 
-      {previewText ? <p className="reference-marker-review-preview">{previewText}</p> : null}
+      
 
       <ol className="reference-marker-review-list">
         {markers.map((marker, index) => (

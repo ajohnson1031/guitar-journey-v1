@@ -1,24 +1,18 @@
 import * as React from "react";
 import { DEFAULT_CUSTOM_SONG_FORM, KEY_OPTIONS } from "../constants";
-import {
-  getReferenceDurationSeconds,
-  getSuggestedReferenceMarkerSummary,
-  mergeReferenceMarkerDraft,
-  parseReferenceDurationInput,
-  suggestedReferenceMarkersToText,
-} from "../utils/referenceMarkerSuggestionUtils";
-import { formatReferenceMarkerTime, parseReferenceMarkers, referenceMarkersToText } from "../utils/referenceMarkerUtils";
-import { getReferenceMetadataSourceClassName, getReferenceMetadataSourceLabel } from "../utils/referenceMetadataSourceUtils";
 import { getStoredReferenceMetadata } from "../utils/referenceMetadataUtils";
+import { getReferenceMetadataSourceClassName, getReferenceMetadataSourceLabel } from "../utils/referenceMetadataSourceUtils";
 import { extractReferenceMarkersFromText, getReferenceTimestampExtractionSummary, referenceTimestampMarkersToText } from "../utils/referenceTimestampExtractionUtils";
 import { parseReferenceTrackUrl } from "../utils/referenceTrackUtils";
+import { formatReferenceMarkerTime, parseReferenceMarkers, referenceMarkersToText } from "../utils/referenceMarkerUtils";
+import { getReferenceDurationSeconds, getSuggestedReferenceMarkerSummary, suggestedReferenceMarkersToText, mergeReferenceMarkerDraft, parseReferenceDurationInput } from "../utils/referenceMarkerSuggestionUtils";
 import { parseCommaList, parseSections, slugify } from "../utils/songFormUtils";
 import { STRUMMING_PRESETS, createPresetStrummingPattern, hasStrummingPattern, normalizeStrummingPatternData, serializeStrummingPattern } from "../utils/strummingUtils";
-import { SongImportAssistant, StrummingPatternBuilder, TransitionInput } from "./";
 import ReferenceDurationResolver from "./ReferenceDurationResolver";
-import ReferenceMarkerReviewDraft from "./ReferenceMarkerReviewDraft";
-import ReferenceMetadataDebugPanel from "./ReferenceMetadataDebugPanel";
 import ReferenceMetadataResolver from "./ReferenceMetadataResolver";
+import ReferenceMetadataDebugPanel from "./ReferenceMetadataDebugPanel";
+import ReferenceMarkerReviewDraft from "./ReferenceMarkerReviewDraft";
+import { SongImportAssistant, StrummingPatternBuilder, TransitionInput } from "./";
 
 const { useEffect, useMemo, useState } = React;
 
@@ -212,7 +206,7 @@ function draftToForm(draft) {
     sourceUrl: draft.sourceUrl || draft.referenceTrack?.url || "",
     referenceDuration: draft.referenceDurationSeconds ? formatReferenceDurationInput(draft.referenceDurationSeconds) : draft.referenceDuration || "",
     referenceMarkers: referenceMarkersToText(draft.referenceMarkers || draft.sectionMarkers || []),
-    referenceTimestampText: draft.referenceTimestampText || "",
+    referenceTimestampText: draft.referenceTimestampText || draft.referenceChapterText || draft.referenceTrack?.chapterText || "",
     artist: draft.artist || "",
     instrument: draft.instrument || "",
     title: draft.title || "",
@@ -263,6 +257,7 @@ export default function CustomSongForm({
     tone: "idle",
   });
   const [detectedReferenceMarkers, setDetectedReferenceMarkers] = useState([]);
+  const [detectedReferenceMarkerSource, setDetectedReferenceMarkerSource] = useState("");
 
   const referenceTrack = useMemo(() => parseReferenceTrackUrl(form.sourceUrl), [form.sourceUrl]);
   const previewChords = useMemo(() => parseCommaList(form.chords), [form.chords]);
@@ -296,6 +291,7 @@ export default function CustomSongForm({
     });
     setReferenceMetadata(getStoredReferenceMetadata(editingSong?.referenceTrack));
     setDetectedReferenceMarkers(getStoredReferenceMetadata(editingSong?.referenceTrack)?.extractedMarkers || []);
+    setDetectedReferenceMarkerSource(getStoredReferenceMetadata(editingSong?.referenceTrack)?.extractedMarkers?.length ? "Saved metadata" : "");
     setHasManuallyEditedReferenceDuration(false);
   }, [editingSong, onOpenChange]);
 
@@ -318,6 +314,7 @@ export default function CustomSongForm({
     });
     setReferenceMetadata(getStoredReferenceMetadata(initialSongDraft?.referenceTrack));
     setDetectedReferenceMarkers(getStoredReferenceMetadata(initialSongDraft?.referenceTrack)?.extractedMarkers || []);
+    setDetectedReferenceMarkerSource(getStoredReferenceMetadata(initialSongDraft?.referenceTrack)?.extractedMarkers?.length ? "Detected metadata" : "");
     setHasManuallyEditedReferenceDuration(false);
   }, [editingSong, initialSongDraft, onOpenChange]);
 
@@ -363,6 +360,7 @@ export default function CustomSongForm({
       });
       setReferenceMetadata(null);
       setDetectedReferenceMarkers([]);
+      setDetectedReferenceMarkerSource("");
       setHasManuallyEditedReferenceDuration(false);
     }
 
@@ -391,6 +389,7 @@ export default function CustomSongForm({
     setPendingGenre("");
     setReferenceMetadata(getStoredReferenceMetadata(editingSong?.referenceTrack));
     setDetectedReferenceMarkers(getStoredReferenceMetadata(editingSong?.referenceTrack)?.extractedMarkers || []);
+    setDetectedReferenceMarkerSource(getStoredReferenceMetadata(editingSong?.referenceTrack)?.extractedMarkers?.length ? "Saved metadata" : "");
     setReferenceMetadataStatus({
       message: "",
       tone: "idle",
@@ -405,6 +404,7 @@ export default function CustomSongForm({
     setPendingGenre("");
     setReferenceMetadata(null);
     setDetectedReferenceMarkers([]);
+    setDetectedReferenceMarkerSource("");
     setReferenceMetadataStatus({
       message: "",
       tone: "idle",
@@ -483,10 +483,12 @@ export default function CustomSongForm({
     };
   }
 
+
   function handleReferenceTimestampTextExtraction() {
     const markers = extractReferenceMarkersFromText(form.referenceTimestampText);
 
     setDetectedReferenceMarkers(markers);
+    setDetectedReferenceMarkerSource(markers.length ? "Pasted timestamp text" : "");
 
     if (!markers.length) {
       setWarningMessage("No timestamp markers were detected in the pasted text.");
@@ -513,6 +515,12 @@ export default function CustomSongForm({
     setInfoMessage(`${detectedReferenceMarkers.length} detected marker${detectedReferenceMarkers.length === 1 ? "" : "s"} applied. Review the marker list before saving.`);
   }
 
+  function handleDismissDetectedReferenceMarkers() {
+    setDetectedReferenceMarkers([]);
+    setDetectedReferenceMarkerSource("");
+    setInfoMessage("Detected marker suggestion dismissed. You can still enter markers manually.");
+  }
+
   function handleReferenceMetadataResolved(metadata) {
     if (!metadata) return;
 
@@ -520,6 +528,7 @@ export default function CustomSongForm({
 
     if (metadata.extractedMarkers?.length) {
       setDetectedReferenceMarkers(metadata.extractedMarkers);
+      setDetectedReferenceMarkerSource(getReferenceMetadataSourceLabel(metadata));
     }
 
     setForm((current) => ({
@@ -682,8 +691,8 @@ export default function CustomSongForm({
             platform: parsedReferenceTrack.platform,
             platformLabel: parsedReferenceTrack.platformLabel,
             providerName: referenceMetadata?.providerName || parsedReferenceTrack.platformLabel,
-            source: referenceMetadata?.source || "",
-            sourceLabel: referenceMetadata?.sourceLabel || "",
+            source: referenceMetadata?.source || parsedReferenceTrack.platform || "generic",
+            sourceLabel: referenceMetadata?.sourceLabel || parsedReferenceTrack.platformLabel || "",
             sourceType: referenceMetadata?.sourceType || "",
             thumbnailUrl: referenceMetadata?.thumbnailUrl || "",
             title: referenceMetadata?.title || "",
@@ -788,7 +797,12 @@ export default function CustomSongForm({
               <div className="reference-duration-field reference-duration-field--inline">
                 <label>
                   <span>Reference Duration</span>
-                  <input type="text" value={form.referenceDuration} placeholder="4:34" onChange={(event) => updateField("referenceDuration", event.target.value)} />
+                  <input
+                    type="text"
+                    value={form.referenceDuration}
+                    placeholder="4:34"
+                    onChange={(event) => updateField("referenceDuration", event.target.value)}
+                  />
                 </label>
               </div>
             </div>
@@ -824,7 +838,11 @@ export default function CustomSongForm({
 
             {referenceDurationStatus.message ? <p className={`reference-duration-status is-${referenceDurationStatus.tone}`}>{referenceDurationStatus.message}</p> : null}
 
-            <ReferenceMetadataDebugPanel metadata={referenceMetadata} metadataStatus={referenceMetadataStatus} referenceTrack={referenceTrack} />
+            <ReferenceMetadataDebugPanel
+              metadata={referenceMetadata}
+              metadataStatus={referenceMetadataStatus}
+              referenceTrack={referenceTrack}
+            />
 
             <div className="reference-timestamp-extraction-field">
               <div className="reference-marker-field-header">
@@ -850,12 +868,9 @@ export default function CustomSongForm({
             <ReferenceMarkerReviewDraft
               currentMarkerText={form.referenceMarkers}
               markers={detectedReferenceMarkers}
-              sourceLabel={referenceMetadata ? getReferenceMetadataSourceLabel(referenceMetadata) : "Detected"}
+              sourceLabel={detectedReferenceMarkerSource}
               onApply={handleApplyDetectedReferenceMarkers}
-              onDismiss={() => {
-                setDetectedReferenceMarkers([]);
-                setInfoMessage("Detected marker suggestion dismissed. You can still enter markers manually.");
-              }}
+              onDismiss={handleDismissDetectedReferenceMarkers}
             />
 
             <div className="reference-marker-field">

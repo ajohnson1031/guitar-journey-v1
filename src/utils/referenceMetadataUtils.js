@@ -32,6 +32,9 @@ function normalizeReferenceMetadata(metadata = {}) {
     extractedMarkers,
     metadataText,
     providerName,
+    source: metadata.source || "",
+    sourceLabel: metadata.sourceLabel || metadata.source_label || "",
+    sourceType: metadata.sourceType || metadata.source_type || metadata.metadataSource || "",
     thumbnailUrl,
     title,
   };

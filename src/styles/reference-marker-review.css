@@ -65,19 +65,9 @@
   white-space: nowrap;
 }
 
-.reference-marker-review-preview {
-  overflow: hidden;
-  margin: 0;
-  color: var(--color-text-muted-strong);
-  font-size: 12px;
-  font-weight: 850;
-  line-height: 1.4;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .reference-marker-review-list {
   display: grid;
+  grid-template-columns: 1fr 1fr;
   max-height: 220px;
   overflow: auto;
   gap: 6px;
@@ -170,9 +160,5 @@
 
   .reference-marker-review-badges {
     justify-content: flex-start;
-  }
-
-  .reference-marker-review-preview {
-    white-space: normal;
   }
 }

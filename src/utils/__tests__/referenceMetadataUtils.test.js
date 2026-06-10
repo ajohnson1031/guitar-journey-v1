@@ -38,6 +38,19 @@ describe("referenceMetadataUtils", () => {
     expect(metadata.extractedMarkers).toHaveLength(2);
   });
 
+  it("preserves metadata source fields", () => {
+    const metadata = normalizeReferenceMetadata({
+      source: "youtube",
+      sourceLabel: "YouTube",
+      sourceType: "backend-mock",
+      title: "Song Title",
+    });
+
+    expect(metadata.source).toBe("youtube");
+    expect(metadata.sourceLabel).toBe("YouTube");
+    expect(metadata.sourceType).toBe("backend-mock");
+  });
+
   it("extracts timestamp markers from available metadata text", () => {
     const metadata = normalizeReferenceMetadata({
       description: "0:00 Intro\n0:12 Verse\n0:48 Chorus",

@@ -1,13 +1,13 @@
 import * as React from "react";
-import { SiSoundcloud, SiSpotify, SiVimeo, SiYoutube } from "react-icons/si";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { ExternalLinkIcon, PlusIcon } from "../components/AppIcons";
-import ReferenceMetadataDebugPanel from "../components/ReferenceMetadataDebugPanel";
-import ReferenceMetadataResolver from "../components/ReferenceMetadataResolver";
+import { SiSoundcloud, SiSpotify, SiVimeo, SiYoutube } from "react-icons/si";
 import { useGuitarJourneyContext } from "../context";
-import { getReferenceMetadataSourceClassName, getReferenceMetadataSourceLabel } from "../utils/referenceMetadataSourceUtils";
+import { ExternalLinkIcon, PlusIcon } from "../components/AppIcons";
+import ReferenceMetadataResolver from "../components/ReferenceMetadataResolver";
+import ReferenceMetadataDebugPanel from "../components/ReferenceMetadataDebugPanel";
 import { parseReferenceTrackUrl } from "../utils/referenceTrackUtils";
 import { getArtistById, getPaginatedItems, searchArtists, searchSongs } from "../utils/searchCatalogUtils";
+import { getReferenceMetadataSourceClassName, getReferenceMetadataSourceLabel } from "../utils/referenceMetadataSourceUtils";
 
 const { Fragment, useMemo, useState } = React;
 
@@ -103,7 +103,9 @@ function getCreatePracticeStateFromReference(referenceTrack, metadata = null) {
 export default function SearchRoute() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { sidebarProps = {} } = useGuitarJourneyContext();
+  const {
+    sidebarProps = {},
+  } = useGuitarJourneyContext();
 
   const allSongs = sidebarProps.allSongs || [];
   const query = searchParams.get("q") || "";
@@ -230,18 +232,17 @@ function ReferenceReviewCard({ onCreatePractice, referenceTrack }) {
         <h2>{title}</h2>
         <p>{subtitle}</p>
         {metadata ? (
-          <span
-            className={`reference-metadata-source-pill ${getReferenceMetadataSourceClassName(metadata)}`}
-            title={`Metadata source: ${getReferenceMetadataSourceLabel(metadata)}`}
-          >
+          <span className={`reference-metadata-source-pill ${getReferenceMetadataSourceClassName(metadata)}`} title={`Metadata source: ${getReferenceMetadataSourceLabel(metadata)}`}>
             {getReferenceMetadataSourceLabel(metadata)}
           </span>
         ) : null}
-        {metadata?.extractedMarkers?.length ? (
-          <small className="reference-metadata-status is-success">{metadata.extractedMarkers.length} possible section markers detected.</small>
-        ) : null}
+        {metadata?.extractedMarkers?.length ? <small className="reference-metadata-status is-success">{metadata.extractedMarkers.length} possible section markers detected.</small> : null}
         {metadataStatus.message ? <small className={`reference-metadata-status is-${metadataStatus.tone}`}>{metadataStatus.message}</small> : null}
-        <ReferenceMetadataDebugPanel metadata={metadata} metadataStatus={metadataStatus} referenceTrack={referenceTrack} />
+        <ReferenceMetadataDebugPanel
+          metadata={metadata}
+          metadataStatus={metadataStatus}
+          referenceTrack={referenceTrack}
+        />
       </div>
 
       <div className="search-result-actions">
