@@ -35,6 +35,7 @@
 @import "./styles/reference-metadata-source.css";
 @import "./styles/reference-metadata-debug.css";
 @import "./styles/reference-timestamp-extraction.css";
+@import "./styles/reference-marker-review.css";
 @import "./styles/strumming.css";
 @import "./styles/strumming-playback-guide.css";
 @import "./styles/responsive.css";
