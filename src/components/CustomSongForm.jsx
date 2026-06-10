@@ -1,17 +1,24 @@
 import * as React from "react";
 import { DEFAULT_CUSTOM_SONG_FORM, KEY_OPTIONS } from "../constants";
-import { getStoredReferenceMetadata } from "../utils/referenceMetadataUtils";
+import {
+  getReferenceDurationSeconds,
+  getSuggestedReferenceMarkerSummary,
+  mergeReferenceMarkerDraft,
+  parseReferenceDurationInput,
+  suggestedReferenceMarkersToText,
+} from "../utils/referenceMarkerSuggestionUtils";
+import { formatReferenceMarkerTime, parseReferenceMarkers, referenceMarkersToText } from "../utils/referenceMarkerUtils";
 import { getReferenceMetadataSourceClassName, getReferenceMetadataSourceLabel } from "../utils/referenceMetadataSourceUtils";
+import { getStoredReferenceMetadata } from "../utils/referenceMetadataUtils";
 import { extractReferenceMarkersFromText, getReferenceTimestampExtractionSummary, referenceTimestampMarkersToText } from "../utils/referenceTimestampExtractionUtils";
 import { parseReferenceTrackUrl } from "../utils/referenceTrackUtils";
-import { formatReferenceMarkerTime, parseReferenceMarkers, referenceMarkersToText } from "../utils/referenceMarkerUtils";
-import { getReferenceDurationSeconds, getSuggestedReferenceMarkerSummary, suggestedReferenceMarkersToText, mergeReferenceMarkerDraft, parseReferenceDurationInput } from "../utils/referenceMarkerSuggestionUtils";
 import { parseCommaList, parseSections, slugify } from "../utils/songFormUtils";
 import { STRUMMING_PRESETS, createPresetStrummingPattern, hasStrummingPattern, normalizeStrummingPatternData, serializeStrummingPattern } from "../utils/strummingUtils";
-import ReferenceDurationResolver from "./ReferenceDurationResolver";
-import ReferenceMetadataResolver from "./ReferenceMetadataResolver";
-import ReferenceMetadataDebugPanel from "./ReferenceMetadataDebugPanel";
 import { SongImportAssistant, StrummingPatternBuilder, TransitionInput } from "./";
+import ReferenceDurationResolver from "./ReferenceDurationResolver";
+import ReferenceMarkerReviewDraft from "./ReferenceMarkerReviewDraft";
+import ReferenceMetadataDebugPanel from "./ReferenceMetadataDebugPanel";
+import ReferenceMetadataResolver from "./ReferenceMetadataResolver";
 
 const { useEffect, useMemo, useState } = React;
 
@@ -476,7 +483,6 @@ export default function CustomSongForm({
     };
   }
 
-
   function handleReferenceTimestampTextExtraction() {
     const markers = extractReferenceMarkersFromText(form.referenceTimestampText);
 
@@ -665,14 +671,20 @@ export default function CustomSongForm({
       referenceTrack: parsedReferenceTrack?.isValid
         ? {
             authorName: referenceMetadata?.authorName || "",
+            chapterText: referenceMetadata?.chapterText || "",
+            descriptionText: referenceMetadata?.descriptionText || "",
             durationSeconds: referenceDurationSeconds || null,
             embedUrl: parsedReferenceTrack.embedUrl,
+            extractedMarkers: detectedReferenceMarkers,
             kind: parsedReferenceTrack.kind,
             mediaId: parsedReferenceTrack.mediaId,
+            metadataText: referenceMetadata?.metadataText || "",
             platform: parsedReferenceTrack.platform,
             platformLabel: parsedReferenceTrack.platformLabel,
             providerName: referenceMetadata?.providerName || parsedReferenceTrack.platformLabel,
-            extractedMarkers: detectedReferenceMarkers,
+            source: referenceMetadata?.source || "",
+            sourceLabel: referenceMetadata?.sourceLabel || "",
+            sourceType: referenceMetadata?.sourceType || "",
             thumbnailUrl: referenceMetadata?.thumbnailUrl || "",
             title: referenceMetadata?.title || "",
             url: parsedReferenceTrack.url,
@@ -776,12 +788,7 @@ export default function CustomSongForm({
               <div className="reference-duration-field reference-duration-field--inline">
                 <label>
                   <span>Reference Duration</span>
-                  <input
-                    type="text"
-                    value={form.referenceDuration}
-                    placeholder="4:34"
-                    onChange={(event) => updateField("referenceDuration", event.target.value)}
-                  />
+                  <input type="text" value={form.referenceDuration} placeholder="4:34" onChange={(event) => updateField("referenceDuration", event.target.value)} />
                 </label>
               </div>
             </div>
@@ -817,11 +824,7 @@ export default function CustomSongForm({
 
             {referenceDurationStatus.message ? <p className={`reference-duration-status is-${referenceDurationStatus.tone}`}>{referenceDurationStatus.message}</p> : null}
 
-            <ReferenceMetadataDebugPanel
-              metadata={referenceMetadata}
-              metadataStatus={referenceMetadataStatus}
-              referenceTrack={referenceTrack}
-            />
+            <ReferenceMetadataDebugPanel metadata={referenceMetadata} metadataStatus={referenceMetadataStatus} referenceTrack={referenceTrack} />
 
             <div className="reference-timestamp-extraction-field">
               <div className="reference-marker-field-header">
@@ -844,18 +847,16 @@ export default function CustomSongForm({
               <p>Optional fallback: paste chapters from a description. Provider-backed chapter extraction comes later.</p>
             </div>
 
-            {detectedReferenceMarkers.length ? (
-              <div className="detected-reference-markers-card">
-                <div>
-                  <strong>{detectedReferenceMarkers.length} detected marker{detectedReferenceMarkers.length === 1 ? "" : "s"}</strong>
-                  <span>{detectedReferenceMarkers.slice(0, 4).map((marker) => `${marker.label} ${marker.time}`).join(" · ")}</span>
-                </div>
-
-                <button type="button" className="reference-marker-draft-button" onClick={handleApplyDetectedReferenceMarkers}>
-                  Apply detected markers
-                </button>
-              </div>
-            ) : null}
+            <ReferenceMarkerReviewDraft
+              currentMarkerText={form.referenceMarkers}
+              markers={detectedReferenceMarkers}
+              sourceLabel={referenceMetadata ? getReferenceMetadataSourceLabel(referenceMetadata) : "Detected"}
+              onApply={handleApplyDetectedReferenceMarkers}
+              onDismiss={() => {
+                setDetectedReferenceMarkers([]);
+                setInfoMessage("Detected marker suggestion dismissed. You can still enter markers manually.");
+              }}
+            />
 
             <div className="reference-marker-field">
               <div className="reference-marker-field-header">
