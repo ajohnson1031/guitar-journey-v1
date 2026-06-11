@@ -1,0 +1,209 @@
+/* =========================
+   Custom Song Setup Tabs
+========================= */
+
+.custom-song-setup-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  padding: 5px;
+}
+
+.custom-song-setup-tabs button {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-text-muted-strong);
+  font-size: 12px;
+  font-weight: 950;
+  line-height: 1;
+}
+
+.custom-song-setup-tabs button:hover {
+  border-color: var(--color-border);
+  color: var(--color-primary-text);
+}
+
+.custom-song-setup-tabs button.is-active {
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-fill);
+  color: var(--color-primary-contrast);
+}
+
+.custom-song-tab-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.custom-song-tab-panel.is-inactive {
+  display: none;
+}
+
+.custom-song-manual-fields {
+  margin-top: 4px;
+}
+
+.detected-setup-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.detected-setup-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  background: var(--color-surface-soft);
+  padding: 14px;
+}
+
+.detected-setup-header h3,
+.detected-setup-header p {
+  margin: 0;
+}
+
+.detected-setup-header h3 {
+  color: var(--color-text);
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.detected-setup-header p:not(.eyebrow) {
+  color: var(--color-text-muted);
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.45;
+}
+
+.detected-setup-manual-link,
+.detected-setup-field-card button {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-primary-text);
+  padding: 8px 10px;
+  font-size: 12px;
+  font-weight: 950;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.detected-setup-manual-link:hover,
+.detected-setup-field-card button:hover {
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-soft);
+}
+
+.detected-setup-field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.detected-setup-field-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: var(--color-surface);
+  padding: 12px;
+}
+
+.detected-setup-field-card.is-detected {
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-soft);
+}
+
+.detected-setup-field-card.is-missing {
+  border-style: dashed;
+  background: var(--color-surface-soft);
+}
+
+.detected-setup-field-card span {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.detected-setup-field-card strong {
+  display: block;
+  overflow: hidden;
+  margin-top: 6px;
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 950;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.detected-setup-field-card p {
+  margin: 6px 0 0;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.detected-setup-gap-card {
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: var(--color-surface-soft);
+  padding: 12px;
+}
+
+.detected-setup-gap-card.is-complete {
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-soft);
+}
+
+.detected-setup-gap-card strong {
+  color: var(--color-text);
+  font-size: 13px;
+  font-weight: 950;
+  line-height: 1.2;
+}
+
+.detected-setup-gap-card span {
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+@media (max-width: 760px) {
+  .detected-setup-header,
+  .detected-setup-field-card {
+    grid-template-columns: 1fr;
+  }
+
+  .detected-setup-field-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detected-setup-manual-link,
+  .detected-setup-field-card button {
+    width: fit-content;
+  }
+}

@@ -224,6 +224,170 @@ function draftToForm(draft) {
   };
 }
 
+function hasDetectedSetupValue(value) {
+  if (Array.isArray(value)) return value.length > 0;
+
+  return Boolean(String(value || "").trim());
+}
+
+function DetectedSetupFieldCard({ label, message, onManualClick, sourceLabel, value }) {
+  const hasValue = hasDetectedSetupValue(value);
+
+  return (
+    <article className={`detected-setup-field-card ${hasValue ? "is-detected" : "is-missing"}`}>
+      <div>
+        <span>{label}</span>
+        <strong>{hasValue ? value : "Not detected"}</strong>
+        <p>{hasValue ? sourceLabel || "Ready to review." : message}</p>
+      </div>
+
+      {!hasValue ? (
+        <button type="button" onClick={onManualClick}>
+          Add manually
+        </button>
+      ) : null}
+    </article>
+  );
+}
+
+function DetectedSetupReviewPanel({
+  detectedReferenceMarkerSource,
+  detectedReferenceMarkers,
+  form,
+  onApplyDetectedReferenceMarkers,
+  onDismissDetectedReferenceMarkers,
+  onManualClick,
+  previewChords,
+  referenceMetadata,
+  referenceMetadataStatus,
+  referenceTrack,
+  strummingPatternText,
+}) {
+  const metadataSourceLabel = referenceMetadata
+    ? getReferenceMetadataSourceLabel(referenceMetadata)
+    : referenceMetadataStatus?.sourceLabel || referenceTrack?.platformLabel || "";
+  const referenceMarkerCount = parseReferenceMarkers(form.referenceMarkers).length;
+  const detectedMarkerValue = detectedReferenceMarkers.length
+    ? `${detectedReferenceMarkers.length} detected marker${detectedReferenceMarkers.length === 1 ? "" : "s"}`
+    : referenceMarkerCount
+      ? `${referenceMarkerCount} reference marker${referenceMarkerCount === 1 ? "" : "s"} ready`
+      : "";
+  const fields = [
+    {
+      label: "Song Title",
+      value: form.title,
+      sourceLabel: metadataSourceLabel || "Detected setup",
+      message: "Song title could not be automatically extracted. Add it manually.",
+    },
+    {
+      label: "Artist",
+      value: form.artist,
+      sourceLabel: metadataSourceLabel || "Detected setup",
+      message: "Artist could not be automatically extracted. Add it manually.",
+    },
+    {
+      label: "Reference Duration",
+      value: form.referenceDuration,
+      sourceLabel: metadataSourceLabel || "Detected setup",
+      message: "Reference duration could not be automatically extracted. Add it manually.",
+    },
+    {
+      label: "Song Chapters",
+      value: detectedMarkerValue,
+      sourceLabel: detectedReferenceMarkerSource || metadataSourceLabel || "Detected setup",
+      message: "Song chapters could not be automatically extracted. Add markers manually.",
+    },
+    {
+      label: "Strum Pattern",
+      value: strummingPatternText,
+      sourceLabel: "Practice setup",
+      message: "Strum pattern could not be automatically extracted. Choose or build one manually.",
+    },
+    {
+      label: "Chords",
+      value: previewChords.length ? previewChords.join(", ") : "",
+      sourceLabel: "Practice setup",
+      message: "Chords could not be automatically extracted. Add them manually.",
+    },
+    {
+      label: "Genre",
+      value: form.genre,
+      sourceLabel: "Practice setup",
+      message: "Genre could not be automatically extracted. Select it manually.",
+    },
+    {
+      label: "Key",
+      value: form.key,
+      sourceLabel: "Practice setup",
+      message: "Key could not be automatically extracted. Select it manually.",
+    },
+    {
+      label: "Difficulty",
+      value: form.difficulty,
+      sourceLabel: "Practice setup",
+      message: "Difficulty could not be automatically extracted. Select it manually.",
+    },
+    {
+      label: "BPM",
+      value: form.bpm,
+      sourceLabel: "Practice setup",
+      message: "BPM could not be automatically extracted. Add it manually.",
+    },
+  ];
+  const missingFields = fields.filter((field) => !hasDetectedSetupValue(field.value));
+
+  return (
+    <section className="detected-setup-panel">
+      <div className="detected-setup-header">
+        <div>
+          <p className="eyebrow">Detected Setup</p>
+          <h3>Review what Guitar Journey found</h3>
+          <p>
+            Use this as the assisted setup path. Missing fields can be completed in Manual Inputs before saving.
+          </p>
+        </div>
+
+        <button type="button" className="detected-setup-manual-link" onClick={onManualClick}>
+          Open Manual Inputs
+        </button>
+      </div>
+
+      <div className="detected-setup-field-grid">
+        {fields.map((field) => (
+          <DetectedSetupFieldCard
+            key={field.label}
+            label={field.label}
+            message={field.message}
+            sourceLabel={field.sourceLabel}
+            value={field.value}
+            onManualClick={onManualClick}
+          />
+        ))}
+      </div>
+
+      {missingFields.length ? (
+        <div className="detected-setup-gap-card">
+          <strong>{missingFields.length} field{missingFields.length === 1 ? "" : "s"} need manual input</strong>
+          <span>{missingFields.map((field) => field.label).join(" · ")}</span>
+        </div>
+      ) : (
+        <div className="detected-setup-gap-card is-complete">
+          <strong>Detected setup looks complete</strong>
+          <span>Review the values, then save or make manual edits.</span>
+        </div>
+      )}
+
+      <ReferenceMarkerReviewDraft
+        currentMarkerText={form.referenceMarkers}
+        markers={detectedReferenceMarkers}
+        sourceLabel={detectedReferenceMarkerSource}
+        onApply={onApplyDetectedReferenceMarkers}
+        onDismiss={onDismissDetectedReferenceMarkers}
+      />
+    </section>
+  );
+}
+
 export default function CustomSongForm({
   defaultOpen = false,
   editingSong,
@@ -258,6 +422,7 @@ export default function CustomSongForm({
   });
   const [detectedReferenceMarkers, setDetectedReferenceMarkers] = useState([]);
   const [detectedReferenceMarkerSource, setDetectedReferenceMarkerSource] = useState("");
+  const [activeSetupTab, setActiveSetupTab] = useState("detected");
 
   const referenceTrack = useMemo(() => parseReferenceTrackUrl(form.sourceUrl), [form.sourceUrl]);
   const previewChords = useMemo(() => parseCommaList(form.chords), [form.chords]);
@@ -394,6 +559,7 @@ export default function CustomSongForm({
       message: "",
       tone: "idle",
     });
+    setActiveSetupTab("detected");
     setMessage("");
   }
 
@@ -409,6 +575,7 @@ export default function CustomSongForm({
       message: "",
       tone: "idle",
     });
+    setActiveSetupTab("detected");
     setMessage("");
     setForm(songToForm(null));
 
@@ -745,6 +912,7 @@ export default function CustomSongForm({
     setPendingGenre("");
     setMessage("");
     setMessageTone("error");
+    setActiveSetupTab("detected");
     setForm(songToForm(null));
     setIsOpen(false);
     onOpenChange(false);
@@ -844,57 +1012,98 @@ export default function CustomSongForm({
               referenceTrack={referenceTrack}
             />
 
-            <div className="reference-timestamp-extraction-field">
-              <div className="reference-marker-field-header">
-                <label htmlFor="reference-timestamp-textarea">
-                  <span>Timestamp / Chapter Text</span>
-                </label>
+            <div className="custom-song-setup-tabs" role="tablist" aria-label="Song setup mode">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeSetupTab === "detected"}
+                className={activeSetupTab === "detected" ? "is-active" : ""}
+                onClick={() => setActiveSetupTab("detected")}
+              >
+                Detected Setup
+              </button>
 
-                <button type="button" className="reference-marker-draft-button" onClick={handleReferenceTimestampTextExtraction}>
-                  Extract timestamps
-                </button>
-              </div>
-
-              <textarea
-                id="reference-timestamp-textarea"
-                value={form.referenceTimestampText}
-                placeholder={"Paste chapters or timestamp text, e.g.\n0:00 Intro\n0:12 Verse\n0:48 Chorus"}
-                onChange={(event) => updateField("referenceTimestampText", event.target.value)}
-              />
-
-              <p>Optional fallback: paste chapters from a description. Provider-backed chapter extraction comes later.</p>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeSetupTab === "manual"}
+                className={activeSetupTab === "manual" ? "is-active" : ""}
+                onClick={() => setActiveSetupTab("manual")}
+              >
+                Manual Inputs
+              </button>
             </div>
 
-            <ReferenceMarkerReviewDraft
-              currentMarkerText={form.referenceMarkers}
-              markers={detectedReferenceMarkers}
-              sourceLabel={detectedReferenceMarkerSource}
-              onApply={handleApplyDetectedReferenceMarkers}
-              onDismiss={handleDismissDetectedReferenceMarkers}
-            />
-
-            <div className="reference-marker-field">
-              <div className="reference-marker-field-header">
-                <label htmlFor="reference-markers-textarea">
-                  <span>Reference Markers</span>
-                </label>
-
-                <button type="button" className="reference-marker-draft-button" onClick={handleGenerateReferenceMarkerDraft}>
-                  Generate marker draft
-                </button>
-              </div>
-
-              <textarea
-                id="reference-markers-textarea"
-                value={form.referenceMarkers}
-                placeholder={"Intro: 0:00\nVerse: 0:12\nChorus: 0:48"}
-                onChange={(event) => updateField("referenceMarkers", event.target.value)}
+            <div className={`custom-song-tab-panel ${activeSetupTab === "detected" ? "is-active" : "is-inactive"}`} role="tabpanel">
+              <DetectedSetupReviewPanel
+                detectedReferenceMarkerSource={detectedReferenceMarkerSource}
+                detectedReferenceMarkers={detectedReferenceMarkers}
+                form={form}
+                onApplyDetectedReferenceMarkers={handleApplyDetectedReferenceMarkers}
+                onDismissDetectedReferenceMarkers={handleDismissDetectedReferenceMarkers}
+                onManualClick={() => setActiveSetupTab("manual")}
+                previewChords={previewChords}
+                referenceMetadata={referenceMetadata}
+                referenceMetadataStatus={referenceMetadataStatus}
+                referenceTrack={referenceTrack}
+                strummingPatternText={strummingPatternText}
               />
             </div>
 
-            <p>Optional: generate a marker draft from song sections, then adjust the timestamps against the reference track.</p>
+            <div className={`custom-song-tab-panel ${activeSetupTab === "manual" ? "is-active" : "is-inactive"}`} role="tabpanel">
+              <div className="reference-timestamp-extraction-field">
+                <div className="reference-marker-field-header">
+                  <label htmlFor="reference-timestamp-textarea">
+                    <span>Paste chapters / raw timestamps</span>
+                  </label>
+
+                  <button type="button" className="reference-marker-draft-button" onClick={handleReferenceTimestampTextExtraction}>
+                    Extract timestamps
+                  </button>
+                </div>
+
+                <textarea
+                  id="reference-timestamp-textarea"
+                  value={form.referenceTimestampText}
+                  placeholder={"Paste chapters or timestamp text, e.g.\n0:00 Intro\n0:12 Verse\n0:48 Chorus"}
+                  onChange={(event) => updateField("referenceTimestampText", event.target.value)}
+                />
+
+                <p>Optional helper: paste raw chapters or timestamps, then extract them into a reviewable marker draft.</p>
+              </div>
+
+              <ReferenceMarkerReviewDraft
+                currentMarkerText={form.referenceMarkers}
+                markers={detectedReferenceMarkers}
+                sourceLabel={detectedReferenceMarkerSource}
+                onApply={handleApplyDetectedReferenceMarkers}
+                onDismiss={handleDismissDetectedReferenceMarkers}
+              />
+
+              <div className="reference-marker-field">
+                <div className="reference-marker-field-header">
+                  <label htmlFor="reference-markers-textarea">
+                    <span>Reference Markers</span>
+                  </label>
+
+                  <button type="button" className="reference-marker-draft-button" onClick={handleGenerateReferenceMarkerDraft}>
+                    Generate marker draft
+                  </button>
+                </div>
+
+                <textarea
+                  id="reference-markers-textarea"
+                  value={form.referenceMarkers}
+                  placeholder={"Intro: 0:00\nVerse: 0:12\nChorus: 0:48"}
+                  onChange={(event) => updateField("referenceMarkers", event.target.value)}
+                />
+              </div>
+
+              <p>Reference Markers are the saved timeline. Use raw timestamp text only as an extraction helper.</p>
+            </div>
           </div>
 
+          <div className={`custom-song-tab-panel custom-song-manual-fields ${activeSetupTab === "manual" ? "is-active" : "is-inactive"}`} role="tabpanel">
           <div className="form-grid three">
             <label>
               <span>Song Title</span>
@@ -1005,6 +1214,8 @@ export default function CustomSongForm({
           <div className="custom-song-preview">
             <span>Preview chords</span>
             <div className="analysis-chip-row">{previewChords.length ? previewChords.map((chord) => <strong key={chord}>{chord}</strong>) : <small>No chords yet</small>}</div>
+          </div>
+
           </div>
 
           {duplicateCandidate ? (
