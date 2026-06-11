@@ -3,6 +3,7 @@ import { DEFAULT_CUSTOM_SONG_FORM, KEY_OPTIONS } from "../constants";
 import { getStoredReferenceMetadata } from "../utils/referenceMetadataUtils";
 import { getReferenceMetadataSourceClassName, getReferenceMetadataSourceLabel } from "../utils/referenceMetadataSourceUtils";
 import { extractReferenceMarkersFromText, getReferenceTimestampExtractionSummary, referenceTimestampMarkersToText } from "../utils/referenceTimestampExtractionUtils";
+import { createFieldDetectionStatus, getFieldDetectionStatusClassName, hasFieldDetectionValue } from "../utils/fieldDetectionStatusUtils";
 import { parseReferenceTrackUrl } from "../utils/referenceTrackUtils";
 import { formatReferenceMarkerTime, parseReferenceMarkers, referenceMarkersToText } from "../utils/referenceMarkerUtils";
 import { getReferenceDurationSeconds, getSuggestedReferenceMarkerSummary, suggestedReferenceMarkersToText, mergeReferenceMarkerDraft, parseReferenceDurationInput } from "../utils/referenceMarkerSuggestionUtils";
@@ -224,26 +225,52 @@ function draftToForm(draft) {
   };
 }
 
-function hasDetectedSetupValue(value) {
-  if (Array.isArray(value)) return value.length > 0;
+function getMetadataFieldStatus(formValue, detectedValue, statusSource) {
+  if (detectedValue && String(formValue || "").trim() === String(detectedValue || "").trim()) {
+    return "detected";
+  }
 
-  return Boolean(String(value || "").trim());
+  if (detectedValue && hasFieldDetectionValue(formValue)) {
+    return "overridden";
+  }
+
+  if (hasFieldDetectionValue(formValue) && statusSource) {
+    return "needs-review";
+  }
+
+  if (hasFieldDetectionValue(formValue)) {
+    return "manual";
+  }
+
+  return "missing";
 }
 
-function DetectedSetupFieldCard({ label, message, onManualClick, sourceLabel, value }) {
-  const hasValue = hasDetectedSetupValue(value);
+function DetectedSetupFieldCard({ label, message, onManualClick, sourceLabel, status, value }) {
+  const statusInfo = createFieldDetectionStatus({
+    message,
+    sourceLabel,
+    status,
+    value,
+  });
+  const actionLabel = statusInfo.status === "missing" ? "Add manually" : "Review manually";
 
   return (
-    <article className={`detected-setup-field-card ${hasValue ? "is-detected" : "is-missing"}`}>
+    <article className={`detected-setup-field-card ${getFieldDetectionStatusClassName(statusInfo.status)}`}>
       <div>
-        <span>{label}</span>
-        <strong>{hasValue ? value : "Not detected"}</strong>
-        <p>{hasValue ? sourceLabel || "Ready to review." : message}</p>
+        <div className="detected-setup-field-heading">
+          <span className="detected-setup-field-label">{label}</span>
+          <span className={`detected-setup-status-pill ${getFieldDetectionStatusClassName(statusInfo.status)}`}>
+            {statusInfo.label}
+          </span>
+        </div>
+
+        <strong>{statusInfo.hasValue ? value : "Not detected"}</strong>
+        <p>{statusInfo.description}</p>
       </div>
 
-      {!hasValue ? (
+      {statusInfo.requiresAction ? (
         <button type="button" onClick={onManualClick}>
-          Add manually
+          {actionLabel}
         </button>
       ) : null}
     </article>
@@ -261,6 +288,7 @@ function DetectedSetupReviewPanel({
   referenceMetadata,
   referenceMetadataStatus,
   referenceTrack,
+  strummingPattern,
   strummingPatternText,
 }) {
   const metadataSourceLabel = referenceMetadata
@@ -272,69 +300,84 @@ function DetectedSetupReviewPanel({
     : referenceMarkerCount
       ? `${referenceMarkerCount} reference marker${referenceMarkerCount === 1 ? "" : "s"} ready`
       : "";
+  const strummingHasValue = hasStrummingPattern(strummingPattern);
   const fields = [
     {
       label: "Song Title",
       value: form.title,
       sourceLabel: metadataSourceLabel || "Detected setup",
+      status: getMetadataFieldStatus(form.title, referenceMetadata?.title, metadataSourceLabel),
       message: "Song title could not be automatically extracted. Add it manually.",
     },
     {
       label: "Artist",
       value: form.artist,
       sourceLabel: metadataSourceLabel || "Detected setup",
+      status: getMetadataFieldStatus(form.artist, referenceMetadata?.authorName, metadataSourceLabel),
       message: "Artist could not be automatically extracted. Add it manually.",
     },
     {
       label: "Reference Duration",
       value: form.referenceDuration,
       sourceLabel: metadataSourceLabel || "Detected setup",
+      status: referenceMetadata?.durationSeconds ? "detected" : form.referenceDuration ? "manual" : "missing",
       message: "Reference duration could not be automatically extracted. Add it manually.",
     },
     {
       label: "Song Chapters",
       value: detectedMarkerValue,
       sourceLabel: detectedReferenceMarkerSource || metadataSourceLabel || "Detected setup",
+      status: detectedReferenceMarkers.length ? "detected" : referenceMarkerCount ? "manual" : "missing",
       message: "Song chapters could not be automatically extracted. Add markers manually.",
     },
     {
       label: "Strum Pattern",
-      value: strummingPatternText,
+      value: strummingHasValue ? strummingPatternText : "",
       sourceLabel: "Practice setup",
+      status: strummingHasValue ? "needs-review" : "missing",
       message: "Strum pattern could not be automatically extracted. Choose or build one manually.",
     },
     {
       label: "Chords",
       value: previewChords.length ? previewChords.join(", ") : "",
       sourceLabel: "Practice setup",
+      status: previewChords.length ? "needs-review" : "missing",
       message: "Chords could not be automatically extracted. Add them manually.",
     },
     {
       label: "Genre",
       value: form.genre,
       sourceLabel: "Practice setup",
+      status: form.genre ? "needs-review" : "missing",
       message: "Genre could not be automatically extracted. Select it manually.",
     },
     {
       label: "Key",
       value: form.key,
       sourceLabel: "Practice setup",
+      status: form.key ? "needs-review" : "missing",
       message: "Key could not be automatically extracted. Select it manually.",
     },
     {
       label: "Difficulty",
       value: form.difficulty,
       sourceLabel: "Practice setup",
+      status: form.difficulty ? "needs-review" : "missing",
       message: "Difficulty could not be automatically extracted. Select it manually.",
     },
     {
       label: "BPM",
       value: form.bpm,
       sourceLabel: "Practice setup",
+      status: form.bpm ? "needs-review" : "missing",
       message: "BPM could not be automatically extracted. Add it manually.",
     },
   ];
-  const missingFields = fields.filter((field) => !hasDetectedSetupValue(field.value));
+  const fieldsWithStatus = fields.map((field) => ({
+    ...field,
+    statusInfo: createFieldDetectionStatus(field),
+  }));
+  const attentionFields = fieldsWithStatus.filter((field) => field.statusInfo.requiresAction);
 
   return (
     <section className="detected-setup-panel">
@@ -353,22 +396,23 @@ function DetectedSetupReviewPanel({
       </div>
 
       <div className="detected-setup-field-grid">
-        {fields.map((field) => (
+        {fieldsWithStatus.map((field) => (
           <DetectedSetupFieldCard
             key={field.label}
             label={field.label}
             message={field.message}
             sourceLabel={field.sourceLabel}
+            status={field.status}
             value={field.value}
             onManualClick={onManualClick}
           />
         ))}
       </div>
 
-      {missingFields.length ? (
+      {attentionFields.length ? (
         <div className="detected-setup-gap-card">
-          <strong>{missingFields.length} field{missingFields.length === 1 ? "" : "s"} need manual input</strong>
-          <span>{missingFields.map((field) => field.label).join(" · ")}</span>
+          <strong>{attentionFields.length} field{attentionFields.length === 1 ? "" : "s"} need review or manual input</strong>
+          <span>{attentionFields.map((field) => `${field.label}: ${field.statusInfo.label}`).join(" · ")}</span>
         </div>
       ) : (
         <div className="detected-setup-gap-card is-complete">
@@ -1046,6 +1090,7 @@ export default function CustomSongForm({
                 referenceMetadata={referenceMetadata}
                 referenceMetadataStatus={referenceMetadataStatus}
                 referenceTrack={referenceTrack}
+                strummingPattern={strummingPattern}
                 strummingPatternText={strummingPatternText}
               />
             </div>

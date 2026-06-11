@@ -207,3 +207,82 @@
     width: fit-content;
   }
 }
+
+
+/* 6D.26 field detection statuses */
+
+.detected-setup-field-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.detected-setup-field-card .detected-setup-field-label {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.detected-setup-field-card.is-needs-review {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface);
+}
+
+.detected-setup-field-card.is-manual {
+  border-color: var(--color-border);
+  background: var(--color-surface-soft);
+}
+
+.detected-setup-field-card.is-overridden {
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-soft);
+}
+
+.detected-setup-status-pill {
+  display: inline-flex;
+  min-height: 20px;
+  align-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted-strong);
+  padding: 3px 7px;
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.detected-setup-status-pill.is-detected {
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-text);
+}
+
+.detected-setup-status-pill.is-needs-review {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.detected-setup-status-pill.is-missing {
+  border-style: dashed;
+  color: var(--color-text-muted);
+}
+
+.detected-setup-status-pill.is-overridden {
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-fill);
+  color: var(--color-primary-contrast);
+}
+
+.detected-setup-status-pill.is-manual {
+  color: var(--color-text-muted-strong);
+}
