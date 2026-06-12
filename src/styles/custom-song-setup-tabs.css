@@ -286,3 +286,40 @@
 .detected-setup-status-pill.is-manual {
   color: var(--color-text-muted-strong);
 }
+
+
+/* 6D.27 accepted and override tracking */
+
+.detected-setup-field-card.is-accepted {
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-soft);
+}
+
+.detected-setup-field-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.detected-setup-field-card .detected-setup-field-actions button {
+  width: auto;
+}
+
+.detected-setup-accept-button {
+  border-color: var(--color-primary-border) !important;
+  background: var(--color-primary-fill) !important;
+  color: var(--color-primary-contrast) !important;
+}
+
+.detected-setup-status-pill.is-accepted {
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-fill);
+  color: var(--color-primary-contrast);
+}
+
+@media (max-width: 760px) {
+  .detected-setup-field-actions {
+    justify-content: flex-start;
+  }
+}
