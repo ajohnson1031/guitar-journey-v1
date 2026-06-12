@@ -1,4 +1,9 @@
 const FIELD_DETECTION_STATUSES = {
+  accepted: {
+    className: "is-accepted",
+    label: "Accepted",
+    requiresAction: false,
+  },
   detected: {
     className: "is-detected",
     label: "Detected",
@@ -43,11 +48,20 @@ function createFieldDetectionStatus({ message = "", sourceLabel = "", status = "
   const normalizedStatus = normalizeFieldDetectionStatus(status, hasValue);
   const statusConfig = FIELD_DETECTION_STATUSES[normalizedStatus] || FIELD_DETECTION_STATUSES.missing;
   const description = hasValue
-    ? sourceLabel || (normalizedStatus === "manual" ? "Entered manually." : "Review before saving.")
+    ? sourceLabel ||
+      (normalizedStatus === "accepted"
+        ? "Accepted for saving."
+        : normalizedStatus === "manual"
+          ? "Entered manually."
+          : normalizedStatus === "overridden"
+            ? "Edited after detection."
+            : "Review before saving.")
     : message || "Could not be automatically detected. Add manually.";
+  const canAccept = hasValue && (normalizedStatus === "detected" || normalizedStatus === "needs-review");
 
   return {
     ...statusConfig,
+    canAccept,
     description,
     hasValue,
     sourceLabel,

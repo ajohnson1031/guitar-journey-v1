@@ -225,6 +225,53 @@ function draftToForm(draft) {
   };
 }
 
+const DETECTED_SETUP_FIELD_LABELS = {
+  artist: "Artist",
+  bpm: "BPM",
+  chords: "Chords",
+  difficulty: "Difficulty",
+  genre: "Genre",
+  key: "Key",
+  "reference-duration": "Reference Duration",
+  "song-chapters": "Song Chapters",
+  "strum-pattern": "Strum Pattern",
+  title: "Song Title",
+};
+
+const FORM_FIELD_TO_DETECTED_SETUP_KEY = {
+  artist: "artist",
+  bpm: "bpm",
+  chords: "chords",
+  difficulty: "difficulty",
+  genre: "genre",
+  key: "key",
+  referenceDuration: "reference-duration",
+  referenceMarkers: "song-chapters",
+  strummingPattern: "strum-pattern",
+  title: "title",
+};
+
+function addUniqueKey(keys, key) {
+  if (!key || keys.includes(key)) return keys;
+
+  return [...keys, key];
+}
+
+function removeKey(keys, key) {
+  return keys.filter((currentKey) => currentKey !== key);
+}
+
+function getDetectedSetupFieldLabel(fieldKey) {
+  return DETECTED_SETUP_FIELD_LABELS[fieldKey] || "Field";
+}
+
+function getTrackedFieldStatus(fieldKey, baseStatus, acceptedDetectedFieldKeys = [], overriddenDetectedFieldKeys = []) {
+  if (overriddenDetectedFieldKeys.includes(fieldKey)) return "overridden";
+  if (acceptedDetectedFieldKeys.includes(fieldKey)) return "accepted";
+
+  return baseStatus;
+}
+
 function getMetadataFieldStatus(formValue, detectedValue, statusSource) {
   if (detectedValue && String(formValue || "").trim() === String(detectedValue || "").trim()) {
     return "detected";
@@ -245,14 +292,14 @@ function getMetadataFieldStatus(formValue, detectedValue, statusSource) {
   return "missing";
 }
 
-function DetectedSetupFieldCard({ label, message, onManualClick, sourceLabel, status, value }) {
+function DetectedSetupFieldCard({ fieldKey, label, message, onAccept, onManualClick, sourceLabel, status, value }) {
   const statusInfo = createFieldDetectionStatus({
     message,
     sourceLabel,
     status,
     value,
   });
-  const actionLabel = statusInfo.status === "missing" ? "Add manually" : "Review manually";
+  const manualActionLabel = statusInfo.status === "missing" ? "Add manually" : "Review manually";
 
   return (
     <article className={`detected-setup-field-card ${getFieldDetectionStatusClassName(statusInfo.status)}`}>
@@ -268,10 +315,20 @@ function DetectedSetupFieldCard({ label, message, onManualClick, sourceLabel, st
         <p>{statusInfo.description}</p>
       </div>
 
-      {statusInfo.requiresAction ? (
-        <button type="button" onClick={onManualClick}>
-          {actionLabel}
-        </button>
+      {(statusInfo.canAccept || statusInfo.requiresAction) ? (
+        <div className="detected-setup-field-actions">
+          {statusInfo.canAccept ? (
+            <button type="button" className="detected-setup-accept-button" onClick={() => onAccept(fieldKey)}>
+              Accept
+            </button>
+          ) : null}
+
+          {statusInfo.requiresAction ? (
+            <button type="button" onClick={onManualClick}>
+              {manualActionLabel}
+            </button>
+          ) : null}
+        </div>
       ) : null}
     </article>
   );
@@ -280,10 +337,13 @@ function DetectedSetupFieldCard({ label, message, onManualClick, sourceLabel, st
 function DetectedSetupReviewPanel({
   detectedReferenceMarkerSource,
   detectedReferenceMarkers,
+  acceptedDetectedFieldKeys,
   form,
+  onAcceptDetectedField,
   onApplyDetectedReferenceMarkers,
   onDismissDetectedReferenceMarkers,
   onManualClick,
+  overriddenDetectedFieldKeys,
   previewChords,
   referenceMetadata,
   referenceMetadataStatus,
@@ -303,76 +363,87 @@ function DetectedSetupReviewPanel({
   const strummingHasValue = hasStrummingPattern(strummingPattern);
   const fields = [
     {
+      key: "title",
       label: "Song Title",
       value: form.title,
       sourceLabel: metadataSourceLabel || "Detected setup",
-      status: getMetadataFieldStatus(form.title, referenceMetadata?.title, metadataSourceLabel),
+      status: getTrackedFieldStatus("title", getMetadataFieldStatus(form.title, referenceMetadata?.title, metadataSourceLabel), acceptedDetectedFieldKeys, overriddenDetectedFieldKeys),
       message: "Song title could not be automatically extracted. Add it manually.",
     },
     {
+      key: "artist",
       label: "Artist",
       value: form.artist,
       sourceLabel: metadataSourceLabel || "Detected setup",
-      status: getMetadataFieldStatus(form.artist, referenceMetadata?.authorName, metadataSourceLabel),
+      status: getTrackedFieldStatus("artist", getMetadataFieldStatus(form.artist, referenceMetadata?.authorName, metadataSourceLabel), acceptedDetectedFieldKeys, overriddenDetectedFieldKeys),
       message: "Artist could not be automatically extracted. Add it manually.",
     },
     {
+      key: "reference-duration",
       label: "Reference Duration",
       value: form.referenceDuration,
       sourceLabel: metadataSourceLabel || "Detected setup",
-      status: referenceMetadata?.durationSeconds ? "detected" : form.referenceDuration ? "manual" : "missing",
+      status: getTrackedFieldStatus("reference-duration", referenceMetadata?.durationSeconds ? "detected" : form.referenceDuration ? "manual" : "missing", acceptedDetectedFieldKeys, overriddenDetectedFieldKeys),
       message: "Reference duration could not be automatically extracted. Add it manually.",
     },
     {
+      key: "song-chapters",
       label: "Song Chapters",
       value: detectedMarkerValue,
       sourceLabel: detectedReferenceMarkerSource || metadataSourceLabel || "Detected setup",
-      status: detectedReferenceMarkers.length ? "detected" : referenceMarkerCount ? "manual" : "missing",
+      status: getTrackedFieldStatus("song-chapters", detectedReferenceMarkers.length ? "detected" : referenceMarkerCount ? "manual" : "missing", acceptedDetectedFieldKeys, overriddenDetectedFieldKeys),
       message: "Song chapters could not be automatically extracted. Add markers manually.",
     },
     {
+      key: "strum-pattern",
       label: "Strum Pattern",
       value: strummingHasValue ? strummingPatternText : "",
       sourceLabel: "Practice setup",
-      status: strummingHasValue ? "needs-review" : "missing",
+      status: getTrackedFieldStatus("strum-pattern", strummingHasValue ? "needs-review" : "missing", acceptedDetectedFieldKeys, overriddenDetectedFieldKeys),
       message: "Strum pattern could not be automatically extracted. Choose or build one manually.",
     },
     {
+      key: "chords",
       label: "Chords",
       value: previewChords.length ? previewChords.join(", ") : "",
       sourceLabel: "Practice setup",
-      status: previewChords.length ? "needs-review" : "missing",
+      status: getTrackedFieldStatus("chords", previewChords.length ? "needs-review" : "missing", acceptedDetectedFieldKeys, overriddenDetectedFieldKeys),
       message: "Chords could not be automatically extracted. Add them manually.",
     },
     {
+      key: "genre",
       label: "Genre",
       value: form.genre,
       sourceLabel: "Practice setup",
-      status: form.genre ? "needs-review" : "missing",
+      status: getTrackedFieldStatus("genre", form.genre ? "needs-review" : "missing", acceptedDetectedFieldKeys, overriddenDetectedFieldKeys),
       message: "Genre could not be automatically extracted. Select it manually.",
     },
     {
+      key: "key",
       label: "Key",
       value: form.key,
       sourceLabel: "Practice setup",
-      status: form.key ? "needs-review" : "missing",
+      status: getTrackedFieldStatus("key", form.key ? "needs-review" : "missing", acceptedDetectedFieldKeys, overriddenDetectedFieldKeys),
       message: "Key could not be automatically extracted. Select it manually.",
     },
     {
+      key: "difficulty",
       label: "Difficulty",
       value: form.difficulty,
       sourceLabel: "Practice setup",
-      status: form.difficulty ? "needs-review" : "missing",
+      status: getTrackedFieldStatus("difficulty", form.difficulty ? "needs-review" : "missing", acceptedDetectedFieldKeys, overriddenDetectedFieldKeys),
       message: "Difficulty could not be automatically extracted. Select it manually.",
     },
     {
+      key: "bpm",
       label: "BPM",
       value: form.bpm,
       sourceLabel: "Practice setup",
-      status: form.bpm ? "needs-review" : "missing",
+      status: getTrackedFieldStatus("bpm", form.bpm ? "needs-review" : "missing", acceptedDetectedFieldKeys, overriddenDetectedFieldKeys),
       message: "BPM could not be automatically extracted. Add it manually.",
     },
   ];
+
   const fieldsWithStatus = fields.map((field) => ({
     ...field,
     statusInfo: createFieldDetectionStatus(field),
@@ -398,12 +469,14 @@ function DetectedSetupReviewPanel({
       <div className="detected-setup-field-grid">
         {fieldsWithStatus.map((field) => (
           <DetectedSetupFieldCard
-            key={field.label}
+            key={field.key}
+            fieldKey={field.key}
             label={field.label}
             message={field.message}
             sourceLabel={field.sourceLabel}
             status={field.status}
             value={field.value}
+            onAccept={onAcceptDetectedField}
             onManualClick={onManualClick}
           />
         ))}
@@ -467,6 +540,8 @@ export default function CustomSongForm({
   const [detectedReferenceMarkers, setDetectedReferenceMarkers] = useState([]);
   const [detectedReferenceMarkerSource, setDetectedReferenceMarkerSource] = useState("");
   const [activeSetupTab, setActiveSetupTab] = useState("detected");
+  const [acceptedDetectedFieldKeys, setAcceptedDetectedFieldKeys] = useState([]);
+  const [overriddenDetectedFieldKeys, setOverriddenDetectedFieldKeys] = useState([]);
 
   const referenceTrack = useMemo(() => parseReferenceTrackUrl(form.sourceUrl), [form.sourceUrl]);
   const previewChords = useMemo(() => parseCommaList(form.chords), [form.chords]);
@@ -542,6 +617,26 @@ export default function CustomSongForm({
     setMessageTone("warning");
   }
 
+  function resetDetectionReviewState() {
+    setAcceptedDetectedFieldKeys([]);
+    setOverriddenDetectedFieldKeys([]);
+  }
+
+  function markTrackedFieldOverridden(fieldName) {
+    const fieldKey = FORM_FIELD_TO_DETECTED_SETUP_KEY[fieldName];
+
+    if (!fieldKey || !acceptedDetectedFieldKeys.includes(fieldKey)) return;
+
+    setAcceptedDetectedFieldKeys((current) => removeKey(current, fieldKey));
+    setOverriddenDetectedFieldKeys((current) => addUniqueKey(current, fieldKey));
+  }
+
+  function handleAcceptDetectedField(fieldKey) {
+    setAcceptedDetectedFieldKeys((current) => addUniqueKey(current, fieldKey));
+    setOverriddenDetectedFieldKeys((current) => removeKey(current, fieldKey));
+    setInfoMessage(`${getDetectedSetupFieldLabel(fieldKey)} accepted for saving.`);
+  }
+
   function updateField(fieldName, value) {
     setForm((current) => {
       if (fieldName === "sourceUrl") {
@@ -571,6 +666,9 @@ export default function CustomSongForm({
       setDetectedReferenceMarkers([]);
       setDetectedReferenceMarkerSource("");
       setHasManuallyEditedReferenceDuration(false);
+      resetDetectionReviewState();
+    } else {
+      markTrackedFieldOverridden(fieldName);
     }
 
     if (fieldName === "referenceDuration") {
@@ -604,6 +702,7 @@ export default function CustomSongForm({
       tone: "idle",
     });
     setActiveSetupTab("detected");
+    resetDetectionReviewState();
     setMessage("");
   }
 
@@ -620,6 +719,7 @@ export default function CustomSongForm({
       tone: "idle",
     });
     setActiveSetupTab("detected");
+    resetDetectionReviewState();
     setMessage("");
     setForm(songToForm(null));
 
@@ -632,6 +732,7 @@ export default function CustomSongForm({
 
   function applySongAnalysis(analysis) {
     setDuplicateCandidate(null);
+    resetDetectionReviewState();
 
     const matchingGenre = getMatchingGenre(analysis.genre, genres);
     const pendingAnalysisGenre = analysis.genre && !matchingGenre ? normalizeGenreValue(analysis.genre) : "";
@@ -723,6 +824,8 @@ export default function CustomSongForm({
       referenceMarkers: nextMarkerText,
     }));
 
+    setAcceptedDetectedFieldKeys((current) => addUniqueKey(current, "song-chapters"));
+    setOverriddenDetectedFieldKeys((current) => removeKey(current, "song-chapters"));
     setInfoMessage(`${detectedReferenceMarkers.length} detected marker${detectedReferenceMarkers.length === 1 ? "" : "s"} applied. Review the marker list before saving.`);
   }
 
@@ -736,6 +839,7 @@ export default function CustomSongForm({
     if (!metadata) return;
 
     setReferenceMetadata(metadata);
+    resetDetectionReviewState();
 
     if (metadata.extractedMarkers?.length) {
       setDetectedReferenceMarkers(metadata.extractedMarkers);
@@ -914,6 +1018,10 @@ export default function CustomSongForm({
       referenceDetectedMarkers: detectedReferenceMarkers,
       referenceMarkers,
       referenceTimestampText: form.referenceTimestampText.trim(),
+      detectionReview: {
+        acceptedFields: acceptedDetectedFieldKeys,
+        overriddenFields: overriddenDetectedFieldKeys,
+      },
       title,
       artist: form.artist.trim(),
       instrument: form.instrument.trim(),
@@ -957,6 +1065,7 @@ export default function CustomSongForm({
     setMessage("");
     setMessageTone("error");
     setActiveSetupTab("detected");
+    resetDetectionReviewState();
     setForm(songToForm(null));
     setIsOpen(false);
     onOpenChange(false);
@@ -1080,12 +1189,15 @@ export default function CustomSongForm({
 
             <div className={`custom-song-tab-panel ${activeSetupTab === "detected" ? "is-active" : "is-inactive"}`} role="tabpanel">
               <DetectedSetupReviewPanel
+                acceptedDetectedFieldKeys={acceptedDetectedFieldKeys}
                 detectedReferenceMarkerSource={detectedReferenceMarkerSource}
                 detectedReferenceMarkers={detectedReferenceMarkers}
                 form={form}
+                onAcceptDetectedField={handleAcceptDetectedField}
                 onApplyDetectedReferenceMarkers={handleApplyDetectedReferenceMarkers}
                 onDismissDetectedReferenceMarkers={handleDismissDetectedReferenceMarkers}
                 onManualClick={() => setActiveSetupTab("manual")}
+                overriddenDetectedFieldKeys={overriddenDetectedFieldKeys}
                 previewChords={previewChords}
                 referenceMetadata={referenceMetadata}
                 referenceMetadataStatus={referenceMetadataStatus}
@@ -1228,6 +1340,7 @@ export default function CustomSongForm({
                 ...current,
                 strummingPattern: nextPattern,
               }));
+              markTrackedFieldOverridden("strummingPattern");
               setMessage("");
             }}
           />

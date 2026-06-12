@@ -25,7 +25,7 @@ describe("fieldDetectionStatusUtils", () => {
     expect(status.description).toContain("Song chapters");
   });
 
-  it("marks detected fields as resolved", () => {
+  it("marks detected fields as reviewable and acceptable", () => {
     const status = createFieldDetectionStatus({
       sourceLabel: "Backend Mock",
       status: "detected",
@@ -34,7 +34,20 @@ describe("fieldDetectionStatusUtils", () => {
 
     expect(status.label).toBe("Detected");
     expect(status.requiresAction).toBe(false);
+    expect(status.canAccept).toBe(true);
     expect(status.description).toBe("Backend Mock");
+  });
+
+  it("marks accepted fields as resolved without an accept action", () => {
+    const status = createFieldDetectionStatus({
+      status: "accepted",
+      value: "Song Title",
+    });
+
+    expect(status.label).toBe("Accepted");
+    expect(status.requiresAction).toBe(false);
+    expect(status.canAccept).toBe(false);
+    expect(getFieldDetectionStatusClassName("accepted")).toBe("is-accepted");
   });
 
   it("supports needs-review and overridden class names", () => {
