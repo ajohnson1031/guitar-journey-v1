@@ -1296,11 +1296,17 @@ export default function CustomSongForm({
                 </div>
               </div>
 
-              <div className="form-grid three">
-                <label>
-                  <span>Song Title</span>
-                  <input type="text" value={form.title} placeholder="Example: I Want You Around" onChange={(event) => updateField("title", event.target.value)} />
-                </label>
+          <StrummingPatternBuilder
+            value={strummingPattern}
+            onChange={(nextPattern) => {
+              setForm((current) => ({
+                ...current,
+                strummingPattern: nextPattern,
+              }));
+              markTrackedFieldOverridden("strummingPattern");
+              setMessage("");
+            }}
+          />
 
                 <label>
                   <span>Artist</span>
