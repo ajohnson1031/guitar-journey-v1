@@ -323,3 +323,171 @@
     justify-content: flex-start;
   }
 }
+
+
+/* 6D.28 HeroUI-like setup subnavigation + manual assistant placement */
+
+.custom-song-setup-tabs.heroui-setup-tabs {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--color-surface) 88%, transparent), var(--color-surface-soft)),
+    var(--color-surface-soft);
+  box-shadow: var(--shadow-soft);
+  padding: 6px;
+}
+
+.custom-song-setup-tabs.heroui-setup-tabs .custom-song-setup-tab {
+  position: relative;
+  display: grid;
+  min-height: 72px;
+  align-content: center;
+  justify-items: start;
+  gap: 3px;
+  border: 1px solid transparent;
+  border-radius: 17px;
+  background: transparent;
+  color: var(--color-text-muted);
+  padding: 10px 14px;
+  text-align: left;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.custom-song-setup-tabs.heroui-setup-tabs .custom-song-setup-tab:hover {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.custom-song-setup-tabs.heroui-setup-tabs .custom-song-setup-tab.is-active {
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-soft);
+  box-shadow: 0 12px 26px color-mix(in srgb, var(--color-primary-fill) 16%, transparent);
+  color: var(--color-primary-text);
+  transform: translateY(-1px);
+}
+
+.custom-song-setup-tab-kicker {
+  color: inherit;
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  text-transform: uppercase;
+  opacity: 0.72;
+}
+
+.custom-song-setup-tab-title {
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 950;
+  line-height: 1.1;
+}
+
+.custom-song-setup-tab.is-active .custom-song-setup-tab-title {
+  color: var(--color-primary-text);
+}
+
+.custom-song-setup-tab-copy {
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 1.25;
+}
+
+.custom-song-setup-tab.is-active .custom-song-setup-tab-copy {
+  color: color-mix(in srgb, var(--color-primary-text) 78%, var(--color-text-muted));
+}
+
+.manual-setup-assistant-block {
+  display: grid;
+  gap: 10px;
+}
+
+.manual-setup-assistant-block > .import-link-card {
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .custom-song-setup-tabs.heroui-setup-tabs {
+    grid-template-columns: 1fr;
+    border-radius: 18px;
+  }
+
+  .custom-song-setup-tabs.heroui-setup-tabs .custom-song-setup-tab {
+    min-height: 62px;
+  }
+}
+
+
+/* 6D.29 manual input grouping */
+
+.custom-song-manual-fields,
+.custom-song-tab-panel.is-active {
+  gap: 14px;
+}
+
+.manual-input-section {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  background: var(--color-surface);
+  padding: 14px;
+}
+
+.manual-input-section--import,
+.manual-input-section--reference {
+  background: var(--color-surface-soft);
+}
+
+.manual-input-section-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
+}
+
+.manual-input-section-header h3,
+.manual-input-section-header p {
+  margin: 0;
+}
+
+.manual-input-section-header h3 {
+  color: var(--color-text);
+  font-size: 17px;
+  font-weight: 950;
+  line-height: 1.2;
+}
+
+.manual-input-section-header p:not(.eyebrow) {
+  color: var(--color-text-muted);
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.45;
+}
+
+.manual-input-section .manual-setup-assistant-block > .import-link-card {
+  border-color: var(--color-border);
+  background: var(--color-surface);
+}
+
+.manual-input-section--structure > label,
+.manual-input-section--structure > .custom-song-preview {
+  margin-top: 0;
+}
+
+@media (max-width: 760px) {
+  .manual-input-section {
+    border-radius: 18px;
+    padding: 12px;
+  }
+}

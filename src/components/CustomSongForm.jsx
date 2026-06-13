@@ -1101,8 +1101,6 @@ export default function CustomSongForm({
 
       {isOpen ? (
         <form className="custom-song-form" onSubmit={handleSubmit}>
-          <SongImportAssistant onApplyAnalysis={applySongAnalysis} />
-
           <div className="import-link-card reference-track-card">
             <div className="reference-track-inline-fields">
               <label className="reference-track-url-field">
@@ -1165,25 +1163,31 @@ export default function CustomSongForm({
               referenceTrack={referenceTrack}
             />
 
-            <div className="custom-song-setup-tabs" role="tablist" aria-label="Song setup mode">
+            <div className="custom-song-setup-tabs heroui-setup-tabs" role="tablist" aria-label="Song setup mode">
               <button
                 type="button"
                 role="tab"
+                aria-label="Detected Setup"
                 aria-selected={activeSetupTab === "detected"}
-                className={activeSetupTab === "detected" ? "is-active" : ""}
+                className={`custom-song-setup-tab ${activeSetupTab === "detected" ? "is-active" : ""}`}
                 onClick={() => setActiveSetupTab("detected")}
               >
-                Detected Setup
+                <span className="custom-song-setup-tab-kicker">Auto</span>
+                <span className="custom-song-setup-tab-title">Detected Setup</span>
+                <span className="custom-song-setup-tab-copy">Review extracted song info</span>
               </button>
 
               <button
                 type="button"
                 role="tab"
+                aria-label="Manual Inputs"
                 aria-selected={activeSetupTab === "manual"}
-                className={activeSetupTab === "manual" ? "is-active" : ""}
+                className={`custom-song-setup-tab ${activeSetupTab === "manual" ? "is-active" : ""}`}
                 onClick={() => setActiveSetupTab("manual")}
               >
-                Manual Inputs
+                <span className="custom-song-setup-tab-kicker">Fallback</span>
+                <span className="custom-song-setup-tab-title">Manual Inputs</span>
+                <span className="custom-song-setup-tab-copy">Edit fields and paste notes</span>
               </button>
             </div>
 
@@ -1208,172 +1212,223 @@ export default function CustomSongForm({
             </div>
 
             <div className={`custom-song-tab-panel ${activeSetupTab === "manual" ? "is-active" : "is-inactive"}`} role="tabpanel">
-              <div className="reference-timestamp-extraction-field">
-                <div className="reference-marker-field-header">
-                  <label htmlFor="reference-timestamp-textarea">
-                    <span>Paste chapters / raw timestamps</span>
-                  </label>
-
-                  <button type="button" className="reference-marker-draft-button" onClick={handleReferenceTimestampTextExtraction}>
-                    Extract timestamps
-                  </button>
+              <section className="manual-input-section manual-input-section--import">
+                <div className="manual-input-section-header">
+                  <div>
+                    <p className="eyebrow">Import / Paste</p>
+                    <h3>Practice Setup Assistant</h3>
+                    <p>Paste rough song notes, chords, sections, and goals, then apply the organized result to the manual fields.</p>
+                  </div>
                 </div>
 
-                <textarea
-                  id="reference-timestamp-textarea"
-                  value={form.referenceTimestampText}
-                  placeholder={"Paste chapters or timestamp text, e.g.\n0:00 Intro\n0:12 Verse\n0:48 Chorus"}
-                  onChange={(event) => updateField("referenceTimestampText", event.target.value)}
-                />
+                <div className="manual-setup-assistant-block">
+                  <SongImportAssistant onApplyAnalysis={applySongAnalysis} />
+                </div>
+              </section>
 
-                <p>Optional helper: paste raw chapters or timestamps, then extract them into a reviewable marker draft.</p>
-              </div>
-
-              <ReferenceMarkerReviewDraft
-                currentMarkerText={form.referenceMarkers}
-                markers={detectedReferenceMarkers}
-                sourceLabel={detectedReferenceMarkerSource}
-                onApply={handleApplyDetectedReferenceMarkers}
-                onDismiss={handleDismissDetectedReferenceMarkers}
-              />
-
-              <div className="reference-marker-field">
-                <div className="reference-marker-field-header">
-                  <label htmlFor="reference-markers-textarea">
-                    <span>Reference Markers</span>
-                  </label>
-
-                  <button type="button" className="reference-marker-draft-button" onClick={handleGenerateReferenceMarkerDraft}>
-                    Generate marker draft
-                  </button>
+              <section className="manual-input-section manual-input-section--reference">
+                <div className="manual-input-section-header">
+                  <div>
+                    <p className="eyebrow">Reference Timing</p>
+                    <h3>Chapters and markers</h3>
+                    <p>Use raw timestamp text as an extraction helper. Reference Markers are the saved timeline.</p>
+                  </div>
                 </div>
 
-                <textarea
-                  id="reference-markers-textarea"
-                  value={form.referenceMarkers}
-                  placeholder={"Intro: 0:00\nVerse: 0:12\nChorus: 0:48"}
-                  onChange={(event) => updateField("referenceMarkers", event.target.value)}
-                />
-              </div>
+                <div className="reference-timestamp-extraction-field">
+                  <div className="reference-marker-field-header">
+                    <label htmlFor="reference-timestamp-textarea">
+                      <span>Paste chapters / raw timestamps</span>
+                    </label>
 
-              <p>Reference Markers are the saved timeline. Use raw timestamp text only as an extraction helper.</p>
+                    <button type="button" className="reference-marker-draft-button" onClick={handleReferenceTimestampTextExtraction}>
+                      Extract timestamps
+                    </button>
+                  </div>
+
+                  <textarea
+                    id="reference-timestamp-textarea"
+                    value={form.referenceTimestampText}
+                    placeholder={"Paste chapters or timestamp text, e.g.\n0:00 Intro\n0:12 Verse\n0:48 Chorus"}
+                    onChange={(event) => updateField("referenceTimestampText", event.target.value)}
+                  />
+
+                  <p>Optional helper: paste raw chapters or timestamps, then extract them into a reviewable marker draft.</p>
+                </div>
+
+                <ReferenceMarkerReviewDraft
+                  currentMarkerText={form.referenceMarkers}
+                  markers={detectedReferenceMarkers}
+                  sourceLabel={detectedReferenceMarkerSource}
+                  onApply={handleApplyDetectedReferenceMarkers}
+                  onDismiss={handleDismissDetectedReferenceMarkers}
+                />
+
+                <div className="reference-marker-field">
+                  <div className="reference-marker-field-header">
+                    <label htmlFor="reference-markers-textarea">
+                      <span>Reference Markers</span>
+                    </label>
+
+                    <button type="button" className="reference-marker-draft-button" onClick={handleGenerateReferenceMarkerDraft}>
+                      Generate marker draft
+                    </button>
+                  </div>
+
+                  <textarea
+                    id="reference-markers-textarea"
+                    value={form.referenceMarkers}
+                    placeholder={"Intro: 0:00\nVerse: 0:12\nChorus: 0:48"}
+                    onChange={(event) => updateField("referenceMarkers", event.target.value)}
+                  />
+                </div>
+              </section>
             </div>
           </div>
 
           <div className={`custom-song-tab-panel custom-song-manual-fields ${activeSetupTab === "manual" ? "is-active" : "is-inactive"}`} role="tabpanel">
-          <div className="form-grid three">
-            <label>
-              <span>Song Title</span>
-              <input type="text" value={form.title} placeholder="Example: I Want You Around" onChange={(event) => updateField("title", event.target.value)} />
-            </label>
-
-            <label>
-              <span>Artist</span>
-              <input type="text" value={form.artist} placeholder="Example: Snoh Aalegra" onChange={(event) => updateField("artist", event.target.value)} />
-            </label>
-
-            <label>
-              <span>Instrument / Type</span>
-              <input type="text" value={form.instrument} placeholder="Example: Bass, Chords, Tab" onChange={(event) => updateField("instrument", event.target.value)} />
-            </label>
-
-            <label>
-              <span>Genre</span>
-              <div className={`custom-song-genre-select-shell ${shouldShowPendingGenre ? "has-pending-genre" : ""}`}>
-                <select aria-label="Genre" value={form.genre} onChange={(event) => updateField("genre", event.target.value)}>
-                  <option value="">Select a genre...</option>
-                  {shouldShowPendingGenre ? <option value={pendingGenre}>{pendingGenre}</option> : null}
-                  {genres.map((genre) => (
-                    <option key={genre} value={genre}>
-                      {genre}
-                    </option>
-                  ))}
-                </select>
-                {shouldShowPendingGenre ? <span className="custom-song-pending-genre-badge">New</span> : null}
+            <section className="manual-input-section manual-input-section--details">
+              <div className="manual-input-section-header">
+                <div>
+                  <p className="eyebrow">Song Details</p>
+                  <h3>Identity and setup</h3>
+                  <p>Complete the core metadata needed to save this song into your practice library.</p>
+                </div>
               </div>
-            </label>
 
-            <label>
-              <span>Difficulty</span>
-              <select value={form.difficulty} onChange={(event) => updateField("difficulty", event.target.value)}>
-                <option value="">Select difficulty...</option>
-                {DIFFICULTY_OPTIONS.map((difficulty) => (
-                  <option key={difficulty} value={difficulty}>
-                    {difficulty}
-                  </option>
-                ))}
-              </select>
-            </label>
+              <div className="form-grid three">
+                <label>
+                  <span>Song Title</span>
+                  <input type="text" value={form.title} placeholder="Example: I Want You Around" onChange={(event) => updateField("title", event.target.value)} />
+                </label>
 
-            <label>
-              <span>Key</span>
-              <select value={form.key} onChange={(event) => updateField("key", event.target.value)}>
-                <option value="">Select a key...</option>
-                {KEY_OPTIONS.map((keyOption) => (
-                  <option key={keyOption} value={keyOption}>
-                    {keyOption}
-                  </option>
-                ))}
-              </select>
-            </label>
+                <label>
+                  <span>Artist</span>
+                  <input type="text" value={form.artist} placeholder="Example: Snoh Aalegra" onChange={(event) => updateField("artist", event.target.value)} />
+                </label>
 
-            <label>
-              <span>Tuning</span>
-              <input type="text" value={form.tuning} placeholder="e.g., Standard, Eb Standard, Drop D" onChange={(event) => updateField("tuning", event.target.value)} />
-            </label>
+                <label>
+                  <span>Instrument / Type</span>
+                  <input type="text" value={form.instrument} placeholder="Example: Bass, Chords, Tab" onChange={(event) => updateField("instrument", event.target.value)} />
+                </label>
 
-            <label>
-              <span>BPM</span>
-              <input type="number" min="40" max="220" value={form.bpm} onChange={(event) => updateField("bpm", event.target.value)} />
-            </label>
+                <label>
+                  <span>Genre</span>
+                  <div className={`custom-song-genre-select-shell ${shouldShowPendingGenre ? "has-pending-genre" : ""}`}>
+                    <select aria-label="Genre" value={form.genre} onChange={(event) => updateField("genre", event.target.value)}>
+                      <option value="">Select a genre...</option>
+                      {shouldShowPendingGenre ? <option value={pendingGenre}>{pendingGenre}</option> : null}
+                      {genres.map((genre) => (
+                        <option key={genre} value={genre}>
+                          {genre}
+                        </option>
+                      ))}
+                    </select>
+                    {shouldShowPendingGenre ? <span className="custom-song-pending-genre-badge">New</span> : null}
+                  </div>
+                </label>
 
-            <label>
-              <span>Capo</span>
-              <input type="text" value={form.capo} placeholder="e.g., None, 1st fret, 3rd fret" onChange={(event) => updateField("capo", event.target.value)} />
-            </label>
-          </div>
+                <label>
+                  <span>Difficulty</span>
+                  <select value={form.difficulty} onChange={(event) => updateField("difficulty", event.target.value)}>
+                    <option value="">Select difficulty...</option>
+                    {DIFFICULTY_OPTIONS.map((difficulty) => (
+                      <option key={difficulty} value={difficulty}>
+                        {difficulty}
+                      </option>
+                    ))}
+                  </select>
+                </label>
 
-          <StrummingPatternBuilder
-            value={strummingPattern}
-            onChange={(nextPattern) => {
-              setForm((current) => ({
-                ...current,
-                strummingPattern: nextPattern,
-              }));
-              markTrackedFieldOverridden("strummingPattern");
-              setMessage("");
-            }}
-          />
+                <label>
+                  <span>Key</span>
+                  <select value={form.key} onChange={(event) => updateField("key", event.target.value)}>
+                    <option value="">Select a key...</option>
+                    {KEY_OPTIONS.map((keyOption) => (
+                      <option key={keyOption} value={keyOption}>
+                        {keyOption}
+                      </option>
+                    ))}
+                  </select>
+                </label>
 
-          <div className="form-grid two custom-song-chord-transition-row">
-            <label>
-              <span>Chords</span>
-              <input type="text" value={form.chords} placeholder="G, C, Em, D" onChange={(event) => updateField("chords", event.target.value)} />
-            </label>
+                <label>
+                  <span>Tuning</span>
+                  <input type="text" value={form.tuning} placeholder="e.g., Standard, Eb Standard, Drop D" onChange={(event) => updateField("tuning", event.target.value)} />
+                </label>
 
-            <TransitionInput value={form.transitions} onChange={(nextTransitions) => updateField("transitions", nextTransitions)} />
-          </div>
+                <label>
+                  <span>BPM</span>
+                  <input type="number" min="40" max="220" value={form.bpm} onChange={(event) => updateField("bpm", event.target.value)} />
+                </label>
 
-          <label>
-            <span>Song Sections</span>
-            <textarea
-              value={form.sections}
-              rows="4"
-              placeholder={"Verse: X - X - X - X\nChorus: X - X - X - X"}
-              onChange={(event) => updateField("sections", event.target.value)}
-            />
-          </label>
+                <label>
+                  <span>Capo</span>
+                  <input type="text" value={form.capo} placeholder="e.g., None, 1st fret, 3rd fret" onChange={(event) => updateField("capo", event.target.value)} />
+                </label>
+              </div>
+            </section>
 
-          <label>
-            <span>Practice Goal</span>
-            <textarea value={form.goal} rows="3" onChange={(event) => updateField("goal", event.target.value)} />
-          </label>
+            <section className="manual-input-section manual-input-section--rhythm">
+              <div className="manual-input-section-header">
+                <div>
+                  <p className="eyebrow">Rhythm</p>
+                  <h3>Strumming pattern</h3>
+                  <p>Choose or customize the rhythm that will drive your practice session.</p>
+                </div>
+              </div>
 
-          <div className="custom-song-preview">
-            <span>Preview chords</span>
-            <div className="analysis-chip-row">{previewChords.length ? previewChords.map((chord) => <strong key={chord}>{chord}</strong>) : <small>No chords yet</small>}</div>
-          </div>
+              <StrummingPatternBuilder
+                value={strummingPattern}
+                onChange={(nextPattern) => {
+                  setForm((current) => ({
+                    ...current,
+                    strummingPattern: nextPattern,
+                  }));
+                  markTrackedFieldOverridden("strummingPattern");
+                  setMessage("");
+                }}
+              />
+            </section>
 
+            <section className="manual-input-section manual-input-section--structure">
+              <div className="manual-input-section-header">
+                <div>
+                  <p className="eyebrow">Chords & Sections</p>
+                  <h3>Practice structure</h3>
+                  <p>Define the chords, transitions, song sections, and goal that shape the session.</p>
+                </div>
+              </div>
+
+              <div className="form-grid two custom-song-chord-transition-row">
+                <label>
+                  <span>Chords</span>
+                  <input type="text" value={form.chords} placeholder="G, C, Em, D" onChange={(event) => updateField("chords", event.target.value)} />
+                </label>
+
+                <TransitionInput value={form.transitions} onChange={(nextTransitions) => updateField("transitions", nextTransitions)} />
+              </div>
+
+              <label>
+                <span>Song Sections</span>
+                <textarea
+                  value={form.sections}
+                  rows="4"
+                  placeholder={"Verse: X - X - X - X\nChorus: X - X - X - X"}
+                  onChange={(event) => updateField("sections", event.target.value)}
+                />
+              </label>
+
+              <label>
+                <span>Practice Goal</span>
+                <textarea value={form.goal} rows="3" onChange={(event) => updateField("goal", event.target.value)} />
+              </label>
+
+              <div className="custom-song-preview">
+                <span>Preview chords</span>
+                <div className="analysis-chip-row">{previewChords.length ? previewChords.map((chord) => <strong key={chord}>{chord}</strong>) : <small>No chords yet</small>}</div>
+              </div>
+            </section>
           </div>
 
           {duplicateCandidate ? (
