@@ -505,6 +505,111 @@ function DetectedSetupReviewPanel({
   );
 }
 
+function getChecklistStateClassName(state) {
+  return `is-${state}`;
+}
+
+function getSaveReviewChecklistItems({
+  acceptedDetectedFieldKeys = [],
+  duplicateCandidate,
+  form,
+  overriddenDetectedFieldKeys = [],
+  previewChords = [],
+  referenceMarkerCount = 0,
+  strummingPattern,
+}) {
+  const missingRequiredFields = [
+    !form.title.trim() ? "title" : "",
+    !form.genre ? "genre" : "",
+    !form.key ? "key" : "",
+    !form.difficulty ? "difficulty" : "",
+  ].filter(Boolean);
+  const hasRhythm = hasStrummingPattern(strummingPattern);
+  const hasChords = previewChords.length > 0;
+  const rhythmAndChordsMissing = [
+    !hasRhythm ? "strumming pattern" : "",
+    !hasChords ? "chords" : "",
+  ].filter(Boolean);
+  const detectionReviewDetail = [
+    acceptedDetectedFieldKeys.length ? `${acceptedDetectedFieldKeys.length} accepted` : "",
+    overriddenDetectedFieldKeys.length ? `${overriddenDetectedFieldKeys.length} overridden` : "",
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
+  return [
+    {
+      detail: missingRequiredFields.length ? `Missing ${missingRequiredFields.join(", ")}` : "Title, genre, key, and difficulty are ready.",
+      label: "Required fields",
+      state: missingRequiredFields.length ? "attention" : "complete",
+    },
+    {
+      detail: rhythmAndChordsMissing.length ? `Missing ${rhythmAndChordsMissing.join(" and ")}` : "Rhythm and chords are ready.",
+      label: "Rhythm & chords",
+      state: rhythmAndChordsMissing.length ? "attention" : "complete",
+    },
+    {
+      detail: referenceMarkerCount ? `${referenceMarkerCount} reference marker${referenceMarkerCount === 1 ? "" : "s"} ready.` : "No reference markers yet. Optional, but useful for timed practice.",
+      label: "Reference timing",
+      state: referenceMarkerCount ? "complete" : "optional",
+    },
+    {
+      detail: detectionReviewDetail || "No detected fields accepted yet.",
+      label: "Detection review",
+      state: acceptedDetectedFieldKeys.length ? "complete" : "optional",
+    },
+    {
+      detail: duplicateCandidate ? "A similar saved song needs review before saving." : "No duplicate warning active.",
+      label: "Duplicate check",
+      state: duplicateCandidate ? "attention" : "complete",
+    },
+  ];
+}
+
+function SaveReviewChecklist({
+  acceptedDetectedFieldKeys,
+  duplicateCandidate,
+  form,
+  overriddenDetectedFieldKeys,
+  previewChords,
+  referenceMarkerCount,
+  strummingPattern,
+}) {
+  const items = getSaveReviewChecklistItems({
+    acceptedDetectedFieldKeys,
+    duplicateCandidate,
+    form,
+    overriddenDetectedFieldKeys,
+    previewChords,
+    referenceMarkerCount,
+    strummingPattern,
+  });
+  const attentionItems = items.filter((item) => item.state === "attention");
+
+  return (
+    <aside className={`save-review-checklist ${attentionItems.length ? "has-attention" : "is-ready"}`} aria-label="Save review checklist">
+      <div className="save-review-checklist-header">
+        <div>
+          <p className="eyebrow">Save Review</p>
+          <h3>{attentionItems.length ? `${attentionItems.length} item${attentionItems.length === 1 ? "" : "s"} need attention` : "Ready to save"}</h3>
+        </div>
+
+        <span>{attentionItems.length ? "Review" : "Ready"}</span>
+      </div>
+
+      <div className="save-review-checklist-grid">
+        {items.map((item) => (
+          <div key={item.label} className={`save-review-checklist-item ${getChecklistStateClassName(item.state)}`}>
+            <strong>{item.label}</strong>
+            <span>{item.detail}</span>
+          </div>
+        ))}
+      </div>
+    </aside>
+  );
+}
+
+
 export default function CustomSongForm({
   defaultOpen = false,
   editingSong,
@@ -545,6 +650,7 @@ export default function CustomSongForm({
 
   const referenceTrack = useMemo(() => parseReferenceTrackUrl(form.sourceUrl), [form.sourceUrl]);
   const previewChords = useMemo(() => parseCommaList(form.chords), [form.chords]);
+  const referenceMarkerCount = useMemo(() => parseReferenceMarkers(form.referenceMarkers).length, [form.referenceMarkers]);
   const strummingPattern = useMemo(() => normalizeStrummingPatternData(form.strummingPattern), [form.strummingPattern]);
   const strummingPatternText = serializeStrummingPattern(strummingPattern);
   const shouldShowPendingGenre = shouldCreatePendingGenre(form.genre, pendingGenre, genres);
@@ -1296,17 +1402,11 @@ export default function CustomSongForm({
                 </div>
               </div>
 
-          <StrummingPatternBuilder
-            value={strummingPattern}
-            onChange={(nextPattern) => {
-              setForm((current) => ({
-                ...current,
-                strummingPattern: nextPattern,
-              }));
-              markTrackedFieldOverridden("strummingPattern");
-              setMessage("");
-            }}
-          />
+              <div className="form-grid three">
+                <label>
+                  <span>Song Title</span>
+                  <input type="text" value={form.title} placeholder="Example: I Want You Around" onChange={(event) => updateField("title", event.target.value)} />
+                </label>
 
                 <label>
                   <span>Artist</span>
@@ -1436,6 +1536,16 @@ export default function CustomSongForm({
               </div>
             </section>
           </div>
+
+          <SaveReviewChecklist
+            acceptedDetectedFieldKeys={acceptedDetectedFieldKeys}
+            duplicateCandidate={duplicateCandidate}
+            form={form}
+            overriddenDetectedFieldKeys={overriddenDetectedFieldKeys}
+            previewChords={previewChords}
+            referenceMarkerCount={referenceMarkerCount}
+            strummingPattern={strummingPattern}
+          />
 
           {duplicateCandidate ? (
             <div className="custom-song-duplicate-warning" role="alert">
