@@ -8,6 +8,7 @@ import { parseReferenceTrackUrl } from "../utils/referenceTrackUtils";
 import { formatReferenceMarkerTime, parseReferenceMarkers, referenceMarkersToText } from "../utils/referenceMarkerUtils";
 import { getReferenceDurationSeconds, getSuggestedReferenceMarkerSummary, suggestedReferenceMarkersToText, mergeReferenceMarkerDraft, parseReferenceDurationInput } from "../utils/referenceMarkerSuggestionUtils";
 import { parseCommaList, parseSections, slugify } from "../utils/songFormUtils";
+import { getRequiredSongSetupCompletion, getRequiredSongSetupItems } from "../utils/songSetupCompletionUtils";
 import { STRUMMING_PRESETS, createPresetStrummingPattern, hasStrummingPattern, normalizeStrummingPatternData, serializeStrummingPattern } from "../utils/strummingUtils";
 import ReferenceDurationResolver from "./ReferenceDurationResolver";
 import ReferenceMetadataResolver from "./ReferenceMetadataResolver";
@@ -225,19 +226,6 @@ function draftToForm(draft) {
   };
 }
 
-const DETECTED_SETUP_FIELD_LABELS = {
-  artist: "Artist",
-  bpm: "BPM",
-  chords: "Chords",
-  difficulty: "Difficulty",
-  genre: "Genre",
-  key: "Key",
-  "reference-duration": "Reference Duration",
-  "song-chapters": "Song Chapters",
-  "strum-pattern": "Strum Pattern",
-  title: "Song Title",
-};
-
 const FORM_FIELD_TO_DETECTED_SETUP_KEY = {
   artist: "artist",
   bpm: "bpm",
@@ -261,9 +249,6 @@ function removeKey(keys, key) {
   return keys.filter((currentKey) => currentKey !== key);
 }
 
-function getDetectedSetupFieldLabel(fieldKey) {
-  return DETECTED_SETUP_FIELD_LABELS[fieldKey] || "Field";
-}
 
 function getTrackedFieldStatus(fieldKey, baseStatus, acceptedDetectedFieldKeys = [], overriddenDetectedFieldKeys = []) {
   if (overriddenDetectedFieldKeys.includes(fieldKey)) return "overridden";
@@ -292,7 +277,7 @@ function getMetadataFieldStatus(formValue, detectedValue, statusSource) {
   return "missing";
 }
 
-function DetectedSetupFieldCard({ fieldKey, label, message, onAccept, onManualClick, sourceLabel, status, value }) {
+function DetectedSetupFieldCard({ label, message, onManualClick, sourceLabel, status, value }) {
   const statusInfo = createFieldDetectionStatus({
     message,
     sourceLabel,
@@ -303,33 +288,23 @@ function DetectedSetupFieldCard({ fieldKey, label, message, onAccept, onManualCl
 
   return (
     <article className={`detected-setup-field-card ${getFieldDetectionStatusClassName(statusInfo.status)}`}>
-      <div>
-        <div className="detected-setup-field-heading">
-          <span className="detected-setup-field-label">{label}</span>
-          <span className={`detected-setup-status-pill ${getFieldDetectionStatusClassName(statusInfo.status)}`}>
-            {statusInfo.label}
-          </span>
-        </div>
-
+      <div className="detected-setup-field-content">
+        <span className="detected-setup-field-label">{label}</span>
         <strong>{statusInfo.hasValue ? value : "Not detected"}</strong>
         <p>{statusInfo.description}</p>
       </div>
 
-      {(statusInfo.canAccept || statusInfo.requiresAction) ? (
-        <div className="detected-setup-field-actions">
-          {statusInfo.canAccept ? (
-            <button type="button" className="detected-setup-accept-button" onClick={() => onAccept(fieldKey)}>
-              Accept
-            </button>
-          ) : null}
+      <div className="detected-setup-field-side">
+        <span className={`detected-setup-status-pill ${getFieldDetectionStatusClassName(statusInfo.status)}`}>
+          {statusInfo.label}
+        </span>
 
-          {statusInfo.requiresAction ? (
-            <button type="button" onClick={onManualClick}>
-              {manualActionLabel}
-            </button>
-          ) : null}
-        </div>
-      ) : null}
+        {statusInfo.requiresAction ? (
+          <button type="button" className="detected-setup-review-button" onClick={onManualClick}>
+            {manualActionLabel}
+          </button>
+        ) : null}
+      </div>
     </article>
   );
 }
@@ -339,7 +314,7 @@ function DetectedSetupReviewPanel({
   detectedReferenceMarkers,
   acceptedDetectedFieldKeys,
   form,
-  onAcceptDetectedField,
+  onAcceptAllDetectedFields,
   onApplyDetectedReferenceMarkers,
   onDismissDetectedReferenceMarkers,
   onManualClick,
@@ -461,22 +436,26 @@ function DetectedSetupReviewPanel({
           </p>
         </div>
 
-        <button type="button" className="detected-setup-manual-link" onClick={onManualClick}>
-          Open Manual Inputs
-        </button>
+        <div className="detected-setup-header-actions">
+          <button type="button" className="detected-setup-accept-all-button" onClick={onAcceptAllDetectedFields}>
+            Accept all detected
+          </button>
+
+          <button type="button" className="detected-setup-manual-link" onClick={onManualClick}>
+            Open Manual Inputs
+          </button>
+        </div>
       </div>
 
       <div className="detected-setup-field-grid">
         {fieldsWithStatus.map((field) => (
           <DetectedSetupFieldCard
             key={field.key}
-            fieldKey={field.key}
             label={field.label}
             message={field.message}
             sourceLabel={field.sourceLabel}
             status={field.status}
             value={field.value}
-            onAccept={onAcceptDetectedField}
             onManualClick={onManualClick}
           />
         ))}
@@ -597,6 +576,39 @@ function getAcceptableDetectedFieldKeys({
   ].filter(Boolean);
 }
 
+function RequiredSetupProgress({ completion, items, onJumpToSection }) {
+  return (
+    <aside className="required-setup-progress" aria-label="Required setup completion">
+      <div className="required-setup-progress-header">
+        <div>
+          <p className="eyebrow">Required Setup</p>
+          <h3>{completion.completed} of {completion.total} complete</h3>
+        </div>
+
+        <span>{completion.percent}%</span>
+      </div>
+
+      <div className="required-setup-progress-track" aria-hidden="true">
+        <span style={{ width: `${completion.percent}%` }} />
+      </div>
+
+      <div className="required-setup-progress-items">
+        {items.map((item) => (
+          <button
+            key={item.key}
+            type="button"
+            className={item.isComplete ? "is-complete" : "is-missing"}
+            onClick={() => onJumpToSection(item.sectionId)}
+          >
+            <span>{item.label}</span>
+            <strong>{item.isComplete ? "Done" : "Needed"}</strong>
+          </button>
+        ))}
+      </div>
+    </aside>
+  );
+}
+
 function SaveReviewChecklist({
   acceptedDetectedFieldKeys,
   duplicateCandidate,
@@ -697,6 +709,19 @@ export default function CustomSongForm({
   const strummingPattern = useMemo(() => normalizeStrummingPatternData(form.strummingPattern), [form.strummingPattern]);
   const strummingPatternText = serializeStrummingPattern(strummingPattern);
   const shouldShowPendingGenre = shouldCreatePendingGenre(form.genre, pendingGenre, genres);
+  const requiredSetupItems = useMemo(
+    () =>
+      getRequiredSongSetupItems({
+        chordCount: previewChords.length,
+        difficulty: form.difficulty,
+        genre: form.genre,
+        hasRhythm: hasStrummingPattern(strummingPattern),
+        key: form.key,
+        title: form.title,
+      }),
+    [form.difficulty, form.genre, form.key, form.title, previewChords.length, strummingPattern],
+  );
+  const requiredSetupCompletion = useMemo(() => getRequiredSongSetupCompletion(requiredSetupItems), [requiredSetupItems]);
 
   useEffect(() => {
     if (!defaultOpen) return;
@@ -780,11 +805,6 @@ export default function CustomSongForm({
     setOverriddenDetectedFieldKeys((current) => addUniqueKey(current, fieldKey));
   }
 
-  function handleAcceptDetectedField(fieldKey) {
-    setAcceptedDetectedFieldKeys((current) => addUniqueKey(current, fieldKey));
-    setOverriddenDetectedFieldKeys((current) => removeKey(current, fieldKey));
-    setInfoMessage(`${getDetectedSetupFieldLabel(fieldKey)} accepted for saving.`);
-  }
 
   function updateField(fieldName, value) {
     setForm((current) => {
@@ -1389,7 +1409,7 @@ export default function CustomSongForm({
                 detectedReferenceMarkerSource={detectedReferenceMarkerSource}
                 detectedReferenceMarkers={detectedReferenceMarkers}
                 form={form}
-                onAcceptDetectedField={handleAcceptDetectedField}
+                onAcceptAllDetectedFields={handleAcceptAllDetectedFields}
                 onApplyDetectedReferenceMarkers={handleApplyDetectedReferenceMarkers}
                 onDismissDetectedReferenceMarkers={handleDismissDetectedReferenceMarkers}
                 onManualClick={() => setActiveSetupTab("manual")}
@@ -1622,6 +1642,12 @@ export default function CustomSongForm({
               </div>
             </section>
           </div>
+
+          <RequiredSetupProgress
+            completion={requiredSetupCompletion}
+            items={requiredSetupItems}
+            onJumpToSection={jumpToSetupSection}
+          />
 
           <SaveReviewChecklist
             acceptedDetectedFieldKeys={acceptedDetectedFieldKeys}
