@@ -613,3 +613,53 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* 6D.31 save review jump actions */
+
+.save-review-checklist-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.save-review-checklist-actions button,
+.save-review-checklist-item button {
+  display: inline-flex;
+  min-height: 26px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-primary-border);
+  border-radius: 999px;
+  background: var(--color-primary-soft);
+  color: var(--color-primary-text);
+  padding: 5px 9px;
+  font-size: 11px;
+  font-weight: 950;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.save-review-checklist-actions button:hover,
+.save-review-checklist-item button:hover {
+  background: var(--color-primary-fill);
+  color: var(--color-primary-contrast);
+}
+
+.save-review-checklist-item button {
+  justify-self: start;
+  margin-top: 4px;
+}
+
+.manual-input-section,
+.detected-setup-panel {
+  scroll-margin-top: 92px;
+}
+
+@media (max-width: 620px) {
+  .save-review-checklist-actions {
+    justify-content: flex-start;
+  }
+}

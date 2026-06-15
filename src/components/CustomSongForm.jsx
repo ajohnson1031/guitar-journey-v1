@@ -451,7 +451,7 @@ function DetectedSetupReviewPanel({
   const attentionFields = fieldsWithStatus.filter((field) => field.statusInfo.requiresAction);
 
   return (
-    <section className="detected-setup-panel">
+    <section id="detected-setup-review" className="detected-setup-panel">
       <div className="detected-setup-header">
         <div>
           <p className="eyebrow">Detected Setup</p>
@@ -539,26 +539,36 @@ function getSaveReviewChecklistItems({
 
   return [
     {
+      actionLabel: "Open details",
+      actionSection: "manual-song-details",
       detail: missingRequiredFields.length ? `Missing ${missingRequiredFields.join(", ")}` : "Title, genre, key, and difficulty are ready.",
       label: "Required fields",
       state: missingRequiredFields.length ? "attention" : "complete",
     },
     {
+      actionLabel: hasRhythm ? "Open chords" : "Open rhythm",
+      actionSection: hasRhythm ? "manual-chords-sections" : "manual-rhythm",
       detail: rhythmAndChordsMissing.length ? `Missing ${rhythmAndChordsMissing.join(" and ")}` : "Rhythm and chords are ready.",
       label: "Rhythm & chords",
       state: rhythmAndChordsMissing.length ? "attention" : "complete",
     },
     {
+      actionLabel: "Open timing",
+      actionSection: "manual-reference-timing",
       detail: referenceMarkerCount ? `${referenceMarkerCount} reference marker${referenceMarkerCount === 1 ? "" : "s"} ready.` : "No reference markers yet. Optional, but useful for timed practice.",
       label: "Reference timing",
       state: referenceMarkerCount ? "complete" : "optional",
     },
     {
+      actionLabel: "Review detected",
+      actionSection: "detected-setup-review",
       detail: detectionReviewDetail || "No detected fields accepted yet.",
       label: "Detection review",
       state: acceptedDetectedFieldKeys.length ? "complete" : "optional",
     },
     {
+      actionLabel: duplicateCandidate ? "Review duplicate" : "",
+      actionSection: duplicateCandidate ? "custom-song-duplicate-warning" : "",
       detail: duplicateCandidate ? "A similar saved song needs review before saving." : "No duplicate warning active.",
       label: "Duplicate check",
       state: duplicateCandidate ? "attention" : "complete",
@@ -566,10 +576,33 @@ function getSaveReviewChecklistItems({
   ];
 }
 
+function getAcceptableDetectedFieldKeys({
+  detectedReferenceMarkers = [],
+  form,
+  previewChords = [],
+  referenceMarkerCount = 0,
+  strummingPattern,
+}) {
+  return [
+    form.title.trim() ? "title" : "",
+    form.artist.trim() ? "artist" : "",
+    form.referenceDuration.trim() ? "reference-duration" : "",
+    detectedReferenceMarkers.length || referenceMarkerCount ? "song-chapters" : "",
+    hasStrummingPattern(strummingPattern) ? "strum-pattern" : "",
+    previewChords.length ? "chords" : "",
+    form.genre ? "genre" : "",
+    form.key ? "key" : "",
+    form.difficulty ? "difficulty" : "",
+    form.bpm ? "bpm" : "",
+  ].filter(Boolean);
+}
+
 function SaveReviewChecklist({
   acceptedDetectedFieldKeys,
   duplicateCandidate,
   form,
+  onAcceptAllDetectedFields,
+  onJumpToSection,
   overriddenDetectedFieldKeys,
   previewChords,
   referenceMarkerCount,
@@ -594,7 +627,12 @@ function SaveReviewChecklist({
           <h3>{attentionItems.length ? `${attentionItems.length} item${attentionItems.length === 1 ? "" : "s"} need attention` : "Ready to save"}</h3>
         </div>
 
-        <span>{attentionItems.length ? "Review" : "Ready"}</span>
+        <div className="save-review-checklist-actions">
+          <button type="button" onClick={onAcceptAllDetectedFields}>
+            Accept detected
+          </button>
+          <span>{attentionItems.length ? "Review" : "Ready"}</span>
+        </div>
       </div>
 
       <div className="save-review-checklist-grid">
@@ -602,6 +640,11 @@ function SaveReviewChecklist({
           <div key={item.label} className={`save-review-checklist-item ${getChecklistStateClassName(item.state)}`}>
             <strong>{item.label}</strong>
             <span>{item.detail}</span>
+            {item.actionLabel && item.actionSection ? (
+              <button type="button" onClick={() => onJumpToSection(item.actionSection)}>
+                {item.actionLabel}
+              </button>
+            ) : null}
           </div>
         ))}
       </div>
@@ -1177,6 +1220,49 @@ export default function CustomSongForm({
     onOpenChange(false);
   }
 
+  function jumpToSetupSection(sectionId) {
+    if (sectionId !== "detected-setup-review") {
+      setActiveSetupTab("manual");
+    } else {
+      setActiveSetupTab("detected");
+    }
+
+    const scrollToTarget = () => {
+      const target = globalThis.document?.getElementById?.(sectionId);
+      target?.scrollIntoView?.({
+        behavior: "smooth",
+        block: "start",
+      });
+    };
+
+    if (typeof globalThis.requestAnimationFrame === "function") {
+      globalThis.requestAnimationFrame(scrollToTarget);
+    } else {
+      setTimeout(scrollToTarget, 0);
+    }
+  }
+
+  function handleAcceptAllDetectedFields() {
+    const acceptableKeys = getAcceptableDetectedFieldKeys({
+      detectedReferenceMarkers,
+      form,
+      previewChords,
+      referenceMarkerCount,
+      strummingPattern,
+    });
+
+    if (!acceptableKeys.length) {
+      setWarningMessage("No detected setup fields are ready to accept yet.");
+      return;
+    }
+
+    setAcceptedDetectedFieldKeys((current) =>
+      acceptableKeys.reduce((keys, key) => addUniqueKey(keys, key), current),
+    );
+    setOverriddenDetectedFieldKeys((current) => current.filter((key) => !acceptableKeys.includes(key)));
+    setInfoMessage(`${acceptableKeys.length} detected field${acceptableKeys.length === 1 ? "" : "s"} accepted for saving.`);
+  }
+
   function handleSubmit(event) {
     event.preventDefault();
     saveSong();
@@ -1318,7 +1404,7 @@ export default function CustomSongForm({
             </div>
 
             <div className={`custom-song-tab-panel ${activeSetupTab === "manual" ? "is-active" : "is-inactive"}`} role="tabpanel">
-              <section className="manual-input-section manual-input-section--import">
+              <section id="manual-import-paste" className="manual-input-section manual-input-section--import">
                 <div className="manual-input-section-header">
                   <div>
                     <p className="eyebrow">Import / Paste</p>
@@ -1332,7 +1418,7 @@ export default function CustomSongForm({
                 </div>
               </section>
 
-              <section className="manual-input-section manual-input-section--reference">
+              <section id="manual-reference-timing" className="manual-input-section manual-input-section--reference">
                 <div className="manual-input-section-header">
                   <div>
                     <p className="eyebrow">Reference Timing</p>
@@ -1393,7 +1479,7 @@ export default function CustomSongForm({
           </div>
 
           <div className={`custom-song-tab-panel custom-song-manual-fields ${activeSetupTab === "manual" ? "is-active" : "is-inactive"}`} role="tabpanel">
-            <section className="manual-input-section manual-input-section--details">
+            <section id="manual-song-details" className="manual-input-section manual-input-section--details">
               <div className="manual-input-section-header">
                 <div>
                   <p className="eyebrow">Song Details</p>
@@ -1475,7 +1561,7 @@ export default function CustomSongForm({
               </div>
             </section>
 
-            <section className="manual-input-section manual-input-section--rhythm">
+            <section id="manual-rhythm" className="manual-input-section manual-input-section--rhythm">
               <div className="manual-input-section-header">
                 <div>
                   <p className="eyebrow">Rhythm</p>
@@ -1497,7 +1583,7 @@ export default function CustomSongForm({
               />
             </section>
 
-            <section className="manual-input-section manual-input-section--structure">
+            <section id="manual-chords-sections" className="manual-input-section manual-input-section--structure">
               <div className="manual-input-section-header">
                 <div>
                   <p className="eyebrow">Chords & Sections</p>
@@ -1541,6 +1627,8 @@ export default function CustomSongForm({
             acceptedDetectedFieldKeys={acceptedDetectedFieldKeys}
             duplicateCandidate={duplicateCandidate}
             form={form}
+            onAcceptAllDetectedFields={handleAcceptAllDetectedFields}
+            onJumpToSection={jumpToSetupSection}
             overriddenDetectedFieldKeys={overriddenDetectedFieldKeys}
             previewChords={previewChords}
             referenceMarkerCount={referenceMarkerCount}
@@ -1548,7 +1636,7 @@ export default function CustomSongForm({
           />
 
           {duplicateCandidate ? (
-            <div className="custom-song-duplicate-warning" role="alert">
+            <div id="custom-song-duplicate-warning" className="custom-song-duplicate-warning" role="alert">
               <strong>This looks similar to a song already in your library.</strong>
               <span>{getSongDuplicateLabel(duplicateCandidate)}</span>
             </div>
